@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 const HeaderWrapper = styled.header`
   font-family: 'Pretendard', sans-serif;
-  border-bottom: 1px solid #e5e5e5;
+  
 `;
 
 const TopBar = styled.div`
@@ -13,6 +13,8 @@ const TopBar = styled.div`
   font-size: 18px;
   color: #555;
   gap: 16px;
+  border-bottom: 1px solid #e5e5e5;
+  padding-bottom: 15px;
 `;
 
 const MiddleBar = styled.div`
@@ -28,6 +30,7 @@ const Logo = styled.h1`
   font-size: 40px;
   color: #FB4A67;
   margin-right: 40px;
+  padding-bottom: 3px;
 `;
 
 const SearchInput = styled.input`
@@ -36,6 +39,7 @@ const SearchInput = styled.input`
   border-radius: 32px;
   background-color: #f2f2f2;
   width: 700px;
+  height: 28px;
   font-size: 14px;
 `;
 
