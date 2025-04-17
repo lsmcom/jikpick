@@ -47,8 +47,8 @@ const SectionTitle = styled.h2`
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(4, 1fr); // 한 줄에 4개
+  gap: 20px; // 카드 사이 여백
 `;
 
 const Card = styled.div`
@@ -58,15 +58,23 @@ const Card = styled.div`
   padding: 10px;
   font-size: 20px;
   font-family: 'Pretendard', sans-serif;
+  margin-bottom: 20px;
 `;
 
 const Thumbnail = styled.div`
   width: 100%;
-  height: 120px;
+  height: 250px;
   background-color: #f0f0f0;
   border-radius: 6px;
   margin-bottom: 8px;
 `;
+
+const ItemInfo = styled.div`
+  display: flex;
+  
+
+
+`
 
 const Title = styled.div`
   font-weight: 500;
@@ -83,8 +91,12 @@ const Price = styled.div`
 
 const Like = styled.div`
   color: #FB4A67;
-  text-align: left;
-  font-size: 15px;
+  text-align: right;
+  font-size: 17px;
+  margin-left: 18px;
+  margin-top: 3px;
+  
+  
 `;
 
 export default function Main() {
@@ -158,12 +170,14 @@ export default function Main() {
 
         <SectionTitle>오늘의 상품</SectionTitle>
         <Grid>
-          {Array.from({ length: 12 }).map((_, i) => (
+          {Array.from({ length: 8 }).map((_, i) => (
             <Card key={i}>
               <Thumbnail />
               <Title>패딩/니트 후드티</Title>
+              <ItemInfo>
               <Price>38,000원</Price>
               <Like>❤️ 12</Like>
+              </ItemInfo>
             </Card>
           ))}
         </Grid>
