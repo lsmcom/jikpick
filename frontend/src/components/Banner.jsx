@@ -19,7 +19,7 @@ const Wrapper = styled.div`
 
 const SlideImage = styled.img`
   width: 100%;
-  height: 160px;
+  height: 300px;
   object-fit: cover;
 `;
 

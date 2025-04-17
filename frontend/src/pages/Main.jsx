@@ -14,7 +14,7 @@ const Container = styled.div`
 
 const CategoryBar = styled.div`
   display: flex;
-  gap: 24px;
+  gap: 60px;
   overflow-x: auto;
   margin: 20px 0;
   padding-bottom: 8px;
@@ -30,15 +30,17 @@ const CategoryItem = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 13px;
+  font-size: 20px;
+  font-weight: bold;
   color: #444;
   min-width: 60px;
   flex-shrink: 0;
 `;
 
 const SectionTitle = styled.h2`
-  font-size: 16px;
+  font-size: 30px;
   font-weight: 600;
+  text-align: left;
   margin: 24px 0 12px;
   font-family: 'Pretendard', sans-serif;
 `;
@@ -54,7 +56,7 @@ const Card = styled.div`
   border: 1px solid #eee;
   border-radius: 8px;
   padding: 10px;
-  font-size: 14px;
+  font-size: 20px;
   font-family: 'Pretendard', sans-serif;
 `;
 
@@ -68,17 +70,21 @@ const Thumbnail = styled.div`
 
 const Title = styled.div`
   font-weight: 500;
+  text-align: left;
   margin-bottom: 4px;
 `;
 
 const Price = styled.div`
   color: #222;
+  font-weight : bold;
+  text-align: left;
   margin-bottom: 4px;
 `;
 
 const Like = styled.div`
   color: #FB4A67;
-  font-size: 12px;
+  text-align: left;
+  font-size: 15px;
 `;
 
 export default function Main() {
@@ -119,6 +125,7 @@ export default function Main() {
     { name: '자전거' },
     { name: '생활용품' },
     { name: '닌텐도' },
+    { name: '의류' },
   ];
 
   return (
@@ -137,10 +144,11 @@ export default function Main() {
           {categories.map((c) => (
             <CategoryItem key={c.name}>
               <div style={{
-                width: '40px',
-                height: '40px',
+                width: '120px',
+                height: '120px',
+                fontWeight: 'bold',
                 backgroundColor: '#eee',
-                borderRadius: '50%',
+                borderRadius: '10%',
                 marginBottom: '6px'
               }} />
               {c.name}
