@@ -5,6 +5,8 @@ import box from '../assets/icon/Logo.svg';
 import search from '../assets/icon/SearchIcon.svg';
 import ping from '../assets/icon/LocationPing.svg';
 import menu from '../assets/icon/Menu.svg';
+import CategoryDropdown from './CategoryDropdown';
+import { useState } from 'react';
 
 const HeaderWrapper = styled.header`
   font-family: 'Pretendard', sans-serif;
@@ -87,6 +89,11 @@ const BottomBar = styled.div`
   font-size: 20px;
 `;
 
+const MenuWrapper = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+
 const LocationSetting = styled.div`
   display: flex;
   justify-content: center;
@@ -105,6 +112,8 @@ const LocationIcon = styled.img`
 `;
 
 export default function Header({ isLoggedIn }) {
+  const [showCategory, setShowCategory] = useState(false);
+
   return (
     <HeaderWrapper>
       <TopBar>
@@ -135,9 +144,16 @@ export default function Header({ isLoggedIn }) {
       </MiddleBar>
 
       <BottomBar>
-        <MenuIcon src={menu}></MenuIcon>
+        <MenuWrapper
+          onMouseEnter={() => setShowCategory(true)}
+          onMouseLeave={() => setShowCategory(false)}
+        >
+        <MenuIcon src={menu} />
+          {showCategory && <CategoryDropdown />}
+        </MenuWrapper>
+
         <LocationSetting>
-          <LocationIcon src={ping}></LocationIcon>
+          <LocationIcon src={ping} />
           <Link to="/location">지역설정</Link>
         </LocationSetting>
         <Link to="/branches">직픽지점 조회</Link>
