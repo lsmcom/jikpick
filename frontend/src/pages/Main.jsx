@@ -6,8 +6,14 @@ import { useRef } from 'react';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
+const MainWrapper = styled.div`
+  flex-direction: column;
+  display: flex;
+  align-items: center;
+`
+
 const Container = styled.div`
-  max-width: 1200px;
+  width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
 `;
@@ -71,9 +77,6 @@ const Thumbnail = styled.div`
 
 const ItemInfo = styled.div`
   display: flex;
-  
-
-
 `
 
 const Title = styled.div`
@@ -95,8 +98,6 @@ const Like = styled.div`
   font-size: 17px;
   margin-left: 18px;
   margin-top: 3px;
-  
-  
 `;
 
 export default function Main() {
@@ -141,7 +142,7 @@ export default function Main() {
   ];
 
   return (
-    <div>
+    <MainWrapper>
       <Header isLoggedIn={false} />
       <Container>
         <Banner />
@@ -183,6 +184,6 @@ export default function Main() {
         </Grid>
       </Container>
       <Footer />
-    </div>
+    </MainWrapper>
   );
 }
