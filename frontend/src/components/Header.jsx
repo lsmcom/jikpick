@@ -126,6 +126,10 @@ const TopLink = styled(Link)`
   font-weight: 600;
 `;
 
+const MiddleLink = styled(Link)`
+  font-weight: 600;
+`;
+
 const BottomLink = styled(Link)`
   font-weight: 600;
 `;
@@ -157,13 +161,12 @@ export default function Header({ isLoggedIn }) {
             </SearchBar>
           </div>
           <MiddleRight>
-            <Link to="/sell">판매하기</Link>
-            <Link to="/profile">프로필</Link>
-            <Link to="/chat">직픽톡</Link>
+            <MiddleLink to="/sell">판매하기</MiddleLink>
+            <MiddleLink to="/profile">프로필</MiddleLink>
+            <MiddleLink to="/chat">직픽톡</MiddleLink>
           </MiddleRight>
         </MiddleBar>
-
-        <BottomBar>
+       <BottomBar>
           <MenuWrapper
             onMouseEnter={() => setShowCategory(true)}
             onMouseLeave={() => setShowCategory(false)}
