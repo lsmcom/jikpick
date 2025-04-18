@@ -10,6 +10,7 @@ const MainWrapper = styled.div`
   flex-direction: column;
   display: flex;
   align-items: center;
+  width: 100%;
 `
 
 const Container = styled.div`

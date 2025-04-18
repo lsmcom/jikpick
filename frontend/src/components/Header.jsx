@@ -10,8 +10,13 @@ import { useState } from 'react';
 
 const HeaderWrapper = styled.header`
   font-family: 'Pretendard', sans-serif;
-  width: 1200px;
+  width: 100%;
 `;
+
+const HeadContainer = styled.div`
+  width: 1200px;
+  margin: 0 auto;
+`
 
 const TopBar = styled.div`
   display: flex;
@@ -116,48 +121,50 @@ export default function Header({ isLoggedIn }) {
 
   return (
     <HeaderWrapper>
-      <TopBar>
-        {isLoggedIn ? (
-          <Link to="/logout">로그아웃</Link>
-        ) : (
-          <>
-            <Link to="/login">로그인</Link>
-            <Link to="/signup">회원가입</Link>
-          </>
-        )}
-      </TopBar>
+      <HeadContainer>
+        <TopBar>
+          {isLoggedIn ? (
+            <Link to="/logout">로그아웃</Link>
+          ) : (
+            <>
+              <Link to="/login">로그인</Link>
+              <Link to="/signup">회원가입</Link>
+            </>
+          )}
+        </TopBar>
 
-      <MiddleBar>
-        <div style={{ display: 'flex', alignItems: 'center'}}>
-          <LogoIcon src={box}></LogoIcon>
-          <Logo>JIKPICK</Logo>
-          <SearchBar>
-            <SearchInput placeholder="상품명, 지점명으로 검색" />
-            <SearchIcon src={search}></SearchIcon>
-          </SearchBar>
-        </div>
-        <MiddleRight>
-          <Link to="/sell">판매하기</Link>
-          <Link to="/profile">프로필</Link>
-          <Link to="/chat">직픽톡</Link>
-        </MiddleRight>
-      </MiddleBar>
+        <MiddleBar>
+          <div style={{ display: 'flex', alignItems: 'center'}}>
+            <LogoIcon src={box}></LogoIcon>
+            <Logo>JIKPICK</Logo>
+            <SearchBar>
+              <SearchInput placeholder="상품명, 지점명으로 검색" />
+              <SearchIcon src={search}></SearchIcon>
+            </SearchBar>
+          </div>
+          <MiddleRight>
+            <Link to="/sell">판매하기</Link>
+            <Link to="/profile">프로필</Link>
+            <Link to="/chat">직픽톡</Link>
+          </MiddleRight>
+        </MiddleBar>
 
-      <BottomBar>
-        <MenuWrapper
-          onMouseEnter={() => setShowCategory(true)}
-          onMouseLeave={() => setShowCategory(false)}
-        >
-        <MenuIcon src={menu} />
-          {showCategory && <CategoryDropdown />}
-        </MenuWrapper>
+        <BottomBar>
+          <MenuWrapper
+            onMouseEnter={() => setShowCategory(true)}
+            onMouseLeave={() => setShowCategory(false)}
+          >
+          <MenuIcon src={menu} />
+            {showCategory && <CategoryDropdown />}
+          </MenuWrapper>
 
-        <LocationSetting>
-          <LocationIcon src={ping} />
-          <Link to="/location">지역설정</Link>
-        </LocationSetting>
-        <Link to="/branches">직픽지점 조회</Link>
-      </BottomBar>
+          <LocationSetting>
+            <LocationIcon src={ping} />
+            <Link to="/location">지역설정</Link>
+          </LocationSetting>
+          <Link to="/branches">직픽지점 조회</Link>
+        </BottomBar>
+      </HeadContainer>
     </HeaderWrapper>
   );
 }
