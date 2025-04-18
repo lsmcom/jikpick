@@ -16,12 +16,12 @@ const HeaderWrapper = styled.header`
 const HeadContainer = styled.div`
   width: 1200px;
   margin: 0 auto;
-`
+`;
 
 const TopBar = styled.div`
   display: flex;
   justify-content: flex-end;
-  padding: 8px 24px;
+  padding: 8px 0px;
   font-size: 18px;
   color: #555;
   gap: 16px;
@@ -33,14 +33,14 @@ const MiddleBar = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 24px;
+  padding: 12px 0px;
 `;
 
 const LogoIcon = styled.img`
   width: 35px;
   height: 35px;
   margin-right: 3px;
-`
+`;
 
 const Logo = styled.h1`
   font-family: 'Poppins', sans-serif;
@@ -53,15 +53,16 @@ const Logo = styled.h1`
 
 const SearchBar = styled.div`
   position: relative;
-  width: 650px;
-`
+  width: 680px;
+  margin-top: 4px;
+`;
 
 const SearchInput = styled.input`
   width: 100%;
   height: 20px;
   padding: 10px 20px;
   padding-right: 0px;
-  margin-right: 45px; /* 오른쪽에 아이콘 들어갈 공간 확보 */
+  margin-right: 45px;
   border: none;
   border-radius: 32px;
   background-color: #f2f2f2;
@@ -90,7 +91,7 @@ const BottomBar = styled.div`
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 12px 24px;
+  height: 50px;
   font-size: 20px;
 `;
 
@@ -101,6 +102,7 @@ const MenuWrapper = styled.div`
 
 const LocationSetting = styled.div`
   display: flex;
+  align-items: center;
   justify-content: center;
 `;
 
@@ -108,12 +110,28 @@ const MenuIcon = styled.img`
   width: 26px;
   height: 26px;
   cursor: pointer;
+  position: relative;
+  top: 2px;
 `;
 
 const LocationIcon = styled.img`
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   margin-right: 3px;
+  position: relative;
+  top: 0px;
+`;
+
+const TopLink = styled(Link)`
+  font-weight: 600;
+`;
+
+const MiddleLink = styled(Link)`
+  font-weight: 600;
+`;
+
+const BottomLink = styled(Link)`
+  font-weight: 600;
 `;
 
 export default function Header({ isLoggedIn }) {
@@ -124,17 +142,17 @@ export default function Header({ isLoggedIn }) {
       <HeadContainer>
         <TopBar>
           {isLoggedIn ? (
-            <Link to="/logout">로그아웃</Link>
+            <TopLink to="/logout">로그아웃</TopLink>
           ) : (
             <>
-              <Link to="/login">로그인</Link>
-              <Link to="/signup">회원가입</Link>
+              <TopLink to="/login">로그인</TopLink>
+              <TopLink to="/signup">회원가입</TopLink>
             </>
           )}
         </TopBar>
 
         <MiddleBar>
-          <div style={{ display: 'flex', alignItems: 'center'}}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             <LogoIcon src={box}></LogoIcon>
             <Logo>JIKPICK</Logo>
             <SearchBar>
@@ -143,26 +161,25 @@ export default function Header({ isLoggedIn }) {
             </SearchBar>
           </div>
           <MiddleRight>
-            <Link to="/sell">판매하기</Link>
-            <Link to="/profile">프로필</Link>
-            <Link to="/chat">직픽톡</Link>
+            <MiddleLink to="/sell">판매하기</MiddleLink>
+            <MiddleLink to="/profile">프로필</MiddleLink>
+            <MiddleLink to="/chat">직픽톡</MiddleLink>
           </MiddleRight>
         </MiddleBar>
-
-        <BottomBar>
+       <BottomBar>
           <MenuWrapper
             onMouseEnter={() => setShowCategory(true)}
             onMouseLeave={() => setShowCategory(false)}
           >
-          <MenuIcon src={menu} />
+            <MenuIcon src={menu} />
             {showCategory && <CategoryDropdown />}
           </MenuWrapper>
 
           <LocationSetting>
             <LocationIcon src={ping} />
-            <Link to="/location">지역설정</Link>
+            <BottomLink to="/location">지역설정</BottomLink>
           </LocationSetting>
-          <Link to="/branches">직픽지점 조회</Link>
+          <BottomLink to="/branches">직픽지점 조회</BottomLink>
         </BottomBar>
       </HeadContainer>
     </HeaderWrapper>
