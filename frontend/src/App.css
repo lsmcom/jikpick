@@ -3,6 +3,10 @@ a {
   text-decoration: none;
 }
 
+body {
+  font-family: 'Pretendard', sans-serif;
+}
+
 a:hover {
   text-decoration: none;
 }

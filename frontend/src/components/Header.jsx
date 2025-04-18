@@ -16,7 +16,7 @@ const HeaderWrapper = styled.header`
 const TopBar = styled.div`
   display: flex;
   justify-content: flex-end;
-  padding: 8px 24px;
+  padding: 8px 0px;
   font-size: 18px;
   color: #555;
   gap: 16px;
@@ -28,7 +28,7 @@ const MiddleBar = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 24px;
+  padding: 12px 0px;
 `;
 
 const LogoIcon = styled.img`
@@ -85,7 +85,7 @@ const BottomBar = styled.div`
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 12px 24px;
+  padding: 12px 0px;
   font-size: 20px;
 `;
 
