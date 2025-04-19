@@ -1,6 +1,5 @@
-// src/components/Header.jsx
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import box from '../assets/icon/Logo.svg';
 import search from '../assets/icon/SearchIcon.svg';
 import ping from '../assets/icon/LocationPing.svg';
@@ -11,29 +10,41 @@ import { useState } from 'react';
 const HeaderWrapper = styled.header`
   font-family: 'Pretendard', sans-serif;
   width: 100%;
+  background-color: white;
+  border-bottom: 1px solid #e5e5e5;
 `;
 
-const HeadContainer = styled.div`
-  width: 1200px;
+const Inner = styled.div`
+  max-width: 1200px;
   margin: 0 auto;
+  padding: 0 24px;
 `;
 
 const TopBar = styled.div`
   display: flex;
   justify-content: flex-end;
-  padding: 8px 0px;
+  padding: 8px 0;
   font-size: 18px;
   color: #555;
   gap: 16px;
-  border-bottom: 1px solid #e5e5e5;
-  padding-bottom: 15px;
+
+  a {
+    text-decoration: none;
+    color: #555;
+  }
 `;
 
 const MiddleBar = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 0px;
+  padding: 12px 0;
+`;
+
+const LogoLink = styled(Link)`
+  display: flex;
+  align-items: center;
+  text-decoration: none;
 `;
 
 const LogoIcon = styled.img`
@@ -85,14 +96,34 @@ const MiddleRight = styled.div`
   gap: 24px;
   font-size: 20px;
   font-weight: 500;
+
+  a {
+    text-decoration: none;
+    color: #333;
+
+    &.active {
+      color: #FB4A67;
+      font-weight: bold;
+    }
+  }
 `;
 
 const BottomBar = styled.div`
   display: flex;
   align-items: center;
   gap: 16px;
-  height: 50px;
+  padding: 12px 0;
   font-size: 20px;
+
+  a {
+    text-decoration: none;
+    color: #333;
+
+    &.active {
+      color: #FB4A67;
+      font-weight: bold;
+    }
+  }
 `;
 
 const MenuWrapper = styled.div`
@@ -122,51 +153,42 @@ const LocationIcon = styled.img`
   top: 0px;
 `;
 
-const TopLink = styled(Link)`
-  font-weight: 600;
-`;
-
-const MiddleLink = styled(Link)`
-  font-weight: 600;
-`;
-
-const BottomLink = styled(Link)`
-  font-weight: 600;
-`;
-
 export default function Header({ isLoggedIn }) {
   const [showCategory, setShowCategory] = useState(false);
 
   return (
     <HeaderWrapper>
-      <HeadContainer>
+      <Inner>
         <TopBar>
           {isLoggedIn ? (
-            <TopLink to="/logout">로그아웃</TopLink>
+            <NavLink to="/logout">로그아웃</NavLink>
           ) : (
             <>
-              <TopLink to="/login">로그인</TopLink>
-              <TopLink to="/signup">회원가입</TopLink>
+              <NavLink to="/login">로그인</NavLink>
+              <NavLink to="/signup">회원가입</NavLink>
             </>
           )}
         </TopBar>
 
         <MiddleBar>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <LogoIcon src={box}></LogoIcon>
-            <Logo>JIKPICK</Logo>
+            <LogoLink to="/">
+              <LogoIcon src={box} />
+              <Logo>JIKPICK</Logo>
+            </LogoLink>
             <SearchBar>
               <SearchInput placeholder="상품명, 지점명으로 검색" />
-              <SearchIcon src={search}></SearchIcon>
+              <SearchIcon src={search} />
             </SearchBar>
           </div>
           <MiddleRight>
-            <MiddleLink to="/sell">판매하기</MiddleLink>
-            <MiddleLink to="/profile">프로필</MiddleLink>
-            <MiddleLink to="/chat">직픽톡</MiddleLink>
+            <NavLink to="/register">판매하기</NavLink>
+            <NavLink to="/profile">프로필</NavLink>
+            <NavLink to="/chat">직픽톡</NavLink>
           </MiddleRight>
         </MiddleBar>
-       <BottomBar>
+
+        <BottomBar>
           <MenuWrapper
             onMouseEnter={() => setShowCategory(true)}
             onMouseLeave={() => setShowCategory(false)}
@@ -177,11 +199,11 @@ export default function Header({ isLoggedIn }) {
 
           <LocationSetting>
             <LocationIcon src={ping} />
-            <BottomLink to="/location">지역설정</BottomLink>
+            <NavLink to="/location">지역설정</NavLink>
           </LocationSetting>
-          <BottomLink to="/branches">직픽지점 조회</BottomLink>
+          <NavLink to="/branches">직픽지점 조회</NavLink>
         </BottomBar>
-      </HeadContainer>
+      </Inner>
     </HeaderWrapper>
   );
 }
