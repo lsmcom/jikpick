@@ -30,6 +30,7 @@ const TopBar = styled.div`
   a {
     text-decoration: none;
     color: #555;
+    font-weight: 600;
   }
 `;
 
@@ -99,6 +100,7 @@ const MiddleRight = styled.div`
   a {
     text-decoration: none;
     color: #333;
+    font-weight: 600;
 
     &.active {
       color: #FB4A67;
@@ -117,6 +119,7 @@ const BottomBar = styled.div`
   a {
     text-decoration: none;
     color: #333;
+    font-weight: 600;
 
     &.active {
       color: #FB4A67;
