@@ -10,14 +10,11 @@ import { useState } from 'react';
 const HeaderWrapper = styled.header`
   font-family: 'Pretendard', sans-serif;
   width: 100%;
-  background-color: white;
-  border-bottom: 1px solid #e5e5e5;
 `;
 
-const Inner = styled.div`
+const HeadContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px;
 `;
 
 const TopBar = styled.div`
@@ -27,6 +24,8 @@ const TopBar = styled.div`
   font-size: 18px;
   color: #555;
   gap: 16px;
+  border-bottom: 1px solid #e5e5e5;
+  padding-bottom: 15px;
 
   a {
     text-decoration: none;
@@ -158,7 +157,7 @@ export default function Header({ isLoggedIn }) {
 
   return (
     <HeaderWrapper>
-      <Inner>
+      <HeadContainer>
         <TopBar>
           {isLoggedIn ? (
             <NavLink to="/logout">로그아웃</NavLink>
@@ -203,7 +202,7 @@ export default function Header({ isLoggedIn }) {
           </LocationSetting>
           <NavLink to="/branches">직픽지점 조회</NavLink>
         </BottomBar>
-      </Inner>
+      </HeadContainer>
     </HeaderWrapper>
   );
 }
