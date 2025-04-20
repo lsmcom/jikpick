@@ -1,14 +1,16 @@
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
 import './App.css';
 import Main from './pages/Main';
-import ProductRegistration from './pages/ProductRegistration';
+import ProductUpload from './pages/ProductUpload'
+import MyPage from './pages/MyPage';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Main />} />
-        <Route path="/register" element={<ProductRegistration />} />
+        <Route path="/productUpload" element={<ProductUpload />} />
+        <Route path="/myPage" element={<MyPage />} />
       </Routes>
     </BrowserRouter>
   );
