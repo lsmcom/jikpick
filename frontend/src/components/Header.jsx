@@ -184,8 +184,8 @@ export default function Header({ isLoggedIn }) {
             </SearchBar>
           </div>
           <MiddleRight>
-            <NavLink to="/register">판매하기</NavLink>
-            <NavLink to="/profile">프로필</NavLink>
+            <NavLink to="/productUpload">판매하기</NavLink>
+            <NavLink to="/myPage">프로필</NavLink>
             <NavLink to="/chat">직픽톡</NavLink>
           </MiddleRight>
         </MiddleBar>
