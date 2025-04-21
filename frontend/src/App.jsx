@@ -15,7 +15,6 @@ function App() {
         <Route path="/product/:id" element={<ProductDetail/>}/>
         <Route path="/myPage" element={<MyPage />} />
         <Route path="/myShop" element={<SellerStore/>}/>
-        {/* 오류해결을 위한 주석 */}
       </Routes>
     </BrowserRouter>
   );
