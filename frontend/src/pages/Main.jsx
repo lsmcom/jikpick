@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import { useRef } from 'react';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
+import { Link } from 'react-router-dom';
 
 const MainWrapper = styled.div`
   flex-direction: column;
@@ -173,6 +174,7 @@ export default function Main() {
         <SectionTitle>오늘의 상품</SectionTitle>
         <Grid>
           {Array.from({ length: 8 }).map((_, i) => (
+            <Link to={`/product/${i + 1}`} key={i} style={{ textDecoration: 'none', color: 'inherit' }}>
             <Card key={i}>
               <Thumbnail />
               <Title>패딩/니트 후드티</Title>
@@ -181,6 +183,7 @@ export default function Main() {
               <Like>❤️ 12</Like>
               </ItemInfo>
             </Card>
+          </Link>
           ))}
         </Grid>
       </Container>
