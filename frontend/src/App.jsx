@@ -4,6 +4,8 @@ import './App.css';
 
 // 페이지 컴포넌트
 import Main from './pages/Main';
+import LoginForm from './pages/LoginForm'
+import JoinAgree from './pages/JoinAgree'
 import ProductUpload from './pages/ProductUpload';
 import ProductOrder from './pages/ProductOrder';
 import OrderSuccess from './pages/OrderSuccess';
@@ -17,6 +19,9 @@ function App() {
       <Routes>
 
         {/* 각 페이지 라우팅 */}
+        <Route path="/login" element={<LoginForm />} />
+        <Route path="/signup" element={<JoinAgree />} />
+        <Route path="/upload" element={<ProductUpload />} />
         <Route path="/upload" element={<ProductUpload />} />
         <Route path="/order" element={<ProductOrder />} />
         <Route path="/order/success" element={<OrderSuccess />} />
