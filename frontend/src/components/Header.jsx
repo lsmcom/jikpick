@@ -15,17 +15,17 @@ const HeaderWrapper = styled.header`
 const HeadContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 16px;
 `;
 
 const TopBar = styled.div`
   display: flex;
   justify-content: flex-end;
-  padding: 8px 0;
+  padding: 8px 0 15px;
   font-size: 18px;
   color: #555;
   gap: 16px;
   border-bottom: 1px solid #e5e5e5;
-  padding-bottom: 15px;
 
   a {
     text-decoration: none;
@@ -39,18 +39,33 @@ const MiddleBar = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 12px 0;
+  flex-wrap: wrap;
+  gap: 32px;
+  margin-top: 15px;
+`;
+
+const LeftContainer = styled.div`
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  gap: 16px;
+  overflow: hidden;
 `;
 
 const LogoLink = styled(Link)`
   display: flex;
   align-items: center;
   text-decoration: none;
+  flex-shrink: 0;
+  height: 60px;
 `;
 
 const LogoIcon = styled.img`
   width: 35px;
   height: 35px;
   margin-right: 3px;
+  flex-shrink: 0;
 `;
 
 const Logo = styled.h1`
@@ -58,44 +73,52 @@ const Logo = styled.h1`
   font-weight: 700;
   font-size: 40px;
   color: #FB4A67;
-  margin-right: 40px;
   padding-bottom: 3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-right: 24px;
 `;
 
 const SearchBar = styled.div`
-  position: relative;
-  width: 680px;
-  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f1f1f1;
+  /* border: 2px solid #cccccc; */
+  border-radius: 32px;
+  flex: 1;
+  min-width: 120px;
+  padding: 0 20px;
+  height: 50px;
+  transition: box-shadow 0.2s;
+
+  &:focus-within {
+    box-shadow: inset 0 0 0 2px #FB4A67; 
+    border: none;
+  }
 `;
 
+
 const SearchInput = styled.input`
-  width: 100%;
-  height: 20px;
-  padding: 10px 20px;
-  padding-right: 0px;
-  margin-right: 45px;
+  flex: 1;
   border: none;
-  border-radius: 32px;
-  background-color: #f2f2f2;
-  font-size: 14px;
+  background: transparent;
+  font-size: 16px;
+  outline: none;
 `;
 
 const SearchIcon = styled.img`
-  position: absolute;
-  right: 0px;
-  top: 50%;
-  transform: translateY(-50%);
   width: 20px;
   height: 20px;
-  pointer-events: none;
 `;
 
 const MiddleRight = styled.div`
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 20px;
   font-size: 20px;
   font-weight: 500;
+  flex-shrink: 0;
 
   a {
     text-decoration: none;
@@ -148,8 +171,8 @@ const MenuIcon = styled.img`
 `;
 
 const LocationIcon = styled.img`
-  width: 20px;
-  height: 20px;
+  width: 25px;
+  height: 25px;
   margin-right: 3px;
   position: relative;
   top: 0px;
@@ -173,7 +196,7 @@ export default function Header({ isLoggedIn }) {
         </TopBar>
 
         <MiddleBar>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          <LeftContainer>
             <LogoLink to="/">
               <LogoIcon src={box} />
               <Logo>JIKPICK</Logo>
@@ -182,9 +205,10 @@ export default function Header({ isLoggedIn }) {
               <SearchInput placeholder="상품명, 지점명으로 검색" />
               <SearchIcon src={search} />
             </SearchBar>
-          </div>
+          </LeftContainer>
+
           <MiddleRight>
-            <NavLink to="/productUpload">판매하기</NavLink>
+            <NavLink to="/upload">판매하기</NavLink>
             <NavLink to="/myPage">프로필</NavLink>
             <NavLink to="/chat">직픽톡</NavLink>
           </MiddleRight>

@@ -5,7 +5,7 @@ const SellerWrapper = styled.div`
   display: flex;
   align-items: center;
   gap: 16px;
-  width: 1100px;
+  width: 1200px;
   padding: 45px 0;
   border-top: 1px solid #eee;
   border-bottom: 1px solid #eee;
@@ -19,20 +19,34 @@ const ProfileImage = styled.img`
   object-fit: cover;
 `;
 
+
+const Rating = styled.p`
+  font-size: 14px;
+  color: #555;
+  margin: 2px 0;
+`;
 const SellerInfo = styled.div`
   p {
+
+    font-size: 18px;
+
     margin: 4px 0;
   }
 `;
 
 export default function SellerProfile({ seller }) {
   return (
-    <SellerWrapper>
-      <ProfileImage src={seller.profileImage} alt="프로필 이미지" />
-      <SellerInfo>
-        <p><strong>{seller.name}</strong> · {seller.rating.toFixed(1)} (14)</p>
-        <p>상품 6개</p> {/* 실제 상품 수는 추후 props로 분리 가능 */}
-      </SellerInfo>
-    </SellerWrapper>
+<SellerWrapper>
+  <ProfileImage src={seller.profileImage} alt="프로필 이미지" />
+  <SellerInfo>
+    <p>
+      <strong>{seller.name}</strong>
+      &nbsp;
+      <span style={{ color: '#ffe600' }}>⭐</span> {seller.rating.toFixed(1)} (14)
+    </p>
+    <p>상품 6개</p>
+  </SellerInfo>
+</SellerWrapper>
+
   );
 }

@@ -107,7 +107,7 @@ const SaleIcon = styled.img`
 const SalesCount = styled.div`
   display: flex; // 아이콘 + 텍스트 나란히
   align-items: center;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   gap: 6px; // 아이콘과 텍스트 사이 간격
 `;
@@ -120,7 +120,7 @@ const RatingRow = styled.div`
   font-size: 24px;
   font-weight: 600;
   color: #666;
-  margin-left: 60px;
+  margin-left: 10px;
   align-self: flex-start;
 `;
 
@@ -226,9 +226,7 @@ export default function MyPage() {
             {/* 세션 구분 밑줄 */}
             <SectionDivider />
 
-            {/* 메뉴 항목들 */}
-            <MenuItem to="/location">지역 변경하기<RightIcon src={rightIcon} alt="화살표" /></MenuItem>
-
+           
             <MenuItem to="/shopLike">
             <ItemLeft>
                 <MenuIcon src={heartIcon} alt="관심목록" />

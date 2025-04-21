@@ -40,7 +40,7 @@ const SellerBox = styled.div`
   padding: 40px 0;
   border-bottom: 1px solid #eee;
   margin: auto;
-  width: 1100px;
+  width: 1200px;
 `;
 
 const ProfileImage = styled.img`
