@@ -9,6 +9,8 @@ import shoes from '../assets/images/shoes.jpg';
 import profileImg from '../assets/images/profile1.jpg';
 import ReviewTab from '../components/ProductDetail/ReviewTab'; // 
 
+
+
 const Container = styled.div`
   max-width: 1200px;
   margin: 40px auto;
@@ -17,18 +19,18 @@ const Container = styled.div`
 
 const ProductTop = styled.div`
   
-  width: 1100px;
+  width: 1200px;
   display: flex;
   gap: 60px;
   margin: 30px auto 0 auto;
   padding: 10px;
-  height: 480px;
+  height: 400px;
 
 `;
 
 const ProductImage = styled.img`
-  width: 480px;
-  height: 480px;
+  width: 400px;
+  height: 400px;
   object-fit: cover;
   border-radius: 0px;
   margin-top: 10px;

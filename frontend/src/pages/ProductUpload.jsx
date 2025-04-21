@@ -81,7 +81,7 @@ const ImageUploadBox = styled.label`
   justify-content: center;
   cursor: pointer;
   color: #999;
-  font-size: 14px;
+  font-size: 16px;
   position: relative;
 `;
 
@@ -219,7 +219,7 @@ const Input = styled.input`
 
 // 🔢 글자 수 또는 태그 개수 등을 표시하는 작은 회색 텍스트
 const CharCount = styled.span`
-  font-size: 13px;
+  font-size: 16px;
   color: #999;
   width: 50px;
   text-align: right;
@@ -301,7 +301,7 @@ const Tag = styled.div`
   color: white;
   padding: 6px 12px;
   border-radius: 20px; // 둥근 모양
-  font-size: 14px;
+  font-size: 16px;
   display: flex;
   align-items: center;
   gap: 8px; // 텍스트와 X 버튼 사이 간격
@@ -344,7 +344,7 @@ const TagInput = styled.input`
 
 // 🔢 태그 개수 카운터
 const TagCount = styled.span`
-  font-size: 13px;
+  font-size: 16px;
   color: #999;
   width: 50px;
   text-align: right;
@@ -359,7 +359,7 @@ const GuideBox = styled.ul`
   border-radius: 12px;
   border: 1px solid #eee;
   width: 700px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   color: #666;
   line-height: 1.6;
@@ -407,7 +407,7 @@ const ConditionTitle = styled.span`
 
 // 💬 상품 상태의 설명 텍스트 (예: "눈에 띄는 흔적이나 얼룩이 약간 있음")
 const ConditionDesc = styled.span`
-  font-size: 13px;
+  font-size: 16px;
   color: #777;
   line-height: 1.4;
 `;
@@ -450,7 +450,7 @@ const TextCount = styled.span`
   position: absolute;
   bottom: 10px;
   right: 16px;
-  font-size: 13px;
+  font-size: 16px;
   color: #999;
 `;
 
@@ -523,7 +523,7 @@ const RoundCheckbox = styled.span`
   background-color: ${({ checked }) => (checked ? '#FB4A67' : '#fff')};
   border: 1.5px solid #ccc;
   margin-right: 8px;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: bold;
   line-height: 1;
   text-align: center;
@@ -664,7 +664,7 @@ const TradeRow = styled.div`
   align-items: center;
   margin-bottom: 22px;
   justify-content: flex-start;
-  gap: 30px;
+  gap: 58px;
 `;
 
 // 🔹 거래 유효시간 드롭다운 (예: 3일, 5일 등)
@@ -705,15 +705,15 @@ const TradeInfo = styled.ul`
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: center;
-  gap: 200px;
+  gap: 50px;
   margin-top: 80px;
 `;
 
 // 🔹 임시저장 버튼
 const SaveButton = styled.button`
-  width: 240px;
+  width: 300px;
   height: 50px;
-  border: 1px solid #ccc;
+  border: none;
   background-color: #f1f1f1;
   border-radius: 12px;
   font-size: 18px;
@@ -728,7 +728,7 @@ const SaveButton = styled.button`
 
 // 🔹 등록하기 버튼 (메인 액션 버튼, 빨간색 강조)
 const SubmitButton = styled.button`
-  width: 240px;
+  width: 300px;
   height: 50px;
   border: none;
   background-color: #FB4A67; // 브랜드 핑크색

@@ -83,7 +83,8 @@ const SearchBar = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #f2f2f2;
+  background-color: #f1f1f1;
+  /* border: 2px solid #cccccc; */
   border-radius: 32px;
   flex: 1;
   min-width: 120px;
@@ -93,6 +94,7 @@ const SearchBar = styled.div`
 
   &:focus-within {
     box-shadow: inset 0 0 0 2px #FB4A67; 
+    border: none;
   }
 `;
 
@@ -206,8 +208,8 @@ export default function Header({ isLoggedIn }) {
           </LeftContainer>
 
           <MiddleRight>
-            <NavLink to="/register">판매하기</NavLink>
-            <NavLink to="/profile">프로필</NavLink>
+            <NavLink to="/upload">판매하기</NavLink>
+            <NavLink to="/myPage">프로필</NavLink>
             <NavLink to="/chat">직픽톡</NavLink>
           </MiddleRight>
         </MiddleBar>

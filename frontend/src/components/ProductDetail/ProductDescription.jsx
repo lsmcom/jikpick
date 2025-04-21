@@ -7,7 +7,7 @@ const DescriptionWrapper = styled.div`
   font-size: 20px;
   /* margin-bottom: 0px auto 0px auto; */
   margin:20px auto 20px auto;
-  width: 1100px;
+  width: 1200px;
   padding: 10px;
 `;
 

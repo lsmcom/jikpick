@@ -6,19 +6,19 @@ import ProductCardGrid from './ProductCardGrid'; // 판매상품 카드 컴포�
 
 const TabWrapper = styled.div`
   margin-top: 40px;
-  width: 1100px;
+  width: 1200px;
   margin: 40px auto 0 auto;
 `;
 
 const TabMenu = styled.div`
   display: flex;
   gap: 32px;
-  font-size: 18px;
   font-weight: bold;
   margin-bottom: 20px;
 `;
 
 const Tab = styled.button`
+  font-size: 18px;
   background: none;
   border: none;
   cursor: pointer;
@@ -35,7 +35,7 @@ export default function ReviewTab() {
     <TabWrapper>
       <TabMenu>
         <Tab active={activeTab === 'product'} onClick={() => setActiveTab('product')}>
-          판매 상품(6)
+          판매상품(6)
         </Tab>
         <Tab active={activeTab === 'review'} onClick={() => setActiveTab('review')}>
           상품후기(21)

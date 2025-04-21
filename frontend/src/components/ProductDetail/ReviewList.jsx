@@ -8,7 +8,8 @@ const ReviewListWrapper = styled.div`
   margin-top: 40px;
   display: flex;
   flex-direction: column;
-  width: 1100px;
+  font-size: 18px;
+  width: 1200px;
   margin: 40px auto 0 auto;
 `;
 

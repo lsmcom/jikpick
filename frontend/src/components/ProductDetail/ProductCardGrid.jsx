@@ -4,12 +4,13 @@ import styled from 'styled-components';
 const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  gap: 42px;
 `;
 
 const Card = styled.div`
   background: #ddd;
-  height: 240px;
+  height: 270px;
+  width: 270px;
   border-radius: 8px;
   position: relative;
 `;
@@ -24,17 +25,17 @@ display: flex;
 
 const Title = styled.div`
   margin-top: 8px;
-  font-size: 14px;
+  font-size: 18px;
   font-weight: bold;
 `;
 
 const Price = styled.div`
-  font-size: 13px;
+  font-size: 18px;
 `;
 
 const Like = styled.div`
   color: red;
-  font-size: 13px;
+  font-size: 18px;
   margin-left: 20px;
 `;
 
