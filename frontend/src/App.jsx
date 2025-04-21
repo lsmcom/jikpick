@@ -6,6 +6,13 @@ import './App.css';
 import Main from './pages/Main';
 import LoginForm from './pages/LoginForm'
 import JoinAgree from './pages/JoinAgree'
+
+import JoinForm from './pages/JoinForm'
+import FindID from './pages/FindID'
+import FindPW from './pages/FindPW'
+import Found from './pages/Found'
+import ResetPW from './pages/ResetPW'
+
 import ProductUpload from './pages/ProductUpload';
 import ProductOrder from './pages/ProductOrder';
 import OrderSuccess from './pages/OrderSuccess';
@@ -17,10 +24,16 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-
         {/* 각 페이지 라우팅 */}
         <Route path="/login" element={<LoginForm />} />
         <Route path="/signup" element={<JoinAgree />} />
+
+        <Route path="/join" element={<JoinForm />} />
+        <Route path="/findID" element={<FindID />} />
+        <Route path="/findPW" element={<FindPW />} />
+        <Route path="/foundID" element={<Found />} />
+        <Route path="/resetPW" element={<ResetPW />} />
+
         <Route path="/upload" element={<ProductUpload />} />
         <Route path="/upload" element={<ProductUpload />} />
         <Route path="/order" element={<ProductOrder />} />
