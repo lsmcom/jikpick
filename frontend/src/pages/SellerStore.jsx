@@ -18,7 +18,7 @@ const FlexArea = styled.div`
 const EditButton = styled.button`
   background-color: #FB4A67;
   color: white;
-  font-size: 14px;
+  font-size: 16px;
   padding: 5px 12px;
   border: none;
   border-radius: 16px;
@@ -34,7 +34,7 @@ const SaveButton = styled.button`
   align-self: flex-end;
   background-color: #FB4A67;
   color: white;
-  font-size: 14px;
+  font-size: 16px;
   padding: 8px 22px;
   border: none;
   border-radius: 16px;
@@ -98,19 +98,19 @@ const Name = styled.h2`
 `;
 
 const Rating = styled.p`
-  font-size: 14px;
+  font-size: 16px;
   color: #555;
 `;
 
 const Description = styled.p`
   margin-top: 0px;
-  font-size: 14px;
+  font-size: 16px;
   color: #555;
 `;
 
 const DescriptionTextarea = styled.textarea`
   margin-top: 12px;
-  font-size: 14px;
+  font-size: 16px;
   padding: 10px;
   width: 96%;
   height: 100px;
