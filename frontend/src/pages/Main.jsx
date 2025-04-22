@@ -84,6 +84,7 @@ const ItemInfo = styled.div`
 const Title = styled.div`
   font-weight: 500;
   text-align: left;
+  margin-top: 15px;
   margin-bottom: 4px;
 `;
 
