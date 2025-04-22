@@ -2,10 +2,15 @@
 import styled from 'styled-components';
 
 const Grid = styled.div`
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 42px;
 `;
+
 
 const Card = styled.div`
   background: #ddd;

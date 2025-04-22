@@ -5,19 +5,24 @@ import ReviewList from './ReviewList';
 import ProductCardGrid from './ProductCardGrid'; // 판매상품 카드 컴포넌트
 
 const TabWrapper = styled.div`
-  margin-top: 40px;
-  width: 1200px;
+  width: 100%;
+  max-width: 1200px;
   margin: 40px auto 0 auto;
 `;
 
+
 const TabMenu = styled.div`
+ padding-left: 17px;
+  width: 100%;              // ✅ 부모(TabWrapper)의 1200px 안으로 정렬됨
+  margin: 0 auto 40px;
   display: flex;
   gap: 32px;
   font-weight: bold;
-  margin-bottom: 20px;
 `;
 
+
 const Tab = styled.button`
+ 
   font-size: 18px;
   background: none;
   border: none;
@@ -28,10 +33,13 @@ const Tab = styled.button`
   font-weight: ${({ active }) => (active ? '700' : '500')};
 `;
 
+
+
 export default function ReviewTab() {
   const [activeTab, setActiveTab] = useState('product');
 
   return (
+    
     <TabWrapper>
       <TabMenu>
         <Tab active={activeTab === 'product'} onClick={() => setActiveTab('product')}>
@@ -42,7 +50,14 @@ export default function ReviewTab() {
         </Tab>
       </TabMenu>
 
-      {activeTab === 'product' ? <ProductCardGrid /> : <ReviewList />}
+            {activeTab === 'product' ? (
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <ProductCardGrid />
+        </div>
+      ) : (
+        <ReviewList />
+      )}
+
     </TabWrapper>
   );
 }
