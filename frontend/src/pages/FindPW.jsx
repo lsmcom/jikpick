@@ -2,6 +2,7 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { NavLink } from 'react-router-dom';
 
+
 const Wrapper = styled.div`
   width: 100%;
   min-height: 100vh;
@@ -9,7 +10,8 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: center; /* ✅ 가운데 정렬로 수정 */
+  padding-bottom: 120px;
   font-family: 'Pretendard', sans-serif;
 `;
 
@@ -19,6 +21,7 @@ const Logo = styled.h1`
   font-size: 64px;
   color: #FB4A67;
   margin-bottom: 40px;
+  margin-top: 76px;
 `;
 
 const Box = styled.div`
@@ -26,7 +29,7 @@ const Box = styled.div`
   background: white;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  padding: 30px 32px 40px;
+  padding: 30px 32px 50px;
   display: flex;
   flex-direction: column;
 `;
@@ -78,10 +81,12 @@ const SmallButton = styled.button`
   }
 `;
 
-const MainButton = styled.button`
+const MainButton = styled(NavLink)`
+  display: block;
   width: 100%;
   background-color: #FB4A67;
   color: white;
+  color: white !important; 
   border: none;
   border-radius: 8px;
   padding: 12px 0;
@@ -89,6 +94,8 @@ const MainButton = styled.button`
   font-weight: 700;
   cursor: pointer;
   margin: 20px 0;
+  text-align: center;
+  text-decoration: none;
 `;
 
 const FooterLinks = styled.div`
@@ -107,6 +114,7 @@ const FooterLinks = styled.div`
     }
   }
 `;
+
 
 export default function FindPassword() {
   const [showAuthField, setShowAuthField] = useState(false);
@@ -134,7 +142,7 @@ export default function FindPassword() {
           </Row>
         )}
 
-        <MainButton>비밀번호 찾기</MainButton>
+        <MainButton to="/resetPW">비밀번호 찾기</MainButton>
 
         <FooterLinks>
           <NavLink to="/findID">아이디 찾기</NavLink>

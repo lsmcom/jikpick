@@ -9,7 +9,9 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start; /* ✅ 가운데 정렬로 수정 */
+  margin-top: 68px;
+  padding-bottom: 50px;
   font-family: 'Pretendard', sans-serif;
 `;
 
@@ -18,19 +20,23 @@ const Logo = styled.h1`
   font-weight: 700;
   font-size: 64px;
   color: #FB4A67;
+  text-align: center;
+  margin-top: 69px;
   margin-bottom: 40px;
 `;
+
 
 const Box = styled.div`
   width: 400px;
   background: white;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  padding: 30px 32px 40px;
+  padding: 30px 32px 50px;
   display: flex;
   flex-direction: column;
   align-items: center;
 `;
+
 
 const Title = styled.h2`
   font-size: 20px;
@@ -40,10 +46,11 @@ const Title = styled.h2`
 
 const Message = styled.div`
   width: 100%;
+  box-sizing: border-box;   /* ✅ 패딩 포함해서 너비 계산 */
   border: 1px solid #ddd;
   border-radius: 8px;
   background-color: #f9f9f9;
-  padding: 14px 16px;
+  padding: 14px 20px;
   font-size: 15px;
   text-align: center;
   margin-bottom: 24px;
