@@ -1,28 +1,28 @@
-// src/components/ProductDetail/ReviewTab.jsx
 import { useState } from 'react';
 import styled from 'styled-components';
 import ReviewList from './ReviewList';
-import ProductCardGrid from './ProductCardGrid'; // 판매상품 카드 컴포넌트
+import ProductCardGrid from './ProductCardGrid';
 
 const TabWrapper = styled.div`
   width: 100%;
   max-width: 1200px;
   margin: 40px auto 0 auto;
+  font-family: 'Pretendard', sans-serif;
+  overflow-x: hidden; /* 오른쪽으로 밀리지 않게 설정 */
+  overflow-y: auto; /* 세로 스크롤을 추가 */
+  height: 100%; /* 탭 영역의 높이를 100%로 설정 */
+  padding-bottom: ${({ isReviewTabActive }) => (isReviewTabActive ? '100px' : '0px')}; /* 버튼 클릭 시 여백 추가 */
 `;
 
-
 const TabMenu = styled.div`
- padding-left: 17px;
-  width: 100%;              // ✅ 부모(TabWrapper)의 1200px 안으로 정렬됨
+  width: 100%;
   margin: 0 auto 40px;
   display: flex;
-  gap: 32px;
+  gap: 10px; /* 간격을 줄여봅니다 */
   font-weight: bold;
 `;
 
-
 const Tab = styled.button`
- 
   font-size: 18px;
   background: none;
   border: none;
@@ -33,14 +33,14 @@ const Tab = styled.button`
   font-weight: ${({ active }) => (active ? '700' : '500')};
 `;
 
-
-
 export default function ReviewTab() {
   const [activeTab, setActiveTab] = useState('product');
 
+  // 여백 조정을 위해 isReviewTabActive 상태 추가
+  const isReviewTabActive = activeTab === 'review';
+
   return (
-    
-    <TabWrapper>
+    <TabWrapper isReviewTabActive={isReviewTabActive}>
       <TabMenu>
         <Tab active={activeTab === 'product'} onClick={() => setActiveTab('product')}>
           판매상품(6)
@@ -50,14 +50,11 @@ export default function ReviewTab() {
         </Tab>
       </TabMenu>
 
-            {activeTab === 'product' ? (
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <ProductCardGrid />
-        </div>
+      {activeTab === 'product' ? (
+        <ProductCardGrid />
       ) : (
         <ReviewList />
       )}
-
     </TabWrapper>
   );
 }

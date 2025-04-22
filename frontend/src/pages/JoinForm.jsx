@@ -4,36 +4,7 @@ import dropDown2 from '../assets/icon/DropDown2.svg'
 import checkIcon from '../assets/icon/checkIcon.svg'
 import checkFilledIcon from '../assets/icon/CheckCircleFill.svg'
 import { NavLink, useNavigate } from 'react-router-dom';
-
-// 📦 전체 화면을 감싸는 Wrapper
-const Wrapper = styled.div`
-  width: 100%;
-  min-height: 100vh;
-  background-color: #fafafa;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Pretendard', sans-serif;
-`;
-
-// 🔷 상단 로고
-const Logo = styled(NavLink)`
-  font-family: 'Poppins', sans-serif;
-  font-weight: 700;
-  font-size: 64px;
-  color: #FB4A67 !important;  // ✅ 색상 강제 적용
-  margin-bottom: 40px;
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: none;
-  }
-
-  &.active {
-    color: #FB4A67 !important;  // ✅ active 상태에서도 유지
-  }
-`;
+import { Wrapper, Logo } from '../pages/LoginContainer';
 
 // 🔲 회원가입 박스 전체
 const JoinBox = styled.div`
@@ -107,7 +78,7 @@ const CheckButton = styled.button`
 
 // 🔐 아이디 확인 메세지
 const IdMessage = styled.div`
-  font-size: 13px;
+  font-size: 16px;
   color: ${({ isValid }) => (isValid ? '#2E8B57' : '#FB4A67')};
   margin-top: -10px;
   margin-bottom: 16px;
@@ -116,7 +87,7 @@ const IdMessage = styled.div`
 
 // 🔐 비밀번호 확인 메세지
 const PasswordMessage = styled.div`
-  font-size: 13px;
+  font-size: 16px;
   color: ${({ isMatch }) => (isMatch ? '#2E8B57' : '#FB4A67')};
   margin-top: -10px;
   margin-bottom: 16px;
@@ -125,7 +96,7 @@ const PasswordMessage = styled.div`
 
 // ℹ️ 인증 관련 메세지
 const Message = styled.div`
-  font-size: 13px;
+  font-size: 16px;
   color: ${({ isValid }) => (isValid ? '#2E8B57' : '#FB4A67')};
   margin-bottom: 16px;
   padding-left: 4px;
@@ -134,7 +105,7 @@ const Message = styled.div`
 
 // ✅ 생년월일 메시지
 const BirthMessage = styled.div`
-  font-size: 13px;
+  font-size: 16px;
   color: ${({ isValid }) => (isValid ? '#2E8B57' : '#FB4A67')};
   margin-top: -10px;
   margin-bottom: 16px;
