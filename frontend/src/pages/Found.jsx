@@ -1,6 +1,6 @@
 // src/pages/Found.jsx
 import styled from 'styled-components';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -15,14 +15,22 @@ const Wrapper = styled.div`
   font-family: 'Pretendard', sans-serif;
 `;
 
-const Logo = styled.h1`
+// 🔷 상단 로고
+const Logo = styled(NavLink)`
   font-family: 'Poppins', sans-serif;
   font-weight: 700;
   font-size: 64px;
-  color: #FB4A67;
-  text-align: center;
-  margin-top: 69px;
+  color: #FB4A67 !important;  // ✅ 색상 강제 적용
   margin-bottom: 40px;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: none;
+  }
+
+  &.active {
+    color: #FB4A67 !important;  // ✅ active 상태에서도 유지
+  }
 `;
 
 
@@ -44,7 +52,7 @@ const Title = styled.h2`
   margin-bottom: 24px;
 `;
 
-const Message = styled.div`
+const Message = styled.div.attrs({})`
   width: 100%;
   box-sizing: border-box;   /* ✅ 패딩 포함해서 너비 계산 */
   border: 1px solid #ddd;
@@ -74,12 +82,25 @@ const FooterLinks = styled.div`
 `;
 
 export default function Found() {
+  const location = useLocation();
+  const foundId = location?.state?.foundId;
+
+  console.log('🧪 전달받은 값:', foundId);
+
   return (
     <Wrapper>
-      <Logo>JIKPICK</Logo>
+      <Logo to="/">JIKPICK</Logo>
       <Box>
         <Title>아이디 확인</Title>
-        <Message>000 회원님의 아이디는 <strong>qwer1234</strong>입니다!</Message>
+        <Message $isValid={true}>
+          {foundId ? (
+            <>
+              회원님의 아이디는 <strong>{foundId}</strong>입니다!
+            </>
+          ) : (
+            '잘못된 접근입니다.'
+          )}
+        </Message>
         <FooterLinks>
           <NavLink to="/findPW">비밀번호 찾기</NavLink>
           <NavLink to="/login">로그인</NavLink>
