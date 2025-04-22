@@ -13,12 +13,22 @@ const Wrapper = styled.div`
   font-family: 'Pretendard', sans-serif;
 `;
 
-const Logo = styled.h1`
+// 🔷 상단 로고
+const Logo = styled(NavLink)`
   font-family: 'Poppins', sans-serif;
   font-weight: 700;
   font-size: 64px;
-  color: #FB4A67;
+  color: #FB4A67 !important;  // ✅ 색상 강제 적용
   margin-bottom: 40px;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: none;
+  }
+
+  &.active {
+    color: #FB4A67 !important;  // ✅ active 상태에서도 유지
+  }
 `;
 
 const Box = styled.div`
@@ -113,7 +123,7 @@ export default function FindPassword() {
 
   return (
     <Wrapper>
-      <Logo>JIKPICK</Logo>
+      <Logo to="/">JIKPICK</Logo>
       <Box>
         <Title>비밀번호 찾기</Title>
 

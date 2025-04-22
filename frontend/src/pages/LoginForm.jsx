@@ -15,12 +15,22 @@ const Wrapper = styled.div`
   padding-bottom: 120px;
 `;
 
-const Logo = styled.h1`
+// 🔷 상단 로고
+const Logo = styled(NavLink)`
   font-family: 'Poppins', sans-serif;
   font-weight: 700;
   font-size: 64px;
-  color: #FB4A67;
-  margin-bottom: 40px; /* 로그인박스와 간격 */
+  color: #FB4A67 !important;  // ✅ 색상 강제 적용
+  margin-bottom: 40px;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: none;
+  }
+
+  &.active {
+    color: #FB4A67 !important;  // ✅ active 상태에서도 유지
+  }
 `;
 
 
@@ -131,7 +141,7 @@ const Links = styled.div`
 export default function LoginForm() {
     return (
       <Wrapper>
-        <Logo>JIKPICK</Logo> {/* ✅ 로그인 박스 위로 뺌 */}
+        <Logo to="/">JIKPICK</Logo> {/* ✅ 로그인 박스 위로 뺌 */}
         <LoginBox>
           <Title>로그인</Title>
           <Input placeholder="ID" />
