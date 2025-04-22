@@ -1,22 +1,7 @@
 // src/pages/ResetPW.jsx
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
-
-
-
-const Wrapper = styled.div`
-  width: 100%;
-  min-height: 100vh;
-  background-color: #fafafa;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start; /* ✅ 중앙정렬 대신 상단부터 시작 */
-  padding-top: 86px;            /* ✅ 로그인폼 등과 일관되게 */
-  padding-bottom: 120px;
-  font-family: 'Pretendard', sans-serif;
-`;
-
+import { Wrapper, Logo } from '../pages/LoginContainer';
 
 const InputRow = styled.div`
   display: flex;
@@ -26,23 +11,7 @@ const InputRow = styled.div`
   padding-right: 32px;
 `;
 
-// 🔷 상단 로고
-const Logo = styled(NavLink)`
-  font-family: 'Poppins', sans-serif;
-  font-weight: 700;
-  font-size: 64px;
-  color: #FB4A67 !important;  // ✅ 색상 강제 적용
-  margin-bottom: 40px;
-  text-decoration: none;
 
-  &:hover {
-    text-decoration: none;
-  }
-
-  &.active {
-    color: #FB4A67 !important;  // ✅ active 상태에서도 유지
-  }
-`;
 
 const Box = styled.div`
   width: 400px;

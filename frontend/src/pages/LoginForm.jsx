@@ -1,38 +1,7 @@
 // src/pages/LoginForm.jsx
 import styled from 'styled-components';
 import { NavLink } from 'react-router-dom';
-
-
-const Wrapper = styled.div`
-  width: 100%;
-  min-height: 100vh;
-  background-color: #fafafa;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Pretendard', sans-serif;
-  padding-bottom: 120px;
-`;
-
-// 🔷 상단 로고
-const Logo = styled(NavLink)`
-  font-family: 'Poppins', sans-serif;
-  font-weight: 700;
-  font-size: 64px;
-  color: #FB4A67 !important;  // ✅ 색상 강제 적용
-  margin-bottom: 40px;
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: none;
-  }
-
-  &.active {
-    color: #FB4A67 !important;  // ✅ active 상태에서도 유지
-  }
-`;
-
+import { Wrapper, Logo } from '../pages/LoginContainer';
 
 const LoginBox = styled.div`
   width: 400px;
@@ -42,7 +11,6 @@ const LoginBox = styled.div`
   padding: 30px 32px 50px;
   display: flex;
   flex-direction: column;
-  align-items: stretch; /* ✅ 내부 요소 좌우 꽉 채움 */
 `;
 
 const Title = styled.h2`
@@ -121,7 +89,7 @@ const StayLogin = styled.label`
   }
 `;
 const Links = styled.div`
-  font-size: 13px;
+  font-size: 16px;
   display: flex;
   justify-content: center;
   width: 100%;
@@ -139,28 +107,24 @@ const Links = styled.div`
 `;
 
 export default function LoginForm() {
-    return (
-      <Wrapper>
-        <Logo to="/">JIKPICK</Logo> {/* ✅ 로그인 박스 위로 뺌 */}
-        <LoginBox>
-          <Title>로그인</Title>
-          <Input placeholder="ID" />
-          <Input placeholder="PW" type="password" />
-          <StayLogin>
-            <input type="checkbox" />
-            로그인 상태 유지
-          </StayLogin>
-          <LoginButton>로그인</LoginButton>
-          <Links>
-            <Links>
-            <NavLink to="/findID">아이디 찾기</NavLink>
-            <NavLink to="/findPW">비밀번호 찾기</NavLink>
-            <NavLink to="/signup">회원가입</NavLink>
-            </Links>
-
-          </Links>
-        </LoginBox>
-      </Wrapper>
-    );
-  }
-  
+  return (
+    <Wrapper>
+      <Logo to="/">JIKPICK</Logo>
+      <LoginBox>
+        <Title>로그인</Title>
+        <Input placeholder="ID" />
+        <Input placeholder="PW" type="password" />
+        <StayLogin>
+          <input type="checkbox" />
+          로그인 상태 유지
+        </StayLogin>
+        <LoginButton>로그인</LoginButton>
+        <Links>
+          <NavLink to="/findID">아이디 찾기</NavLink>
+          <NavLink to="/findPW">비밀번호 찾기</NavLink>
+          <NavLink to="/signup">회원가입</NavLink>
+        </Links>
+      </LoginBox>
+    </Wrapper>
+  );
+}

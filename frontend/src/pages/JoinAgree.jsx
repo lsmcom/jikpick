@@ -1,42 +1,7 @@
 import styled from 'styled-components';
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-
-
-
-
-const Wrapper = styled.div`
-  width: 100%;
-  min-height: 100vh;
-  background-color: #fafafa;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center; /* ✅ 가운데 정렬로 수정 */
-  padding-top: 60px;
-  padding-bottom: 120px;
-  font-family: 'Pretendard', sans-serif;
-`;
-
-
-// 🔷 상단 로고
-const Logo = styled(NavLink)`
-  font-family: 'Poppins', sans-serif;
-  font-weight: 700;
-  font-size: 64px;
-  color: #FB4A67 !important;  // ✅ 색상 강제 적용
-  margin-bottom: 40px;
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: none;
-  }
-
-  &.active {
-    color: #FB4A67 !important;  // ✅ active 상태에서도 유지
-  }
-`;
-
+import { Wrapper, Logo } from '../pages/LoginContainer';
 
 const Box = styled.div`
   width: 400px;
@@ -98,7 +63,7 @@ const TermItem = styled.label`
   }
 
   small {
-    font-size: 13px;
+    font-size: 16px;
     color: #888;
     padding-left: 26px;
     text-indent: 7px;
@@ -151,6 +116,9 @@ export default function JoinAgree() {
     setAllChecked(nextList.every(Boolean)); // 모두 체크됐는지 확인
   };
 
+  const requiredCount = terms.filter(term => term.label.startsWith('[필수]')).length;
+  const isRequiredChecked = checkedList.slice(0, requiredCount).every(Boolean);
+
   return (
     <Wrapper>
       <Logo to="/">JIKPICK</Logo>
@@ -184,8 +152,18 @@ export default function JoinAgree() {
             <small>{term.desc}</small>
           </TermItem>
         ))}
+        <SubmitButton
+          to={isRequiredChecked ? "/join" : "#"}
+          onClick={(e) => {
+            if (!isRequiredChecked) {
+              e.preventDefault();
+              alert('모든 필수 약관에 동의해야 다음 단계로 이동할 수 있습니다.');
+            }
+          }}
+        >
+          다음
+        </SubmitButton>
 
-        <SubmitButton to="/join">다음</SubmitButton>
 
 
       </Box>

@@ -1,38 +1,7 @@
 // src/pages/Found.jsx
 import styled from 'styled-components';
 import { NavLink, useLocation } from 'react-router-dom';
-
-const Wrapper = styled.div`
-  width: 100%;
-  min-height: 100vh;
-  background-color: #fafafa;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start; /* ✅ 가운데 정렬로 수정 */
-  margin-top: 68px;
-  padding-bottom: 50px;
-  font-family: 'Pretendard', sans-serif;
-`;
-
-// 🔷 상단 로고
-const Logo = styled(NavLink)`
-  font-family: 'Poppins', sans-serif;
-  font-weight: 700;
-  font-size: 64px;
-  color: #FB4A67 !important;  // ✅ 색상 강제 적용
-  margin-bottom: 40px;
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: none;
-  }
-
-  &.active {
-    color: #FB4A67 !important;  // ✅ active 상태에서도 유지
-  }
-`;
-
+import { Wrapper, Logo } from '../pages/LoginContainer';
 
 const Box = styled.div`
   width: 400px;
@@ -47,7 +16,7 @@ const Box = styled.div`
 
 
 const Title = styled.h2`
-  font-size: 20px;
+  font-size: 24px;
   font-weight: bold;
   margin-bottom: 24px;
 `;
@@ -59,13 +28,13 @@ const Message = styled.div.attrs({})`
   border-radius: 8px;
   background-color: #f9f9f9;
   padding: 14px 20px;
-  font-size: 15px;
+  font-size: 20px;
   text-align: center;
   margin-bottom: 24px;
 `;
 
 const FooterLinks = styled.div`
-  font-size: 13px;
+  font-size: 16px;
   display: flex;
   justify-content: center;
   gap: 16px;
