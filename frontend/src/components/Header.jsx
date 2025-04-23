@@ -430,7 +430,7 @@ export default function Header({ isLoggedIn }) {
 
           <LocationSetting onClick={() => setShowModal(true)}>
             <LocationIcon src={ping} />
-            <span style={{ cursor: 'pointer' }}>지역설정</span>
+            <span style={{ cursor: 'pointer', fontWeight: 600 , color: '333333'}}>지역설정</span>
           </LocationSetting>
           
           {showModal && (
