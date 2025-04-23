@@ -71,7 +71,7 @@ export default function ResetPW() {
         <Input placeholder="새비밀번호" type="password" />
         <Input placeholder="비밀번호 확인" type="password" />
         </InputRow>
-        <MainButton to="/foundID">비밀번호 수정</MainButton>
+        <MainButton to="/login">비밀번호 수정</MainButton>
       </Box>
     </Wrapper>
   );
