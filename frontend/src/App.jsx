@@ -25,7 +25,9 @@ import ShopLike from './pages/ShopLike';
 import ShopOrder from './pages/ShopOrder';
 
 import ModifyInfo from './pages/ModifyInfo';
-
+import CategoryPage from './pages/CategoryPage';
+import WithdrawReason from './pages/WithDrawReason';
+import WithdrawConfirm from './pages/WithDrawConfirm';
 function App() {
   return (
     <BrowserRouter>
@@ -55,6 +57,9 @@ function App() {
         <Route path="/myShop" element={<SellerStore/>}/>
         <Route path="/shopLike" element={<ShopLike />}/>
         <Route path="/shopOrder" element={<ShopOrder />}/>
+        <Route path="/category/:main/:sub?" element={<CategoryPage />} />
+        <Route path="/withdrawReason" element={<WithdrawReason />}/>
+        <Route path="/withdrawConfirm" element={<WithdrawConfirm />}/>
       </Routes>
     </BrowserRouter>
   );
