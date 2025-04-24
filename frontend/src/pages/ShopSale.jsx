@@ -10,6 +10,8 @@ import heartIcon from '../assets/icon/HeartIcon.svg'; // 하트 아이콘 임포
 import menuIcon from '../assets/icon/menudrop.svg'; // 하트 아이콘 임포트
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
+import CancelModal from '../pages/Cancel';
+
 
 
 // 📦 상품을 감싸는 wrapper
@@ -416,10 +418,20 @@ const dummyData = [
         return () => document.removeEventListener('mousedown', handleClickOutside);
       }, []);
     
-  
+    const [showCancelModal, setShowCancelModal] = useState(false);
+
     return (
       <Wrapper>
         <Header />
+        {showCancelModal && (
+      <CancelModal
+        onCancel={() => setShowCancelModal(false)}
+        onConfirm={() => {
+          console.log('거래 취소 확정');
+          setShowCancelModal(false);
+        }}
+      />
+    )}
         <Outer>
           <Inner>
             <TitleBox>
@@ -428,9 +440,9 @@ const dummyData = [
             </TitleBox>
   
             <FilterButtonContainer>
-              <FilterButton $active={selectedFilter==='판매중'}   onClick={()=>setSelectedFilter('판매중')}>판매중</FilterButton>
-              <FilterButton $active={selectedFilter==='거래완료'} onClick={()=>setSelectedFilter('거래완료')}>거래완료</FilterButton>
-              <FilterButton $active={selectedFilter==='숨김'}     onClick={()=>setSelectedFilter('숨김')}>숨김</FilterButton>
+              <FilterButton active={selectedFilter==='판매중'}   onClick={()=>setSelectedFilter('판매중')}>판매중</FilterButton>
+              <FilterButton active={selectedFilter==='거래완료'} onClick={()=>setSelectedFilter('거래완료')}>거래완료</FilterButton>
+              <FilterButton active={selectedFilter==='숨김'}     onClick={()=>setSelectedFilter('숨김')}>숨김</FilterButton>
             </FilterButtonContainer>
   
             <FilterLine isHidden={selectedFilter==='숨김'} />
@@ -465,11 +477,39 @@ const dummyData = [
 
                     {openMenuFor === item.id && (
                       <DropdownWrapper ref={menuRef}>
-                        <DropdownItem><div className="menu-text">숨김</div></DropdownItem>
-                        <DropdownItem danger><div className="menu-text">삭제</div></DropdownItem>
-                        <DropdownItem><div className="menu-text">신고</div></DropdownItem>
+                        {selectedFilter === '숨김' ? (
+                          <>
+                            <DropdownItem>
+                              <div className="menu-text">숨김 해제</div>
+                            </DropdownItem>
+                            <DropdownItem danger>
+                              <div className="menu-text">삭제</div>
+                            </DropdownItem>
+                          </>
+                        ) : (
+                          <>
+                            <DropdownItem>
+                              <div className="menu-text">{item.status === '숨김' ? '숨김 해제' : '숨김'}</div>
+                            </DropdownItem>
+                            <DropdownItem danger>
+                              <div className="menu-text">삭제</div>
+                            </DropdownItem>
+                            <DropdownItem>
+                              <div className="menu-text">신고</div>
+                            </DropdownItem>
+                            {item.status === '거래완료' && (
+                              <DropdownItem onClick={() => setShowCancelModal(true)}>
+                              <div className="menu-text">거래취소</div>
+                            </DropdownItem>
+                            
+                            )}
+                          </>
+                        )}
                       </DropdownWrapper>
                     )}
+
+                                  
+
 
                   </LikeSection>
                 </ItemCard>

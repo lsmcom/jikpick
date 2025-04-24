@@ -25,8 +25,6 @@ import ShopLike from './pages/ShopLike';
 import ShopOrder from './pages/ShopOrder';
 
 import ModifyInfo from './pages/ModifyInfo';
-import WithdrawReason from './pages/WithdrawReason';
-import WithdrawConfirm from './pages/WithdrawConfirm';
 
 function App() {
   return (
@@ -57,8 +55,6 @@ function App() {
         <Route path="/myShop" element={<SellerStore/>}/>
         <Route path="/shopLike" element={<ShopLike />}/>
         <Route path="/shopOrder" element={<ShopOrder />}/>
-        <Route path="/withdrawReason" element={<WithdrawReason />}/>
-        <Route path="/withdrawConfirm" element={<WithdrawConfirm />}/>
       </Routes>
     </BrowserRouter>
   );
