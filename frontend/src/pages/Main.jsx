@@ -12,7 +12,7 @@ const MainWrapper = styled.div`
   display: flex;
   align-items: center;
   width: 100%;
-`
+`;
 
 const Container = styled.div`
   width: 1200px;
@@ -79,7 +79,10 @@ const Thumbnail = styled.div`
 
 const ItemInfo = styled.div`
   display: flex;
-`
+  justify-content: left; // 가격과 하트 아이콘이 좌우로 정렬되게 함
+  align-items: center; // 세로 정렬
+  gap: 20px; // 필요한 간격을 여기서 조정할 수 있습니다
+`;
 
 const Title = styled.div`
   font-weight: 500;
@@ -90,17 +93,15 @@ const Title = styled.div`
 
 const Price = styled.div`
   color: #222;
-  font-weight : bold;
-  text-align: left;
-  margin-bottom: 4px;
+  font-weight: bold;
 `;
 
 const Like = styled.div`
   color: #FB4A67;
-  text-align: right;
   font-size: 17px;
-  margin-left: 18px;
-  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 `;
 
 export default function Main() {
@@ -142,8 +143,13 @@ export default function Main() {
     { name: '생활용품' },
     { name: '닌텐도' },
     { name: '의류' },
+    { name: '액세서리' },
+    { name: '전자기기' },
+    { name: '홈&리빙' },
+    { name: '미용' },
+    { name: '책' }
   ];
-
+  
   return (
     <MainWrapper>
       <Header isLoggedIn={false} />
@@ -176,15 +182,15 @@ export default function Main() {
         <Grid>
           {Array.from({ length: 8 }).map((_, i) => (
             <Link to={`/product/${i + 1}`} key={i} style={{ textDecoration: 'none', color: 'inherit' }}>
-            <Card key={i}>
-              <Thumbnail />
-              <Title>패딩/니트 후드티</Title>
-              <ItemInfo>
-              <Price>38,000원</Price>
-              <Like>❤️ 12</Like>
-              </ItemInfo>
-            </Card>
-          </Link>
+              <Card key={i}>
+                <Thumbnail />
+                <Title>패딩/니트 후드티</Title>
+                <ItemInfo>
+                  <Price>38,000원</Price>
+                  <Like>❤️ 12</Like>
+                </ItemInfo>
+              </Card>
+            </Link>
           ))}
         </Grid>
       </Container>

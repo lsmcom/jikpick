@@ -25,6 +25,8 @@ import ShopLike from './pages/ShopLike';
 import ShopOrder from './pages/ShopOrder';
 
 import ModifyInfo from './pages/ModifyInfo';
+import CategoryPage from './pages/CategoryPage';
+
 
 function App() {
   return (
@@ -55,6 +57,7 @@ function App() {
         <Route path="/myShop" element={<SellerStore/>}/>
         <Route path="/shopLike" element={<ShopLike />}/>
         <Route path="/shopOrder" element={<ShopOrder />}/>
+        <Route path="/category/:categoryName" element={<CategoryPage />} />
       </Routes>
     </BrowserRouter>
   );
