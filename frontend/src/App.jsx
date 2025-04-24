@@ -19,6 +19,8 @@ import OrderSuccess from './pages/OrderSuccess';
 import MyPage from './pages/MyPage';
 import SellerStore from './pages/SellerStore';
 import ProductDetail from './pages/ProductDetail';
+import ShopLike from './pages/ShopLike';
+import ShopOrder from './pages/ShopOrder';
 
 import ModifyInfo from './pages/ModifyInfo';
 
@@ -48,6 +50,8 @@ function App() {
         <Route path="/product/:id" element={<ProductDetail/>}/>
         <Route path="/myPage" element={<MyPage />} />
         <Route path="/myShop" element={<SellerStore/>}/>
+        <Route path="/shopLike" element={<ShopLike />}/>
+        <Route path="/shopOrder" element={<ShopOrder />}/>
       </Routes>
     </BrowserRouter>
   );
