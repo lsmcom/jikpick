@@ -253,7 +253,7 @@ export default function MyPage() {
 
             <MenuItem to="/logout">로그아웃<RightIcon src={rightIcon} alt="화살표" /></MenuItem>
             <MenuItem to="/modifyInfo">회원정보 관리<RightIcon src={rightIcon} alt="화살표" /></MenuItem>
-            <MenuItem to="/withdraw">회원탈퇴<RightIcon src={rightIcon} alt="화살표" /></MenuItem>
+            <MenuItem to="/withdrawReason">회원탈퇴<RightIcon src={rightIcon} alt="화살표" /></MenuItem>
         </Inner>
       </Outer>
       <Footer />
