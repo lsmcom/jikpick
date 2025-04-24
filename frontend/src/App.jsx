@@ -25,12 +25,11 @@ import ShopLike from './pages/ShopLike';
 import ShopOrder from './pages/ShopOrder';
 
 import ModifyInfo from './pages/ModifyInfo';
-import CategoryPage from './pages/CategoryPage';
-import WithdrawReason from './pages/WithDrawReason';
-import WithdrawConfirm from './pages/WithDrawConfirm';
+
 function App() {
   return (
     <BrowserRouter>
+    <ScrollToTop /> 
       <Routes>
         {/* 기본 경로를 /shop-sale로 설정 */}
         <Route path="/" element={<Main/>} /> {/* 새로 추가된 ShopSale 컴포넌트 */}
