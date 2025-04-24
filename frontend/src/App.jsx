@@ -22,6 +22,8 @@ import ProductDetail from './pages/ProductDetail';
 import ShopLike from './pages/ShopLike';
 import ShopOrder from './pages/ShopOrder';
 
+import ModifyInfo from './pages/ModifyInfo';
+
 function App() {
   return (
     <BrowserRouter>
@@ -44,6 +46,7 @@ function App() {
         <Route path="/" element={<Main />} /> 
 
         <Route path="/productUpload" element={<ProductUpload />} />
+        <Route path="/modifyInfo" element={<ModifyInfo/>}/>
         <Route path="/product/:id" element={<ProductDetail/>}/>
         <Route path="/myPage" element={<MyPage />} />
         <Route path="/myShop" element={<SellerStore/>}/>
