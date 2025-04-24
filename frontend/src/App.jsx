@@ -25,10 +25,6 @@ import ShopLike from './pages/ShopLike';
 import ShopOrder from './pages/ShopOrder';
 
 import ModifyInfo from './pages/ModifyInfo';
-import CategoryPage from './pages/CategoryPage';
-import WithdrawReason from './pages/WithDrawReason';
-import WithdrawConfirm from './pages/WithDrawConfirm';
-import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   return (
