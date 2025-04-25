@@ -5,8 +5,11 @@ import search from '../assets/icon/SearchIcon.svg';
 import ping from '../assets/icon/LocationPing.svg';
 import menu from '../assets/icon/Menu.svg';
 import CategoryDropdown from './CategoryDropdown';
-import { useState, useRef } from 'react';
-import closeXIcon from '../assets/icon/CloseXIcon.svg'
+import { useState, useRef, useEffect } from 'react';
+import closeXIcon from '../assets/icon/CloseXIcon.svg';
+import settingIcon from '../assets/icon/SettiingIcon.png';
+import menuDrop from '../assets/icon/menudrop.svg';
+import iPhone from '../assets/images/iphone.png';
 
 const HeaderWrapper = styled.header`
   font-family: 'Pretendard', sans-serif;
@@ -337,18 +340,365 @@ const ModalListItem = styled.div`
   padding: 12px 0;
   font-size: 16px;
   line-height: 135%;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   color: #333;
   line-height: 1.6;
+`;
+
+// 알림 모달 내의 스타일들
+const AlertModalWrapper = styled.div`
+  position: absolute;
+  top: 35px;
+  right: 0;
+  width: 380px;
+  background: white;
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  z-index: 100;
+  padding: 14px;
+  max-height: 500px;
+  overflow-y: auto;
+`;
+
+const AlertModalBox = styled.div`
+  font-size: 15px;
+  color: #333;
+  line-height: 1.4;
+`;
+
+const AlertGroupTitle = styled.div`
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  margin-top: 20px;
+  margin-bottom: 10px;
+`;
+
+const AlertItem = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e5e5;
+  background-color: #f9f9f9;
+  margin-bottom: 16px;
+
+  &:hover {
+    background-color: #f0f0f0;
+    cursor: pointer;
+    border: 1px solid #FB4A67;
+  }
+
+`;
+
+const AlertText = styled.span`
+  font-size: 18px;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  position: relative;
+`;
+
+const AlertIcon = styled.img`
+  width: 22px;
+  height: 22px;
+  margin-top: 4px;
+  flex-shrink: 0;
+`;
+
+const AlertContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+`;
+
+const AlertHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const AlertNickname = styled.span`
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+`;
+
+const AlertDate = styled.span`
+  font-size: 14px;
+  color: #aaa;
+`;
+
+const AlertMessage = styled.div`
+  margin-top: 8px;
+  font-size: 16px;
+  color: #444;
+  line-height: 1.4;
+`;
+
+const AlertTitle = styled.div`
+  font-size: 18px;
+  font-weight: bold;
+  padding-top: 5px;
+`
+
+// 톱니바퀴 아이콘 추가
+const SettingsIcon = styled.img`
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+  padding-top: 5px;
+`;
+
+const SettingsMenu = styled.div`
+  position: absolute;
+  top: 36px;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  width: 100px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  padding: 6px 0;
+`;
+
+const SettingsItem = styled.div`
+  padding: 8px 0;
+  font-size: 14px;
+  text-align: center;
+  cursor: pointer;
+  color: ${({ color }) => color || '#333'};
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+`;
+
+const HideModalContent = styled.div`
+  width: 380px;
+  background: white;
+  border-radius: 10px;
+  padding: 0 24px 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+`;
+
+const HideModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const HideModalTitle = styled.h3`
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
+`;
+
+const HideModalDivider = styled.div`
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.06);
+  margin: 4px 0;
+`;
+
+const HideModalBody = styled.div`
+  font-size: 16px;
+  color: #666;
+  padding-top: 8px;
+  text-align: center;
+`;
+
+const AlertModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  color: #333;
+`;
+
+const FullWidthDivider = styled.div`
+  margin: 0 -14px 12px;
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.06);
+`;
+
+const AlertMenuWrapper = styled.div`
+  position: relative;
+  margin-left: auto;
+  padding: 4px; /* 클릭 범위 확장 */
+  cursor: pointer;
+`;
+
+const MenuDropDownButton = styled.button`
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+`;
+
+const MenuDropDownIcon = styled.img`
+  width: 18px;
+  height: 18px;
+`;
+
+const DropdownMenu = styled.div`
+  position: absolute;
+  top: 22px;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  width: 60px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  padding: 6px 0;
+`;
+
+const DropdownItem = styled.div`
+  padding: 8px 0;
+  font-size: 14px;
+  cursor: pointer;
+  color: ${({ color }) => color || '#333'};
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+`;
+
+const StatusModalContent = styled.div`
+  width: 500px;
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+`;
+
+const StatusSteps = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24px;
+`;
+
+const Step = styled.div`
+  flex: 1;
+  text-align: center;
+  padding: 6px;
+  border-radius: 8px;
+  font-weight: 600;
+  color: ${({ active }) => (active ? 'white' : '#ccc')};
+  background-color: ${({ active }) => (active ? '#4CAF50' : '#eee')};
+  margin: 0 4px;
+  font-size: 14px;
+`;
+
+const StatusLabel = styled.div`
+  font-size: 20px;
+  font-weight: 700;
+  color: #4CAF50;
+  margin-bottom: 12px;
+`;
+
+const ProductInfoBox = styled.div`
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+`;
+
+const ProductImage = styled.img`
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+`;
+
+const ProductTextArea = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+`;
+
+const ProductName = styled.div`
+  font-size: 18px;
+  font-weight: 600;
+`;
+
+const ProductPrice = styled.div`
+  margin-top: 6px;
+  font-size: 18px;
+  color: #777;
+`;
+
+const RequestBox = styled.div`
+  border-top: 1px solid #eee;
+  padding-top: 16px;
+`;
+
+const RequestRow = styled.div`
+  display: flex;
+  margin-bottom: 12px;
+`;
+
+const RequestLabel = styled.div`
+  width: 100px;
+  font-size: 16px;
+  color: #666;
+  font-weight: 600;
+  margin-right: 5px;
+`;
+
+const RequestText = styled.div`
+  font-size: 16px;
+  color: #333;
+  margin-right: 5px;
+`;
+
+const ButtonArea = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+`;
+
+const CancelButton = styled.button`
+  padding: 8px 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+`;
+
+const ReviewButton = styled.button`
+  padding: 8px 16px;
+  background-color: #FB4A67;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
 `;
 
 export default function Header({ isLoggedIn }) {
   const [showCategory, setShowCategory] = useState(false);
 
+  //알림 모달 상태 관리
+  const alertRef = useRef(null);
+  const [showAlert, setShowAlert] = useState(false);
+
   //지역설정 모달 상태 관리
   const [showModal, setShowModal] = useState(false);
   const mouseDownTarget = useRef(null);
   const modalRef = useRef(null);
+
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const [showSettingsMenu, setShowSettingsMenu] = useState(false);
+  const [showHideModal, setShowHideModal] = useState(false);
+  const [showStatusModal, setShowStatusModal] = useState(false);
   
   // 1. 검색 키워드 상태관리
   const [searchQuery, setSearchQuery] = useState('');
@@ -375,25 +725,277 @@ export default function Header({ isLoggedIn }) {
 
   // 마우스 뗄 때 위치 확인 후 바깥에서 시작된 경우만 닫기
   const handleMouseUp = (e) => {
-    if (mouseDownTarget.current && !modalRef.current.contains(mouseDownTarget.current)) {
-      setShowModal(false); // 모달 외부 클릭 시에만 닫음
+    const startedOutside = modalRef.current && !modalRef.current.contains(mouseDownTarget.current);
+    const endedOutside = modalRef.current && !modalRef.current.contains(e.target);
+  
+    if (startedOutside && endedOutside) {
+      setShowModal(false);
     }
+  
     mouseDownTarget.current = null;
   };
+
+  // 👇 useEffect 안에서 알림 모달 외부 클릭 감지
+  useEffect(() => {
+    const handleDocumentMouseDown = (e) => {
+      mouseDownTarget.current = e.target;
+    };
+
+    const handleDocumentMouseUp = (e) => {
+      const startedOutside =
+        alertRef.current && !alertRef.current.contains(mouseDownTarget.current);
+      const endedOutside =
+        alertRef.current && !alertRef.current.contains(e.target);
+
+      if (startedOutside && endedOutside) {
+        setShowAlert(false); // 알림 모달 닫기
+      }
+
+      mouseDownTarget.current = null;
+    };
+
+    document.addEventListener('mousedown', handleDocumentMouseDown);
+    document.addEventListener('mouseup', handleDocumentMouseUp);
+
+    return () => {
+      document.removeEventListener('mousedown', handleDocumentMouseDown);
+      document.removeEventListener('mouseup', handleDocumentMouseUp);
+    };
+  }, []);
+
+  // 알림 데이터
+  const alerts = [
+    {
+      id: 1,
+      nickname: '오로라',
+      message: '오로라님과 거래가 완료되었습니다.',
+      date: '1시간 전',
+      type: 'today',
+      icon: box,
+    },
+    {
+      id: 2,
+      nickname: '아기사자',
+      message: '아기사자님이 지점에 물건을 전달하였습니다.',
+      date: '3시간 전',
+      type: 'today',
+      icon: box,
+    },
+    {
+      id: 3,
+      nickname: '하츄핑',
+      message: '하츄핑님이 지점에 물건을 전달하였습니다.',
+      date: '6시간 전',
+      type: 'today',
+      icon: box,
+    },
+    {
+      id: 4,
+      nickname: '지니',
+      message: '지니님과 거래중입니다.',
+      date: '어제 오후 4:20',
+      type: 'previous',
+      icon: box,
+    },
+    {
+      id: 5,
+      nickname: '푸바오',
+      message: '푸바오님이 거래를 취소하였습니다.',
+      date: '3일 전',
+      type: 'previous',
+      icon: box,
+    },
+    {
+      id: 6,
+      nickname: '서울역개발자',
+      message: '서울역개발자님이 지점에 물건을 전달하였습니다.',
+      date: '5일 전',
+      type: 'previous',
+      icon: box,
+    },
+    {
+      id: 7,
+      nickname: '공덕걸스',
+      message: '공덕걸스님과 거래가 완료되었습니다.',
+      date: '6일 전',
+      type: 'previous',
+      icon: box,
+    },
+  ];
+
+  // 오늘 받은 알림과 이전 알림 나누기
+  const todayAlerts = alerts.filter((alert) => alert.type === 'today');
+  const previousAlerts = alerts.filter((alert) => alert.type === 'previous');
 
   // ✅ 필터링
   const filteredLocations = recommendedLocations.filter((loc) =>
     loc.includes(searchQuery)
   );
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest('.alert-menu')) {
+        setOpenMenuId(null);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
   return (
     <HeaderWrapper>
       <HeadContainer>
         <TopBar>
           {isLoggedIn ? (
-            <NavLink to="/logout">로그아웃</NavLink>
+            <>
+              <NavLink to="/logout">로그아웃</NavLink>
+              
+            </>
           ) : (
             <>
+              <div style={{ position: 'relative' }} ref={alertRef}>
+                <AlertText onClick={() => setShowAlert(!showAlert)}>알림</AlertText>
+                {showAlert && (
+                  <AlertModalWrapper>
+                    <AlertModalBox>
+                      {/* 알림 모달 상단 제목과 톱니바퀴 아이콘 */}
+                      <AlertModalHeader>
+                        <AlertTitle>알림</AlertTitle>
+                        <div style={{ position: 'relative' }}>
+                          <SettingsIcon
+                            src={settingIcon}
+                            alt="알림 설정"
+                            onClick={() => setShowSettingsMenu((prev) => !prev)}
+                          />
+                          {showSettingsMenu && (
+                            <SettingsMenu>
+                              <SettingsItem onClick={() => setShowHideModal(true)}>숨김관리</SettingsItem>
+                              <SettingsItem color="#FB4A67">전체삭제</SettingsItem>
+                            </SettingsMenu>
+                          )}
+                        </div>
+
+                        {showHideModal && (
+                          <ModalBackground onClick={() => setShowHideModal(false)}>
+                            <HideModalContent onClick={(e) => e.stopPropagation()}>
+                              <HideModalHeader>
+                                <HideModalTitle>숨김관리</HideModalTitle>
+                                <CloseButton onClick={() => setShowHideModal(false)}>
+                                  <img src={closeXIcon} alt="닫기" />
+                                </CloseButton>
+                              </HideModalHeader>
+                              <HideModalDivider />
+                              <HideModalBody>
+                                숨김 처리된 알림이 없습니다.
+                              </HideModalBody>
+                            </HideModalContent>
+                          </ModalBackground>
+                        )}
+                      </AlertModalHeader>
+                      <FullWidthDivider />
+
+                      <AlertGroupTitle>오늘 받은 알림</AlertGroupTitle>
+                      {todayAlerts.map((alert) => (
+                        <AlertItem key={alert.id} onClick={() => setShowStatusModal(true)}>
+                          <AlertIcon src={alert.icon} alt="알림 아이콘" />
+                          <AlertContent>
+                            <AlertHeader>
+                              <AlertNickname>{alert.nickname}</AlertNickname>
+                              <AlertDate>{alert.date}</AlertDate>
+
+                              {/* 메뉴 아이콘 */}
+                              <AlertMenuWrapper className="alert-menu">
+                                <MenuDropDownButton
+                                  onClick={() => setOpenMenuId(openMenuId === alert.id ? null : alert.id)}
+                                >
+                                  <MenuDropDownIcon src={menuDrop} alt="메뉴" />
+                                </MenuDropDownButton>
+                                {openMenuId === alert.id && (
+                                  <DropdownMenu className="alert-menu">
+                                    <DropdownItem>숨김</DropdownItem>
+                                    <DropdownItem color="#FB4A67">삭제</DropdownItem>
+                                  </DropdownMenu>
+                                )}
+                              </AlertMenuWrapper>
+                            </AlertHeader>
+                            <AlertMessage>{alert.message}</AlertMessage>
+                          </AlertContent>
+                        </AlertItem>
+                      ))}
+
+                      <AlertGroupTitle>이전 알림</AlertGroupTitle>
+                      {previousAlerts.map((alert) => (
+                        <AlertItem key={alert.id} onClick={() => setShowStatusModal(true)}>
+                          <AlertIcon src={alert.icon} alt="알림 아이콘" />
+                          <AlertContent>
+                            <AlertHeader>
+                              <AlertNickname>{alert.nickname}</AlertNickname>
+                              <AlertDate>{alert.date}</AlertDate>
+
+                              {/* 메뉴 아이콘 */}
+                              <AlertMenuWrapper className="alert-menu">
+                                <MenuDropDownButton
+                                  onClick={() => setOpenMenuId(openMenuId === alert.id ? null : alert.id)}
+                                >
+                                  <MenuDropDownIcon src={menuDrop} alt="메뉴" />
+                                </MenuDropDownButton>
+                                {openMenuId === alert.id && (
+                                  <DropdownMenu className="alert-menu">
+                                    <DropdownItem>숨김</DropdownItem>
+                                    <DropdownItem color="#FB4A67">삭제</DropdownItem>
+                                  </DropdownMenu>
+                                )}
+                              </AlertMenuWrapper>
+                            </AlertHeader>
+                            <AlertMessage>{alert.message}</AlertMessage>
+                          </AlertContent>
+                        </AlertItem>
+                      ))}
+                    </AlertModalBox>
+                  </AlertModalWrapper>
+                )}
+
+                {showStatusModal && (
+                  <ModalBackground onClick={() => setShowStatusModal(false)}>
+                    <StatusModalContent onClick={(e) => e.stopPropagation()}>
+                      <StatusSteps>
+                        <Step active>결제 완료</Step>
+                        <Step active>거래중</Step>
+                        <Step>지점 전달완료</Step>
+                        <Step>거래 완료</Step>
+                      </StatusSteps>
+
+                      <StatusLabel>거래중</StatusLabel>
+
+                      <ProductInfoBox>
+                        <ProductImage src={iPhone} alt="상품" />
+                        <ProductTextArea>
+                          <ProductName>아이폰 5S 골드</ProductName>
+                          <ProductPrice>75,000원</ProductPrice>
+                        </ProductTextArea>
+                      </ProductInfoBox>
+
+                      <RequestBox>
+                        <RequestRow>
+                          <RequestLabel>요청사항</RequestLabel>
+                          <RequestText>꼼꼼히 물건 포장해주세요</RequestText>
+                        </RequestRow>
+                        <RequestRow>
+                          <RequestLabel>직픽 지점 장소</RequestLabel>
+                          <RequestText>강남점</RequestText>
+                        </RequestRow>
+                      </RequestBox>
+
+                      <ButtonArea>
+                        <CancelButton>거래 취소</CancelButton>
+                        <ReviewButton>리뷰쓰기</ReviewButton>
+                      </ButtonArea>
+                    </StatusModalContent>
+                  </ModalBackground>
+                )}
+
+              </div>
+
               <NavLink to="/login">로그인</NavLink>
               <NavLink to="/signup">회원가입</NavLink>
             </>

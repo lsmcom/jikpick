@@ -39,7 +39,7 @@ function App() {
         <Route path="/join" element={<JoinForm />} />
         <Route path="/findID" element={<FindID />} />
         <Route path="/findPW" element={<FindPW />} />
-        <Route path="/foundID" element={<Found />} />
+        <Route path="/foundID" element={<Found />} />  
         <Route path="/resetPW" element={<ResetPW />} />
         <Route path="/upload" element={<ProductUpload />} />
         <Route path="/order" element={<ProductOrder />} />
