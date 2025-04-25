@@ -10,6 +10,7 @@ import closeXIcon from '../assets/icon/CloseXIcon.svg';
 import settingIcon from '../assets/icon/SettiingIcon.png';
 import menuDrop from '../assets/icon/menudrop.svg';
 import iPhone from '../assets/images/iphone.png';
+import ReviewModal from '../components/ReviewModal';
 
 const HeaderWrapper = styled.header`
   font-family: 'Pretendard', sans-serif;
@@ -586,7 +587,7 @@ const StatusSteps = styled.div`
   margin-bottom: 24px;
 `;
 
-const Step = styled.div`
+const Step = styled(({ active, ...props }) => <div {...props} />)`
   flex: 1;
   text-align: center;
   padding: 6px;
@@ -699,6 +700,7 @@ export default function Header({ isLoggedIn }) {
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [showHideModal, setShowHideModal] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   
   // 1. 검색 키워드 상태관리
   const [searchQuery, setSearchQuery] = useState('');
@@ -841,6 +843,11 @@ export default function Header({ isLoggedIn }) {
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
+
+  const handleReviewSubmit = (review) => {
+    console.log('제출된 리뷰:', review);
+    setModalOpen(false);
+  };
 
   return (
     <HeaderWrapper>
@@ -988,13 +995,19 @@ export default function Header({ isLoggedIn }) {
 
                       <ButtonArea>
                         <CancelButton>거래 취소</CancelButton>
-                        <ReviewButton>리뷰쓰기</ReviewButton>
+                        <ReviewButton onClick={() => setModalOpen(true)}>리뷰쓰기</ReviewButton>
                       </ButtonArea>
                     </StatusModalContent>
                   </ModalBackground>
                 )}
-
               </div>
+
+              {modalOpen && (
+                <ReviewModal
+                  onClose={() => setModalOpen(false)}
+                  onSubmit={handleReviewSubmit}
+                />
+              )}
 
               <NavLink to="/login">로그인</NavLink>
               <NavLink to="/signup">회원가입</NavLink>
