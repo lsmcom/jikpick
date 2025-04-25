@@ -1,6 +1,9 @@
 import styled from 'styled-components';
 import { useState } from 'react';
 import rightArrow from '../assets/icon/RightArrow.svg';
+import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom'; 
+
 
 // 예시 데이터
 const categories = [
@@ -85,6 +88,8 @@ const Item = styled.div`
 export default function CategoryDropdown() {
   const [selectedMain, setSelectedMain] = useState(null);
   const [selectedSub, setSelectedSub] = useState(null);
+  const navigate = useNavigate();
+
 
   const sub =
   selectedMain &&
@@ -142,12 +147,14 @@ export default function CategoryDropdown() {
         </Column>
       )}
 
-      {/* 3단 */}
+     {/* 3단 */}
       {subSub.length > 0 && (
         <Column>
           <ColumnTitle>{selectedSub.name}</ColumnTitle>
           {subSub.map((leaf) => (
-            <Item key={leaf}>{leaf}</Item>
+            <Link to={`/category/${encodeURIComponent(leaf)}`} key={leaf} style={{ textDecoration: 'none' }}>
+              <Item>{leaf}</Item>
+            </Link>
           ))}
         </Column>
       )}
