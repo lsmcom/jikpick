@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 
 // 페이지 컴포넌트
+import ScrollToTop from './components/ScrollToTop';
 import Main from './pages/Main';
 import ShopSale from './pages/ShopSale';  // ShopSale 페이지 임포트
 
@@ -23,6 +24,9 @@ import SellerStore from './pages/SellerStore';
 import ProductDetail from './pages/ProductDetail';
 import ShopLike from './pages/ShopLike';
 import ShopOrder from './pages/ShopOrder';
+import CategoryPage from './pages/CategoryPage';
+import WithdrawReason from './pages/WithdrawReason';
+import WithdrawConfirm from './pages/WithdrawConfirm'
 
 import ModifyInfo from './pages/ModifyInfo';
 
@@ -40,7 +44,7 @@ function App() {
         <Route path="/join" element={<JoinForm />} />
         <Route path="/findID" element={<FindID />} />
         <Route path="/findPW" element={<FindPW />} />
-        <Route path="/foundID" element={<Found />} />
+        <Route path="/foundID" element={<Found />} />  
         <Route path="/resetPW" element={<ResetPW />} />
         <Route path="/upload" element={<ProductUpload />} />
         <Route path="/order" element={<ProductOrder />} />
