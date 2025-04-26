@@ -5,6 +5,7 @@ import checkIcon from '../assets/icon/checkIcon.svg'
 import checkFilledIcon from '../assets/icon/CheckCircleFill.svg'
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Wrapper, Logo } from '../pages/LoginContainer';
+import { join } from "../assets/api/auth.js";
 
 // 🔲 회원가입 박스 전체
 const JoinBox = styled.div`
@@ -463,7 +464,7 @@ export default function JoinForm() {
   };
 
   // ✅ 회원가입 유효성 검사 및 제출
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!id || idValid === false) return alert('아이디를 확인해주세요.');
     if (!password || password !== confirmPassword) return alert('비밀번호가 일치하지 않습니다.');
     if (!email || codeValid !== true) return alert('이메일 인증을 완료해주세요.');
@@ -472,9 +473,21 @@ export default function JoinForm() {
     if (!birth || !birthValid) return alert('생년월일 6자리를 정확히 입력해주세요.');
     if (!gender || !nationality) return alert('성별 및 내외국인을 선택해주세요.');
     if (!agreements.terms || !agreements.privacy || !agreements.location) return alert('약관에 모두 동의해주세요.');
-
-    alert('회원가입이 완료되었습니다.');
-    navigate('/login');
+  
+    try {
+      // 🔥 여기서 서버에 회원가입 요청
+      const response = await join(id, password, nickname);
+      
+      if (response.success) {
+        alert('회원가입이 완료되었습니다.');
+        navigate('/login');
+      } else {
+        alert(response.message); // 서버에서 보내준 실패 메시지
+      }
+    } catch (error) {
+      console.error(error);
+      alert('회원가입 중 오류가 발생했습니다.');
+    }
   };
 
   return (
