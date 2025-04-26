@@ -7,6 +7,22 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { Link } from 'react-router-dom';
 
+
+import sneakersImg from '../assets/images/sneakers.jpg';
+import golfImg from '../assets/images/golf.jpg';
+import sonyImg from '../assets/images/sony.jpg';
+import bicycleImg from '../assets/images/bicycle.png';
+import lifeImg from '../assets/images/life.jpg';
+import nintendoImg from '../assets/images/nintendo.jpg';
+import blouseImg from '../assets/images/blouse.jpg';
+import earingImg from '../assets/images/earing.jpg';
+import heatImg from '../assets/images/heat.png';
+import beautyImg from '../assets/images/beauty.jpg';
+import bookImg from '../assets/images/book.jpg';
+
+// 필요한 만큼 추가
+
+
 const MainWrapper = styled.div`
   flex-direction: column;
   display: flex;
@@ -75,6 +91,7 @@ const Thumbnail = styled.div`
   background-color: #f0f0f0;
   border-radius: 6px;
   margin-bottom: 8px;
+  object-fit: cover;
 `;
 
 const ItemInfo = styled.div`
@@ -136,19 +153,31 @@ export default function Main() {
   };
 
   const categories = [
-    { name: '스니커즈' },
-    { name: '골프' },
-    { name: 'SONY' },
-    { name: '자전거' },
-    { name: '생활용품' },
-    { name: '닌텐도' },
-    { name: '의류' },
-    { name: '액세서리' },
-    { name: '전자기기' },
-    { name: '홈&리빙' },
-    { name: '미용' },
-    { name: '책' }
+    { name: '스니커즈', icon: sneakersImg },
+    { name: '골프', icon: golfImg },
+    { name: 'SONY', icon: sonyImg },
+    { name: '자전거', icon: bicycleImg },
+    { name: '생활용품', icon: lifeImg },
+    { name: '닌텐도', icon: nintendoImg },
+    { name: '의류', icon: blouseImg },
+    { name: '액세서리', icon: earingImg },
+    { name: '전자기기', icon: heatImg },
+    { name: '미용', icon: beautyImg },
+    { name: '책', icon: bookImg }
   ];
+
+  const productList = [
+    { title: '패딩/니트 후드티', price: '38,000원', likes: 12, img: sneakersImg },
+    { title: '골프공 세트', price: '45,000원', likes: 8, img: golfImg },
+    { title: 'SONY 헤드폰', price: '120,000원', likes: 17, img: sonyImg },
+    { title: '산악 자전거', price: '230,000원', likes: 6, img: bicycleImg },
+    { title: '주방 생활용품', price: '15,000원', likes: 3, img: lifeImg },
+    { title: '닌텐도 스위치', price: '380,000원', likes: 21, img: nintendoImg },
+    { title: '여성 블라우스', price: '29,000원', likes: 7, img: blouseImg },
+    { title: '은귀걸이 세트', price: '19,800원', likes: 5, img: earingImg }
+  ];
+  
+  
   
   return (
     <MainWrapper>
@@ -164,35 +193,39 @@ export default function Main() {
           onMouseMove={onMouseMove}
         >
           {categories.map((c) => (
-            <CategoryItem key={c.name}>
-              <div style={{
-                width: '120px',
-                height: '120px',
-                fontWeight: 'bold',
-                backgroundColor: '#eee',
-                borderRadius: '10%',
-                marginBottom: '6px'
-              }} />
-              {c.name}
-            </CategoryItem>
+             <CategoryItem key={c.name}>
+             <img
+               src={c.icon}
+               alt={c.name}
+               style={{
+                 width: '120px',
+                 height: '120px',
+                 borderRadius: '10%',
+                 marginBottom: '6px',
+                 objectFit: 'cover'
+               }}
+             />
+             {c.name}
+           </CategoryItem>
           ))}
         </CategoryBar>
 
         <SectionTitle>오늘의 상품</SectionTitle>
         <Grid>
-          {Array.from({ length: 8 }).map((_, i) => (
+          {productList.map((item, i) => (
             <Link to={`/product/${i + 1}`} key={i} style={{ textDecoration: 'none', color: 'inherit' }}>
-              <Card key={i}>
-                <Thumbnail />
-                <Title>패딩/니트 후드티</Title>
+              <Card>
+              <Thumbnail style={{ backgroundImage: `url(${item.img})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                <Title>{item.title}</Title>
                 <ItemInfo>
-                  <Price>38,000원</Price>
-                  <Like>❤️ 12</Like>
+                  <Price>{item.price}</Price>
+                  <Like>❤️ {item.likes}</Like>
                 </ItemInfo>
               </Card>
             </Link>
           ))}
-        </Grid>
+      </Grid>
+
       </Container>
       <Footer />
     </MainWrapper>
