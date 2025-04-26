@@ -6,16 +6,35 @@ import ReviewTab from '../components/ProductDetail/ReviewTab';
 import sellerProfile from '../assets/images/profile1.jpg';
 import PageContainer from '../pages/PageContainer';
 import cameraIcon from '../assets/icon/Camera.svg'; // 카메라 아이콘 파일을 추가합니다.
+import StarIcon from'../assets/icon/StarIcon.svg';
 
 const FlexArea = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
   justify-content: left;
-  width: 45%;
+  width: 100%;
 `;
 
 const EditButton = styled.button`
+  background-color: #FB4A67;
+  color: white;
+  font-size: 16px;
+  padding: 5px 12px;
+  font-weight: 500;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #e0405f;
+  }
+`;
+
+const SaveButton = styled.button`
+  margin-top: 12px;
+  align-self: flex-end;
+  font-weight: 500;
   background-color: #FB4A67;
   color: white;
   font-size: 16px;
@@ -29,27 +48,12 @@ const EditButton = styled.button`
   }
 `;
 
-const SaveButton = styled.button`
-  margin-top: 12px;
-  align-self: flex-end;
-  background-color: #FB4A67;
-  color: white;
-  font-size: 16px;
-  padding: 8px 22px;
-  border: none;
-  border-radius: 16px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #e0405f;
-  }
-`;
-
 const SellerBox = styled.div`
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 24px;
+  margin-top: 20px;
   padding-bottom: 30px;
   border-bottom: 1px solid #eee;
 `;
@@ -88,7 +92,6 @@ const InfoBox = styled.div`
   justify-content: flex-start;
   width: 500px;
   height: 240px;
-  margin-top: 30px;
 `;
 
 const Name = styled.h2`
@@ -98,27 +101,33 @@ const Name = styled.h2`
 `;
 
 const Rating = styled.p`
-  font-size: 16px;
-  color: #555;
+  font-size: 20px;
+  color: #333;
 `;
 
 const Description = styled.p`
   margin-top: 0px;
-  font-size: 16px;
-  color: #555;
+  font-size: 18px;
+  color: #333;
 `;
 
 const DescriptionTextarea = styled.textarea`
   margin-top: 12px;
-  font-size: 16px;
+  font-size: 18px;
   padding: 10px;
   width: 96%;
   height: 100px;
+  font-family: 'pretendard';
   resize: none;
   border-radius: 10px;
   border: 1px solid #ccc;
 `;
-
+const StarImg = styled.img`
+  width: 16px;
+  height: 16px;
+  margin: 0 4px 3px 4px;
+  vertical-align: middle;
+`;
 export default function SellerStore() {
   const [isEditing, setIsEditing] = useState(false);
   const [description, setDescription] = useState('안녕하세요 오로라마켓 믿고 맡겨주세요!');
@@ -183,15 +192,19 @@ export default function SellerStore() {
             )}
           </ProfileImageWrapper>
           <InfoBox>
-            <FlexArea>
+          <FlexArea>
               <Name>{seller.name}</Name>
-              <EditButton onClick={isEditing ? handleReEditClick : handleEditClick}>
-                {isEditing ? '수정하기' : '프로필 수정'}
-              </EditButton>
+              {!isEditing && (
+                <EditButton onClick={handleEditClick}>
+                  프로필 수정
+                </EditButton>
+              )}
             </FlexArea>
 
             <Rating>
-              별점 <span style={{ color: '#ffe600' }}>⭐</span> {seller.rating.toFixed(1)} (14) · 후기 {seller.reviewCount} · 상품 {seller.productCount}개
+              별점
+              <StarImg src={StarIcon} alt="별 아이콘" />
+              {seller.rating.toFixed(1)} (14) · 후기 {seller.reviewCount} · 상품 {seller.productCount}개
             </Rating>
 
             {isEditing ? (

@@ -6,7 +6,7 @@ import ProductCardGrid from './ProductCardGrid';
 const TabWrapper = styled.div`
   width: 100%;
   max-width: 1200px;
-  margin: 40px auto 0 auto;
+  margin: 30px auto 0 auto;
   font-family: 'Pretendard', sans-serif;
   overflow-x: hidden; /* 오른쪽으로 밀리지 않게 설정 */
   overflow-y: auto; /* 세로 스크롤을 추가 */
@@ -16,7 +16,7 @@ const TabWrapper = styled.div`
 
 const TabMenu = styled.div`
   width: 100%;
-  margin: 0 auto 40px;
+  margin: 0 auto 30px;
   display: flex;
   gap: 10px; /* 간격을 줄여봅니다 */
   font-weight: bold;

@@ -143,6 +143,7 @@ const RequestTextarea = styled.textarea`
   height: 40px;
   padding: 16px;
   font-size: 16px;
+  font-family: 'pretendard';
   border: 1px solid #ccc;
   border-radius: 10px;
   resize: none;

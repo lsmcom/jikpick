@@ -161,6 +161,7 @@ const LeftArrowIcon = styled.img`
   width: 30px;
   height: 30px;
   margin-right: 10px;
+  margin-left: -5px; 
   cursor: pointer;
 `;
 
@@ -313,7 +314,7 @@ const LikeSection = styled.div`
   }
 
   .like-row span {
-    font-size: 20px;
+    font-size: 18px;
     color: #333;
     margin: 0;
   }
