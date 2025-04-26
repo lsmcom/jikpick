@@ -2,6 +2,118 @@ import styled from 'styled-components';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useLocation, useNavigate } from 'react-router-dom';
+// styled-components 생략 (이전 코드 재사용)
+
+
+// styled-components 생략 (기존과 동일)
+
+
+// ✅ 레이아웃
+// 📦 뒤로가기 아이콘 스타일
+const LeftArrowIcon = styled.img`
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+  margin-left: -5px; 
+  cursor: pointer;
+`;
+
+const Wrapper = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const TitleBox = styled.div`
+  display: flex;
+  align-items: center;
+  padding-bottom: 34px;
+  border-bottom: 1px solid #e5e5e5;
+`;
+
+const Title = styled.h2`
+  font-size: 26px;
+  font-weight: 600;
+  margin: 0;
+`;
+
+const Outer = styled.div`
+  width: 100%;
+`;
+
+const Inner = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 18px 0 80px; /* ⬅️ 아래쪽 패딩으로 푸터 여백 확보 */
+  min-height: 70vh; /* ⬅️ 기본 높이 확보 (스크롤 유도용) */
+`;
+// ✅ 탈퇴 사유 리스트
+const ReasonList = styled.ul`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin: 40px 0;
+`;
+
+
+
+const Notice = styled.ul`
+  font-size: 20px;
+  color: #555;
+  line-height: 1.6;
+  margin-top: 40px;
+  margin-bottom: 72px;
+
+  li {
+    margin-bottom: 8px;
+    margin-left: -20px;
+    a {
+      color: #FB4A67;
+      text-decoration: underline;
+      margin-left: 4px;
+    }
+  }
+`;
+const ButtonRow = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  margin-top: 40px;
+`;
+
+const CancelButton = styled.button`
+  width: 300px;
+  height: 50px;
+  border: none;
+  background-color: #f1f1f1;
+  border-radius: 12px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #e4e4e4;
+  }
+`;
+
+const WithdrawButton = styled.button`
+  width: 300px;
+  height: 50px;
+  border: none;
+  background-color: #FB4A67;
+  border-radius: 12px;
+  font-size: 20px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #e63c5b;
+  }
+`;
+
 
 export default function WithdrawConfirm() {
   const location = useLocation();
@@ -46,110 +158,4 @@ export default function WithdrawConfirm() {
     </Wrapper>
   );
 }
-
-// styled-components 생략 (이전 코드 재사용)
-
-
-// styled-components 생략 (기존과 동일)
-
-
-// ✅ 레이아웃
-const Wrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-
-const Outer = styled.div`
-  width: 100%;
-`;
-
-const Inner = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 18px 0;
-`;
-
-const TitleBox = styled.div`
-  display: flex;
-  align-items: center;        // 세로 중앙 정렬
-  gap: 12px;                  // 아이콘과 타이틀 간격
-  padding: 24px 0;            // ✅ 위아래 여백 확보
-  border-bottom: 1px solid #e5e5e5;
-`;
-
-const Title = styled.h2`
-  font-size: 24px;
-  font-weight: 600;
-  margin: 0;
-  line-height: 1.2;           // ✅ 라인 정렬 안정화
-  transform: translateY(1px); // ✅ 약간 아래로 내리기 (시각적 보정)
-`;
-
-
-// ✅ 탈퇴 사유 리스트
-const ReasonList = styled.ul`
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  margin: 40px 0;
-`;
-
-
-
-const Notice = styled.ul`
-  font-size: 15px;
-  color: #555;
-  line-height: 1.6;
-  margin-top: 40px;
-  margin-bottom: 72px;
-
-  li {
-    margin-bottom: 8px;
-    a {
-      color: #00a862;
-      text-decoration: underline;
-      margin-left: 4px;
-    }
-  }
-`;
-const ButtonRow = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 50px;
-  margin-top: 40px;
-`;
-
-const CancelButton = styled.button`
-  width: 300px;
-  height: 50px;
-  border: none;
-  background-color: #f1f1f1;
-  border-radius: 12px;
-  font-size: 18px;
-  font-weight: 600;
-  color: #333;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #e4e4e4;
-  }
-`;
-
-const WithdrawButton = styled.button`
-  width: 300px;
-  height: 50px;
-  border: none;
-  background-color: #FB4A67;
-  border-radius: 12px;
-  font-size: 18px;
-  font-weight: 600;
-  color: white;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #e63c5b;
-  }
-`;
 

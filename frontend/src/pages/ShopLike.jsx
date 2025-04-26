@@ -43,16 +43,18 @@ const Title = styled.h2`
   font-size: 26px;
   font-weight: 600;
   margin: 0;
-  padding-bottom: 34px; // 구분선과 간격
+  padding-bottom: 35px; // 구분선과 간격
 `;
 
 const LeftArrowIcon = styled.img`
   width: 30px;
   height: 30px;
   margin-right: 10px; // 아이콘과 텍스트 간 간격
-  padding-bottom: 34px; // 구분선과 간격
+  margin-left: -5px;
+  padding-bottom: 35px; // 구분선과 간격
   cursor: pointer;
 `;
+
 
 const ItemList = styled.div`
   display: flex;
