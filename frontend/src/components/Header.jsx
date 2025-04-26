@@ -594,7 +594,7 @@ const Step = styled(({ active, ...props }) => <div {...props} />)`
   border-radius: 8px;
   font-weight: 600;
   color: ${({ active }) => (active ? 'white' : '#ccc')};
-  background-color: ${({ active }) => (active ? '#4CAF50' : '#eee')};
+  background-color: ${({ active }) => (active ? '#FB4A67' : '#eee')};
   margin: 0 4px;
   font-size: 14px;
 `;
@@ -602,7 +602,7 @@ const Step = styled(({ active, ...props }) => <div {...props} />)`
 const StatusLabel = styled.div`
   font-size: 20px;
   font-weight: 700;
-  color: #4CAF50;
+  color: #FB4A67;
   margin-bottom: 12px;
 `;
 
@@ -667,21 +667,21 @@ const ButtonArea = styled.div`
   margin-top: 24px;
 `;
 
-const CancelButton = styled.button`
-  padding: 8px 16px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background: #fff;
-  cursor: pointer;
-`;
+// const CancelButton = styled.button`
+//   padding: 8px 16px;
+//   border: 1px solid #ccc;
+//   border-radius: 8px;
+//   background: #fff;
+//   cursor: pointer;
+// `;
 
 const ReviewButton = styled.button`
   padding: 8px 16px;
-  background-color: #FB4A67;
-  color: white;
-  border: none;
+  background-color: #fff;
+  border: 1px solid #717171;
   border-radius: 8px;
   cursor: pointer;
+  font-weight: 500;
 `;
 
 export default function Header({ isLoggedIn }) {
@@ -701,6 +701,7 @@ export default function Header({ isLoggedIn }) {
   const [showHideModal, setShowHideModal] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [isMenuClick, setIsMenuClick] = useState(false);
   
   // 1. 검색 키워드 상태관리
   const [searchQuery, setSearchQuery] = useState('');
@@ -913,14 +914,17 @@ export default function Header({ isLoggedIn }) {
                               {/* 메뉴 아이콘 */}
                               <AlertMenuWrapper className="alert-menu">
                                 <MenuDropDownButton
-                                  onClick={() => setOpenMenuId(openMenuId === alert.id ? null : alert.id)}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOpenMenuId(openMenuId === alert.id ? null : alert.id);
+                                  }}
                                 >
                                   <MenuDropDownIcon src={menuDrop} alt="메뉴" />
                                 </MenuDropDownButton>
                                 {openMenuId === alert.id && (
                                   <DropdownMenu className="alert-menu">
-                                    <DropdownItem>숨김</DropdownItem>
-                                    <DropdownItem color="#FB4A67">삭제</DropdownItem>
+                                    <DropdownItem onClick={(e)=> {e.stopPropagation()}}>숨김</DropdownItem>
+                                    <DropdownItem color="#FB4A67" onClick={(e)=> {e.stopPropagation()}}>삭제</DropdownItem>
                                   </DropdownMenu>
                                 )}
                               </AlertMenuWrapper>
@@ -942,14 +946,17 @@ export default function Header({ isLoggedIn }) {
                               {/* 메뉴 아이콘 */}
                               <AlertMenuWrapper className="alert-menu">
                                 <MenuDropDownButton
-                                  onClick={() => setOpenMenuId(openMenuId === alert.id ? null : alert.id)}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOpenMenuId(openMenuId === alert.id ? null : alert.id);
+                                  }}
                                 >
                                   <MenuDropDownIcon src={menuDrop} alt="메뉴" />
                                 </MenuDropDownButton>
                                 {openMenuId === alert.id && (
                                   <DropdownMenu className="alert-menu">
-                                    <DropdownItem>숨김</DropdownItem>
-                                    <DropdownItem color="#FB4A67">삭제</DropdownItem>
+                                    <DropdownItem onClick={(e)=> {e.stopPropagation()}}>숨김</DropdownItem>
+                                    <DropdownItem color="#FB4A67" onClick={(e)=> {e.stopPropagation()}}>삭제</DropdownItem>
                                   </DropdownMenu>
                                 )}
                               </AlertMenuWrapper>
@@ -994,7 +1001,7 @@ export default function Header({ isLoggedIn }) {
                       </RequestBox>
 
                       <ButtonArea>
-                        <CancelButton>거래 취소</CancelButton>
+                        {/* <CancelButton>거래 취소</CancelButton> */}
                         <ReviewButton onClick={() => setModalOpen(true)}>리뷰쓰기</ReviewButton>
                       </ButtonArea>
                     </StatusModalContent>
