@@ -251,7 +251,7 @@ export default function ShopOrder() {
                 </LikeSection>
 
                 <ActionButtons>
-                  <ActionButton as="button">거래취소</ActionButton>
+                  {/* <ActionButton as="button">거래취소</ActionButton> */}
                   <ActionButton as="button" onClick={() => setModalOpen(true)}>리뷰쓰기</ActionButton>
                 </ActionButtons>
               </ItemCard>
