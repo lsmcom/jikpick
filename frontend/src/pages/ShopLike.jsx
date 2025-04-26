@@ -140,7 +140,7 @@ const LikeSection = styled.div`
 
   span {
     display: block;
-    font-size: 12px;
+    font-size: 16sspx;
     margin-top: 4px;
     color: #333;
   }

@@ -314,7 +314,7 @@ const LikeSection = styled.div`
   }
 
   .like-row span {
-    font-size: 20px;
+    font-size: 18px;
     color: #333;
     margin: 0;
   }

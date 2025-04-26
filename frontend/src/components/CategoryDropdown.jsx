@@ -150,13 +150,16 @@ export default function CategoryDropdown() {
      {/* 3단 */}
       {subSub.length > 0 && (
         <Column>
-          <ColumnTitle>{selectedSub.name}</ColumnTitle>
-          {subSub.map((leaf) => (
-            <Link to={`/category/${encodeURIComponent(leaf)}`} key={leaf} style={{ textDecoration: 'none' }}>
-              <Item>{leaf}</Item>
-            </Link>
-          ))}
-        </Column>
+        <ColumnTitle>{selectedSub.name}</ColumnTitle>
+        {subSub.map((leaf) => (
+          <Item
+            key={leaf}
+            onClick={() => navigate(`/category/${encodeURIComponent(leaf)}`)}
+          >
+            {leaf}
+          </Item>
+        ))}
+      </Column>
       )}
     </DropdownWrapper>
   );

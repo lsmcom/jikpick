@@ -27,6 +27,7 @@ import ShopOrder from './pages/ShopOrder';
 import CategoryPage from './pages/CategoryPage';
 import WithdrawReason from './pages/WithdrawReason';
 import WithdrawConfirm from './pages/WithdrawConfirm'
+import PopularProduct from './pages/PopularProduct';
 
 import ModifyInfo from './pages/ModifyInfo';
 
@@ -60,9 +61,10 @@ function App() {
         <Route path="/myShop" element={<SellerStore/>}/>
         <Route path="/shopLike" element={<ShopLike />}/>
         <Route path="/shopOrder" element={<ShopOrder />}/>
-        <Route path="/category/:main/:sub?" element={<CategoryPage />} />
+        <Route path="/category/:categoryName" element={<CategoryPage />} />
         <Route path="/withdrawReason" element={<WithdrawReason />}/>
         <Route path="/withdrawConfirm" element={<WithdrawConfirm />}/>
+        <Route path="/popular/:categoryName" element={<PopularProduct />} />
       </Routes>
     </BrowserRouter>
   );

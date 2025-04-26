@@ -33,7 +33,6 @@ const ProductImage = styled.img`
   height: 400px;
   object-fit: cover;
   border-radius: 0px;
-  margin-top: 10px;
   margin-left: 0px;
   
 `;

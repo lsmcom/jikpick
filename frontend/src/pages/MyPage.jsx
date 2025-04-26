@@ -23,13 +23,13 @@ const Outer = styled.div`
   width: 100%;
 `;
 
-// 📦 콘텐츠 최대 너비 제한 및 중앙 정렬을 위한 wrapper
+
 const Inner = styled.div`
   max-width: 1200px;
-  margin: 0 auto; // 수평 중앙 정렬
-  padding: 18px 0; // 위아래 여백
+  margin: 0 auto;
+  padding: 18px 0 80px; /* ⬅️ 아래쪽 패딩으로 푸터 여백 확보 */
+  min-height: 70vh; /* ⬅️ 기본 높이 확보 (스크롤 유도용) */
 `;
-
 // 📌 페이지 최상단의 제목과 구분선을 감싸는 영역
 const TitleBox = styled.div`
   display: flex;

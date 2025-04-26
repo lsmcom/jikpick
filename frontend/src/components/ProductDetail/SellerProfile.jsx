@@ -1,5 +1,6 @@
 // src/components/ProductDetail/SellerProfile.jsx
 import styled from 'styled-components';
+import starIcon from '../../assets/icon/StarIcon.svg'
 
 const SellerWrapper = styled.div`
   display: flex;
@@ -42,7 +43,8 @@ export default function SellerProfile({ seller }) {
     <p>
       <strong>{seller.name}</strong>
       &nbsp;
-      <span style={{ color: '#ffe600' }}>⭐</span> {seller.rating.toFixed(1)} (14)
+      <img src={starIcon} alt="별 아이콘" style={{ width: '14px', height: '14px', verticalAlign: 'middle', marginBottom: '2px' }} />
+      &nbsp;{seller.rating.toFixed(1)} (14)
     </p>
     <p>상품 6개</p>
   </SellerInfo>
