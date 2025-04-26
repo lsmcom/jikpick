@@ -108,7 +108,8 @@ const StarButton = styled.button`
 const TextArea = styled.textarea`
   width: 100%;
   height: 120px;
-  font-size: 15px;
+  font-family: 'pretendard';
+  font-size: 16px;
   padding: 12px;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -137,6 +138,7 @@ const SubmitBtn = styled.button`
   color: white;
   font-weight: 600;
   padding: 8px 20px;
+  font-size: 16px;
   border: none;
   border-radius: 8px;
   cursor: pointer;

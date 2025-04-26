@@ -39,14 +39,15 @@ const Title = styled.h2`
   font-size: 26px;
   font-weight: 600;
   margin: 0;
-  padding-bottom: 34px;
+  padding-bottom: 35px;
 `;
 
 const LeftArrowIcon = styled.img`
   width: 30px;
   height: 30px;
   margin-right: 10px;
-  padding-bottom: 34px;
+  margin-left: -5px;
+  padding-bottom: 35px;
   cursor: pointer;
 `;
 
@@ -132,7 +133,7 @@ const LikeSection = styled.div`
 
   span {
     display: block;
-    font-size: 12px;
+    font-size: 16px;
     margin-top: 4px;
     color: #333;
   }

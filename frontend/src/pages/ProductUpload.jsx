@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import cameraIcon from '../assets/icon/Camera.svg';
+import { useNavigate } from 'react-router-dom'; // 🔥 이미 되어 있을 수도 있음
 
 // dnd-kit import
 import {
@@ -206,6 +207,7 @@ const Input = styled.input`
   width: 670px;
   height: 50px;
   padding: 12px 16px;
+  font-family: 'pretendard';
   font-size: 16px;
   border: 1px solid #ddd;
   border-radius: 20px;
@@ -302,6 +304,7 @@ const Tag = styled.div`
   padding: 6px 12px;
   border-radius: 20px; // 둥근 모양
   font-size: 16px;
+  font-family: 'pretendard';
   display: flex;
   align-items: center;
   gap: 8px; // 텍스트와 X 버튼 사이 간격
@@ -329,6 +332,7 @@ const TagInputWrapper = styled.div`
 // 📝 태그 입력 input 필드
 const TagInput = styled.input`
   width: 670px;
+  font-family: 'pretendard';
   height: 50px;
   padding: 12px 16px;
   font-size: 16px;
@@ -401,12 +405,14 @@ const ConditionOption = styled.label`
 // 🏷️ 상품 상태의 제목 (예: "사용감 적음")
 const ConditionTitle = styled.span`
   font-weight: 600;
+  font-family: 'pretendard';
   margin-bottom: 4px;
   color: ${({ checked }) => (checked ? '#FB4A67' : '#333')}; // 선택 시 핑크색 강조
 `;
 
 // 💬 상품 상태의 설명 텍스트 (예: "눈에 띄는 흔적이나 얼룩이 약간 있음")
 const ConditionDesc = styled.span`
+ font-family: 'pretendard';
   font-size: 16px;
   color: #777;
   line-height: 1.4;
@@ -421,6 +427,7 @@ const TextAreaWrapper = styled.div`
 
 // 📝 상품 설명 입력 필드
 const TextArea = styled.textarea`
+ font-family: 'pretendard';
   width: 100%;
   height: 200px;
   padding: 16px;
@@ -457,6 +464,7 @@ const TextCount = styled.span`
 // 💰 가격 입력창 전체 감싸는 래퍼 (placeholder, 원 텍스트 포함)
 const PriceInputWrapper = styled.div`
   position: relative;
+  font-family: 'pretendard';
   width: 300px;
   height: 50px;
   margin-bottom: 12px;
@@ -470,6 +478,7 @@ const PriceInput = styled.input.withConfig({
   height: 100%;
   padding: 12px 36px 12px 16px; // 오른쪽 padding은 "원" 텍스트 공간 확보
   font-size: 16px;
+  font-family: 'pretendard';
   border: 1px solid #ddd;
   border-radius: 20px;
   box-sizing: border-box;
@@ -949,6 +958,8 @@ export default function ProductRegistration() {
     return distance <= 3;
   });
 
+  const navigate = useNavigate(); // 🔥 메인으로 이동할 때 쓰는 navigate 추가
+
   return (
     <Wrapper>
       <Header />
@@ -1289,9 +1300,26 @@ export default function ProductRegistration() {
 
             {/* 최종 마무리 버튼 시작 */}
             <ButtonContainer>
-              <SaveButton>임시저장</SaveButton>
-              <SubmitButton>등록하기</SubmitButton>
-            </ButtonContainer>
+            <SaveButton onClick={() => {
+              if (window.confirm('현재 내용을 임시 저장 하시겠습니까?')) {
+                alert('저장되었습니다.');
+                // 여기서 원하면 나중에 저장 로직 추가 가능
+              }
+            }}>
+              임시저장
+            </SaveButton>
+
+            <SubmitButton onClick={() => {
+                const isConfirmed = window.confirm('등록을 완료하시겠습니까?');
+                if (isConfirmed) {
+                  alert('등록이 완료되었습니다.');
+                  navigate('/');
+                }
+              }}>
+                등록하기
+              </SubmitButton>
+
+                        </ButtonContainer>
             {/* 최종 마무리 버튼 끝 */}
           </FieldBox>
         </Inner>

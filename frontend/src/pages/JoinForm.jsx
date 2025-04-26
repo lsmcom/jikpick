@@ -35,7 +35,7 @@ const InputWithButton = styled.div`
 const Input = styled.input`
   width: 100%;
   padding: 14px 16px;
-  padding-right: 100px;
+  padding-right: 10px;
   border: 1px solid #ddd;
   border-radius: 12px;
   font-size: 15px;
@@ -73,6 +73,7 @@ const CheckButton = styled.button`
   &:hover {
     background-color: #FB4A67;
     color: white;
+    border: none;
   }
 `;
 
@@ -193,6 +194,7 @@ const TellCheckButton = styled.button`
   &:hover {
     background-color: #FB4A67;
     color: white;
+    border: none;
   }
 `;
 
