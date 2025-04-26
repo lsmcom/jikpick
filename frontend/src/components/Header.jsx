@@ -344,6 +344,11 @@ const ModalListItem = styled.div`
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   color: #333;
   line-height: 1.6;
+  cursor: pointer;
+  
+  &:hover {
+    background-color: #f9f9f9;
+  }
 `;
 
 // 알림 모달 내의 스타일들
@@ -702,6 +707,22 @@ export default function Header({ isLoggedIn }) {
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [isMenuClick, setIsMenuClick] = useState(false);
+
+  // ✅ 1. 지역 상태 추가
+  const [selectedLocation, setSelectedLocation] = useState(() => {
+    return localStorage.getItem('selectedLocation') || '지역설정';
+  });
+
+  // ✅ 2. 리스트 클릭했을 때 지역 선택
+  const handleLocationClick = (location) => {
+    
+    const splitLocation = location.split(', ');
+    const shortLocation = splitLocation[splitLocation.length - 1]; 
+  
+    setSelectedLocation(shortLocation);
+    localStorage.setItem('selectedLocation', shortLocation); 
+    setShowModal(false);
+  };
   
   // 1. 검색 키워드 상태관리
   const [searchQuery, setSearchQuery] = useState('');
@@ -1052,7 +1073,9 @@ export default function Header({ isLoggedIn }) {
 
           <LocationSetting onClick={() => setShowModal(true)}>
             <LocationIcon src={ping} />
-            <span style={{ cursor: 'pointer', fontWeight: 600 , color: '333333'}}>지역설정</span>
+            <span style={{ cursor: 'pointer', fontWeight: 600 , color: '333333'}}>
+              {selectedLocation}
+            </span>
           </LocationSetting>
           
           {showModal && (
@@ -1098,14 +1121,18 @@ export default function Header({ isLoggedIn }) {
                     <ModalListContainer>
                       <ModalListTitle>추천</ModalListTitle>
                       {recommendedLocations.map((item, i) => (
-                        <ModalListItem key={i}>{item}</ModalListItem>
+                        <ModalListItem key={i} onClick={() => handleLocationClick(item)}>
+                          {item}
+                        </ModalListItem>
                       ))}
                     </ModalListContainer>
                   ) : (
                     <ModalListContainer>
                       {filteredLocations.length > 0 ? (
                         filteredLocations.map((item, i) => (
-                          <ModalListItem key={i}>{item}</ModalListItem>
+                          <ModalListItem key={i} onClick={() => handleLocationClick(item)}>
+                            {item}
+                          </ModalListItem>
                         ))
                       ) : (
                         <ModalListItem>검색 결과가 없습니다.</ModalListItem>
