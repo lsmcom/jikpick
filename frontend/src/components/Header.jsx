@@ -710,22 +710,6 @@ export default function Header({ isLoggedIn }) {
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [isMenuClick, setIsMenuClick] = useState(false);
-
-  // ✅ 1. 지역 상태 추가
-  const [selectedLocation, setSelectedLocation] = useState(() => {
-    return localStorage.getItem('selectedLocation') || '지역설정';
-  });
-
-  // ✅ 2. 리스트 클릭했을 때 지역 선택
-  const handleLocationClick = (location) => {
-    
-    const splitLocation = location.split(', ');
-    const shortLocation = splitLocation[splitLocation.length - 1]; 
-  
-    setSelectedLocation(shortLocation);
-    localStorage.setItem('selectedLocation', shortLocation); 
-    setShowModal(false);
-  };
   
   // 1. 검색 키워드 상태관리
   const [searchQuery, setSearchQuery] = useState('');
