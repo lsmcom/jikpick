@@ -5,6 +5,7 @@ a {
 
 body {
   font-family: 'Pretendard', sans-serif;
+  margin: 0;
 }
 a:hover {
   text-decoration: none;

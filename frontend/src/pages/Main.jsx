@@ -19,7 +19,7 @@ import earingImg from '../assets/images/earing.jpg';
 import heatImg from '../assets/images/heat.png';
 import beautyImg from '../assets/images/beauty.jpg';
 import bookImg from '../assets/images/book.jpg';
-
+import heartIcon from '../assets/icon/HeartIcon.svg'
 // 필요한 만큼 추가
 
 
@@ -118,7 +118,7 @@ const Like = styled.div`
   font-size: 17px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 `;
 
 export default function Main() {
@@ -193,20 +193,22 @@ export default function Main() {
           onMouseMove={onMouseMove}
         >
           {categories.map((c) => (
-             <CategoryItem key={c.name}>
-             <img
-               src={c.icon}
-               alt={c.name}
-               style={{
-                 width: '120px',
-                 height: '120px',
-                 borderRadius: '10%',
-                 marginBottom: '6px',
-                 objectFit: 'cover'
-               }}
-             />
-             {c.name}
-           </CategoryItem>
+            <Link to={`/popular/${encodeURIComponent(c.name)}`} key={c.name} style={{ textDecoration: 'none', color: 'inherit' }}>
+            <CategoryItem>
+              <img
+                src={c.icon}
+                alt={c.name}
+                style={{
+                  width: '120px',
+                  height: '120px',
+                  borderRadius: '10%',
+                  marginBottom: '6px',
+                  objectFit: 'cover'
+                }}
+              />
+              {c.name}
+            </CategoryItem>
+          </Link>
           ))}
         </CategoryBar>
 
@@ -219,7 +221,10 @@ export default function Main() {
                 <Title>{item.title}</Title>
                 <ItemInfo>
                   <Price>{item.price}</Price>
-                  <Like>❤️ {item.likes}</Like>
+                  <Like>
+                            <img src={heartIcon} alt="좋아요" style={{ width: '18px', height: '18px' }} />
+                            3
+                          </Like>
                 </ItemInfo>
               </Card>
             </Link>

@@ -2,17 +2,20 @@
 import styled from 'styled-components';
 import profileImg from '../../assets/images/profile1.jpg';
 import { NavLink } from 'react-router-dom';
+import heartIcon from '../../assets/icon/HeartIcon.svg'
+import starIcon from '../../assets/icon/StarIcon.svg'
+
 
 const InfoWrapper = styled.div`
   flex: 1;
   height: 410px;
-  padding-right: 10px;
   position: relative;
 `;
 
 const Title = styled.h2`
   font-size: 32px;
   margin-bottom: 8px;
+  margin-top: 0px;
 `;
 
 const Category = styled.p`
@@ -21,11 +24,16 @@ const Category = styled.p`
   margin-bottom: 6px;
 `;
 
-const Like = styled.p`
-  color: red;
+
+const Like = styled.div`
+  color: #FB4A67;
   font-size: 18px;
   margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px; /* 아이콘과 숫자 사이 여백 */
 `;
+
 
 const Price = styled.p`
   font-size: 28px;
@@ -59,11 +67,13 @@ const SellerName = styled.p`
   font-weight: bold;
   margin: 0;
 `;
-
-const Rating = styled.p`
+const Rating = styled.div`
   font-size: 16px;
   color: #555;
   margin: 2px 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 `;
 
 const ProductStatus = styled.p`
@@ -119,7 +129,11 @@ export default function ProductInfo({ title,
       <InfoWrapper>
         <Title>{title}</Title>
         <Category>{category} ∙ {createdAt}</Category>
-        <Like>❤️ 3</Like>
+        <Like>
+          <img src={heartIcon} alt="좋아요" style={{ width: '18px', height: '18px' }} />
+          3
+        </Like>
+
   
         <Price>{price.toLocaleString()}원</Price>
   
@@ -127,7 +141,11 @@ export default function ProductInfo({ title,
           <ProfileImg src={profileImg} alt="판매자 프로필" />
           <SellerText>
             <SellerName>{sellerName}</SellerName>
-            <Rating>3.5 ⭐ (4)</Rating>
+            <Rating>
+              3.5
+              <img src={starIcon} alt="별점" style={{ width: '16px', height: '16px', marginLeft: '2px' }} />
+              (4)
+            </Rating>
             <ProductStatus>• 상품 상태: 고장/파손 상품</ProductStatus>
           </SellerText>
 
