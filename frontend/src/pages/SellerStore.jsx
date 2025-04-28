@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ReviewTab from '../components/ProductDetail/ReviewTab';
 import sellerProfile from '../assets/images/profile1.jpg';
@@ -174,7 +173,6 @@ export default function SellerStore() {
 
   return (
     <>
-      <Header />
       <PageContainer>
         <SellerBox>
           <ProfileImageWrapper>

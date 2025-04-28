@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ProductInfo from '../components/ProductDetail/ProductInfo';
 import ProductDescription from '../components/ProductDetail/ProductDescription';
@@ -58,7 +57,6 @@ export default function ProductDetail() {
 
   return (
     <Container>
-        <Header/>
       {/* 상단: 이미지 + 상품정보 */}
       <ProductTop>
         <ProductImage src={product.image} alt="상품 이미지" />

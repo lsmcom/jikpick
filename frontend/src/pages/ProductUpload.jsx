@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import Header from '../components/Header';
 import Footer from '../components/Footer';
 import cameraIcon from '../assets/icon/Camera.svg';
 import { useNavigate } from 'react-router-dom'; // 🔥 이미 되어 있을 수도 있음
@@ -962,7 +961,6 @@ export default function ProductRegistration() {
 
   return (
     <Wrapper>
-      <Header />
       <Outer>
         <Inner>
           <TitleBox>

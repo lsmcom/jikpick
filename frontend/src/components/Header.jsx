@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import box from '../assets/icon/Logo.svg';
 import search from '../assets/icon/SearchIcon.svg';
 import ping from '../assets/icon/LocationPing.svg';
@@ -692,7 +692,9 @@ cursor: pointer;
   background-color: #f9f9f9;
 }
 `;
-export default function Header({ isLoggedIn }) {
+export default function Header({ isLoggedIn, setIsLoggedIn }) {
+  const navigate = useNavigate();
+
   const [showCategory, setShowCategory] = useState(false);
 
   //알림 모달 상태 관리
@@ -874,17 +876,30 @@ export default function Header({ isLoggedIn }) {
     setModalOpen(false);
   };
 
+  // 로그아웃 처리 함수
+  const handleLogout = (e) => {
+    e.preventDefault(); // 링크의 기본 동작인 페이지 이동을 막음
+    
+    // localStorage 또는 sessionStorage에서 사용자 정보 삭제
+    localStorage.removeItem('user');
+    sessionStorage.removeItem('user');
+    
+    // 로그인 상태 변경
+    setIsLoggedIn(false);
+    
+    // 메인 화면으로 리다이렉트
+    navigate('/');
+  };
+
   return (
     <HeaderWrapper>
       <HeadContainer>
         <TopBar>
           {isLoggedIn ? (
             <>
-              <NavLink to="/logout">로그아웃</NavLink>
-              
-            </>
-          ) : (
-            <>
+              <NavLink to="#" onClick={handleLogout}>
+                로그아웃
+              </NavLink>
               <div style={{ position: 'relative' }} ref={alertRef}>
                 <AlertText onClick={() => setShowAlert(!showAlert)}>알림</AlertText>
                 {showAlert && (
@@ -1039,7 +1054,9 @@ export default function Header({ isLoggedIn }) {
                   onSubmit={handleReviewSubmit}
                 />
               )}
-
+            </>
+          ) : (
+            <>
               <NavLink to="/login">로그인</NavLink>
               <NavLink to="/signup">회원가입</NavLink>
             </>

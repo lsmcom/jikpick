@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import Header from '../components/Header';
 import Footer from '../components/Footer';
 import leftArrow from '../assets/icon/LeftArrow.svg';
 import exampleProfile from '../assets/images/ExampleProfile.svg';
@@ -187,7 +186,6 @@ export default function ModifyInfo() {
 
   return (
     <Wrapper>
-      <Header />
       <Outer>
         <Inner>
           <TitleBox>

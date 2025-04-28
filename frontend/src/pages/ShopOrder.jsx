@@ -1,6 +1,5 @@
 // ✅ styled-components
 import styled from 'styled-components';
-import Header from '../components/Header';
 import Footer from '../components/Footer';
 import leftArrow from '../assets/icon/LeftArrow.svg';
 import heartIcon from '../assets/icon/HeartIcon.svg'; 
@@ -221,7 +220,6 @@ export default function ShopOrder() {
 
   return (
     <Wrapper>
-      <Header />
       <Outer>
         <Inner>
           <TitleBox>

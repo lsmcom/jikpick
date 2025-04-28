@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
@@ -305,7 +304,6 @@ export default function ProductOrder() {
     const total = productPrice + fee;
     return (
       <Wrapper>
-        <Header />
         <Outer>
           <Inner>
             <TitleBox>

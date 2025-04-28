@@ -1,5 +1,4 @@
 import styled from 'styled-components'; 
-import Header from '../components/Header';
 import Footer from '../components/Footer';
 import leftArrow from '../assets/icon/LeftArrow.svg';
 import { useNavigate } from 'react-router-dom';
@@ -108,7 +107,6 @@ export default function WithdrawReason() {
 
   return (
     <Wrapper>
-      <Header />
       <Outer>
         <Inner>
           <TitleBox>

@@ -138,7 +138,6 @@ export default function CategoryPage() {
 
   return (
     <Wrapper>
-      <Header />
       <Container>
         <Breadcrumb>홈 &gt; 여성의류 &gt; 아우터 &gt; {currentCategory}</Breadcrumb>
         <Location>경기도 고양시 일산동구</Location>
