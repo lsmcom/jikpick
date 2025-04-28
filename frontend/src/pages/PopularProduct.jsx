@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
-import Header from '../components/Header';
 import Footer from '../components/Footer';
 import heartIcon from '../assets/icon/HeartIcon.svg';
 import { useEffect, useState } from 'react';
@@ -103,7 +102,6 @@ export default function PopularCategoryPage() {
 
   return (
     <Wrapper>
-      <Header />
       <Container>
         <Breadcrumb>홈 &gt; 인기 카테고리 &gt; {currentCategory}</Breadcrumb>
         <Location>경기도 고양시 일산동구</Location>

@@ -1,5 +1,4 @@
 import styled from 'styled-components'; 
-import Header from '../components/Header'; // 공통 헤더
 import Footer from '../components/Footer'; // 공통 푸터
 import { NavLink } from 'react-router-dom'; 
 import rightIcon from '../assets/icon/RightIcon.svg';
@@ -187,7 +186,6 @@ const MenuIcon = styled.img`
 export default function MyPage() {
   return (
     <Wrapper>
-      <Header />
       <Outer>
         <Inner>
           <TitleBox>

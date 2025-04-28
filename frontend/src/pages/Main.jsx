@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import Header from '../components/Header';
 import Banner from '../components/Banner';
 import Footer from '../components/Footer';
 import { useRef } from 'react';
@@ -181,7 +180,6 @@ export default function Main() {
   
   return (
     <MainWrapper>
-      <Header isLoggedIn={false} />
       <Container>
         <Banner />
 

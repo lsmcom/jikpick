@@ -5,7 +5,11 @@ import checkIcon from '../assets/icon/checkIcon.svg'
 import checkFilledIcon from '../assets/icon/CheckCircleFill.svg'
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Wrapper, Logo } from '../pages/LoginContainer';
+<<<<<<< HEAD
 import { join } from "../assets/api/auth.js";
+=======
+import axios from '../api/axios'; 
+>>>>>>> 43d95ece33133920abc3dfc6cdcce2568dd5a8b0
 
 // 🔲 회원가입 박스 전체
 const JoinBox = styled.div`
@@ -70,6 +74,56 @@ const CheckButton = styled.button`
   color: #555;
   cursor: pointer;
   margin-top: -8px;
+
+  &:hover {
+    background-color: #FB4A67;
+    color: white;
+    border: none;
+  }
+`;
+
+// 🔥 인증번호 입력창 버튼 묶는 박스 (확인 + 다시 보내기)
+const CodeButtonGroup = styled.div`
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+// CodeButtonGroup 안에 있는 버튼 스타일 조정
+const CodeButton = styled(CheckButton)`
+  position: static;
+  margin-top: -15px;
+  transform: none;
+  height: 29px;  // 높이 통일
+  padding: 0 12px; // 좌우 여백 통일
+  font-size: 14px;
+  border: 1px solid #aaa;
+  background-color: white;
+  color: #555;
+  &:hover {
+    background-color: #FB4A67;
+    color: white;
+    border: none;
+  }
+`;
+
+// ✅ 다시 보내기 버튼 (CheckButton과 거의 같지만 약간 넓게)
+const ResendButton = styled.button`
+  padding: 7px 16px;   // 🔥 살짝 더 넓은 패딩
+  height: auto;
+  line-height: 1;
+  border: 1px solid #aaa;
+  border-radius: 8px;
+  background-color: white;
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  margin-top: -15px;
 
   &:hover {
     background-color: #FB4A67;
@@ -331,24 +385,28 @@ export default function JoinForm() {
   // ✅ 아이디 상태 정의
   const [id, setId] = useState('');
   const [idValid, setIdValid] = useState(null); // true/false/null
-  const usedIds = ['jikpick123', 'admin', 'user1']; // 예시로 사용 중인 아이디 목록
 
   // ✅ 비밀번호 상태 정의
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   
   // ✅ 이메일 상태 정의
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [showCodeInput, setShowCodeInput] = useState(false);
   const [emailValid, setEmailValid] = useState(true);
   const [code, setCode] = useState('');
   const [codeValid, setCodeValid] = useState(null);
-  const fakeSentCode = '123456'; //예시로 사용중인 이메일 인증 코드
+  const [realEmailCode, setRealEmailCode] = useState(''); // 🔥 서버에서 받은 진짜 인증번호 저장
+
+  // 🔥 이메일 인증 추가 상태
+  const [emailTimer, setEmailTimer] = useState(0); // 남은 시간(초)
+  const [emailExpired, setEmailExpired] = useState(false); // 만료 여부
+  const timerRef = useRef(null); // 타이머 저장용 ref
 
   // ✅ 닉네임 상태 정의
   const [nickname, setNickname] = useState('');
   const [nicknameValid, setNicknameValid] = useState(null);
-  const usedNicknames = ['오로라마켓', '직픽마스터', 'testuser']; // 예시 닉네임들
 
   // ✅ 생년월일 상태 정의
   const [birth, setBirth] = useState('');
@@ -380,39 +438,102 @@ export default function JoinForm() {
 
   const navigate = useNavigate(); // ✅ 로그인 페이지로 이동을 위한 훅
   
-  // ✅ 아이디 중복확인 버튼 클릭 시 처리
-  const handleCheckId = () => {
+  // ✅ 아이디 중복확인
+  const handleCheckId = async () => {
     if (id.trim() === '') return;
-    const isAvailable = !usedIds.includes(id.trim().toLowerCase());
-    setIdValid(isAvailable);
+  
+    try {
+      // ✅ 서버로 POST 요청 보내서 아이디 중복 확인
+      const response = await axios.post('/api/users/check-id', { id: id.trim() });
+      
+      if (response.data.available) {
+        setIdValid(true); // 사용 가능
+      } else {
+        setIdValid(false); // 사용 불가능
+      }
+    } catch (error) {
+      console.error('아이디 중복확인 오류:', error);
+      alert('아이디 중복확인 중 오류가 발생했습니다.');
+    }
   };
 
   // 이메일 형식 검증 함수
   const isEmailFormat = (email) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  const handleVerifyClick = () => {
+  // ✅ 이메일 인증하기 버튼 클릭 시
+  const handleVerifyClick = async () => {
     if (!isEmailFormat(email)) {
       setEmailValid(false);
       setShowCodeInput(false);
       return;
     }
-
-    setEmailValid(true);
-    setShowCodeInput(true);
-    setCodeValid(null);
+  
+    try {
+      // 서버에 이메일 인증 요청
+      const res = await axios.post('/api/users/send-email', { email });
+  
+      if (res.status === 200 && res.data.code) {
+        alert('인증 코드가 이메일로 발송되었습니다!');
+        setEmailValid(true);
+        setShowCodeInput(true);
+        setCodeValid(null);
+  
+        // 인증번호 저장
+        setRealEmailCode(res.data.code); // ✅ 서버에서 받은 인증번호는 별도로 저장만!
+  
+        // 🔥 타이머 시작
+        clearInterval(timerRef.current);
+        setEmailTimer(300); // 5분(300초) 설정
+        setEmailExpired(false);
+  
+        timerRef.current = setInterval(() => {
+          setEmailTimer((prev) => {
+            if (prev <= 1) {
+              clearInterval(timerRef.current);
+              setEmailExpired(true);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      }
+    } catch (error) {
+      console.error('이메일 인증 요청 실패:', error);
+      alert('이메일 인증 요청에 실패했습니다.');
+    }
   };
+
 
   // 이메일 인증 코드 검증 함수
   const handleCodeConfirm = () => {
-    setCodeValid(code === fakeSentCode);
+    if (emailExpired) {
+      setCodeValid(false); // 🔥 만료됐으면 무조건 실패
+      alert('인증 시간이 만료되었습니다. 다시 인증을 요청해주세요.');
+      return;
+    }
+  
+    setCodeValid(code === realEmailCode);
   };
 
-  // ✅ 닉네임 중복확인 버튼 클릭 시 처리
-  const handleCheckNickname = () => {
+  // ✅ 컴포넌트가 언마운트(화면에서 사라질 때) 될 때, 남아있는 타이머를 정리해주는 역할
+  useEffect(() => {
+    return () => {
+      clearInterval(timerRef.current); // 🔥 메모리 누수 방지: 타이머 정리
+    };
+  }, []);
+
+  // ✅ 닉네임 중복확인
+  const handleCheckNickname = async () => {
     if (nickname.trim() === '') return;
-    const isAvailable = !usedNicknames.includes(nickname.trim());
-    setNicknameValid(isAvailable);
+
+    try {
+      const response = await axios.post('/api/users/check-nick', { nick: nickname });
+      setNicknameValid(response.data.available);
+    } catch (error) {
+      console.error('닉네임 중복확인 에러:', error);
+      setNicknameValid(false);
+    }
   };
 
   // ✅ 생년월일 형식 검증 함수
@@ -465,6 +586,7 @@ export default function JoinForm() {
 
   // ✅ 회원가입 유효성 검사 및 제출
   const handleSubmit = async () => {
+<<<<<<< HEAD
     if (!id || idValid === false) return alert('아이디를 확인해주세요.');
     if (!password || password !== confirmPassword) return alert('비밀번호가 일치하지 않습니다.');
     if (!email || codeValid !== true) return alert('이메일 인증을 완료해주세요.');
@@ -487,8 +609,56 @@ export default function JoinForm() {
     } catch (error) {
       console.error(error);
       alert('회원가입 중 오류가 발생했습니다.');
+=======
+    // 1. 아이디 중복확인 안했으면 막기
+    if (!id || idValid !== true) return alert('아이디 중복확인을 완료해주세요.');
+
+    // 2. 비밀번호 조건
+    if (!password || password !== confirmPassword) return alert('비밀번호가 일치하지 않습니다.');
+
+    // 3. 이메일 인증 완료 조건
+    if (!email || codeValid !== true) return alert('이메일 인증을 완료해주세요.');
+
+    // 4. 닉네임 중복확인 안했으면 막기
+    if (!nickname || nicknameValid !== true) return alert('닉네임 중복확인을 완료해주세요.');
+
+    // 5. 전화번호 인증 완료 조건
+    if (!carrier || !phone || phoneCodeValid !== true) return alert('전화번호 인증을 완료해주세요.');
+
+    // 6. 생년월일 조건
+    if (!birth || !birthValid) return alert('생년월일 6자리를 정확히 입력해주세요.');
+
+    // 7. 성별/내외국인 선택 조건
+    if (!gender || !nationality) return alert('성별 및 내외국인을 선택해주세요.');
+
+    // 8. 약관 동의 조건
+    if (!agreements.terms || !agreements.privacy || !agreements.location) return alert('약관에 모두 동의해주세요.');
+  
+    try {
+      const response = await axios.post('/api/users/join', {
+        id,
+        password,
+        name, 
+        nick: nickname,
+        email,
+        tell: phone,
+        agency: carrier,
+        sex: gender,
+        national: nationality,
+        birth,
+      });
+  
+      if (response.status === 200) {
+        alert('회원가입 완료!');
+        navigate('/login');
+      }
+    } catch (error) {
+      console.error('회원가입 에러:', error);
+      alert('회원가입이 실패하였습니다.');
+>>>>>>> 43d95ece33133920abc3dfc6cdcce2568dd5a8b0
     }
   };
+  
 
   return (
     <Wrapper>
@@ -572,8 +742,35 @@ export default function JoinForm() {
                   }
                 }}
               />
-              <CheckButton onClick={handleCodeConfirm}>확인</CheckButton>
+              
+              {/* 🔥 확인 + 다시 보내기 버튼 */}
+              <CodeButtonGroup>
+                {/* 만료되기 전이면 '확인' 버튼 보여줌 */}
+                {!emailExpired && (
+                  <CodeButton onClick={handleCodeConfirm}>확인</CodeButton>
+                )}
+
+                {/* 만료되었으면 '다시 보내기' 버튼만 보여줌 */}
+                {emailExpired && (
+                  <ResendButton onClick={handleVerifyClick}>다시 보내기</ResendButton>
+                )}
+              </CodeButtonGroup>
             </InputWithButton>
+
+            {/* 🔥 이메일 인증 유효시간/만료/재전송 */}
+            {showCodeInput && (
+              <>
+                {emailExpired ? (
+                  <Message isValid={false}>
+                    인증 시간이 만료되었습니다.
+                  </Message>
+                ) : (
+                  <Message isValid={true}>
+                    남은 시간 {Math.floor(emailTimer / 60)}:{String(emailTimer % 60).padStart(2, '0')}
+                  </Message>
+                )}
+              </>
+            )}
             
             {/* ✅ 이메일 인증 메시지 출력 */}
             {codeValid !== null && code && (
@@ -605,7 +802,11 @@ export default function JoinForm() {
         )}
 
         {/* 이름 */}
-        <Input placeholder="이름" />
+        <Input
+          placeholder="이름"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
 
         {/* 생년월일 */}
         <Input

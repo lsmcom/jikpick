@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useLocation, useNavigate } from 'react-router-dom';
 // styled-components 생략 (이전 코드 재사용)
@@ -127,7 +126,6 @@ export default function WithdrawConfirm() {
 
   return (
     <Wrapper>
-      <Header />
       <Outer>
         <Inner>
           <TitleBox>

@@ -1,7 +1,9 @@
 // src/pages/LoginForm.jsx
 import styled from 'styled-components';
-import { NavLink } from 'react-router-dom';
+import { useState } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { Wrapper, Logo } from '../pages/LoginContainer';
+import axios from '../api/axios';
 
 const LoginBox = styled.div`
   width: 400px;
@@ -31,6 +33,11 @@ const Input = styled.input`
   font-size: 15px;
   &::placeholder {
     color: #aaa;
+  }
+
+  &:focus {
+    border-color: #FB4A67; 
+    outline: none; 
   }
 `;
 
@@ -106,19 +113,69 @@ const Links = styled.div`
   }
 `;
 
-export default function LoginForm() {
+export default function LoginForm({ setIsLoggedIn }) {
+
+  const [id, setId] = useState('');
+  const [password, setPassword] = useState('');
+  const [stayLoggedIn, setStayLoggedIn] = useState(false);
+  const navigate = useNavigate(); // ✅ 페이지 이동용
+
+  const handleLogin = async () => {
+    if (!id || !password) {
+      alert('아이디와 비밀번호를 모두 입력해주세요.');
+      return;
+    }
+
+    try {
+      const response = await axios.post('/api/users/login', {
+        id,
+        password,
+      });
+
+      if (response.status === 200) {
+
+        const userData = { id }; // 필요하면 여기서 토큰 등을 추가할 수 있음
+
+        if (stayLoggedIn) {
+          localStorage.setItem('user', JSON.stringify(userData));
+        } else {
+          sessionStorage.setItem('user', JSON.stringify(userData));
+        }
+
+        setIsLoggedIn(true);
+        navigate('/');
+      }
+    } catch (error) {
+      console.error('로그인 실패:', error);
+      alert('아이디 또는 비밀번호가 올바르지 않습니다.');
+    }
+  };
+
   return (
     <Wrapper>
       <Logo to="/">JIKPICK</Logo>
       <LoginBox>
         <Title>로그인</Title>
-        <Input placeholder="ID" />
-        <Input placeholder="PW" type="password" />
+        <Input
+          placeholder="ID"
+          value={id}
+          onChange={(e) => setId(e.target.value)}
+        />
+        <Input
+          placeholder="PW"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
         <StayLogin>
-          <input type="checkbox" />
+          <input
+            type="checkbox"
+            checked={stayLoggedIn}
+            onChange={(e) => setStayLoggedIn(e.target.checked)}
+          />
           로그인 상태 유지
         </StayLogin>
-        <LoginButton>로그인</LoginButton>
+        <LoginButton onClick={handleLogin}>로그인</LoginButton>
         <Links>
           <NavLink to="/findID">아이디 찾기</NavLink>
           <NavLink to="/findPW">비밀번호 찾기</NavLink>
