@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import Header from '../components/Header';
 import Footer from '../components/Footer';
 import leftArrow from '../assets/icon/LeftArrow.svg'; // 뒤로가기 아이콘 임포트
 import iphone from '../assets/images/iphone.png'; // 아이폰 이미지 임포트
@@ -423,7 +422,6 @@ const dummyData = [
 
     return (
       <Wrapper>
-        <Header />
         {showCancelModal && (
       <CancelModal
         onCancel={() => setShowCancelModal(false)}

@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useNavigate } from 'react-router-dom';
 import frameIcon from '../assets/icon/CheckCircleFill.svg';
@@ -71,7 +70,6 @@ export default function OrderSuccess() {
 
   return (
     <Wrapper>
-      <Header />
       <Inner>
         <CheckCircle>
           <Icon src={frameIcon} alt="완료 아이콘" />
