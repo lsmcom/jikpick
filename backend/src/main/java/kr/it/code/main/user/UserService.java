@@ -35,6 +35,16 @@ public class UserService {
         return !userRepository.existsByNick(nick);
     }
 
+    // 🔥 이름과 이메일로 아이디 찾기
+    public String findUserId(String name, String email) {
+        User user = userRepository.findByNameAndEmail(name, email);
+        if (user != null) {
+            return user.getId(); // 🔥 찾은 경우 user_id 리턴
+        } else {
+            return null; // 🔥 못 찾은 경우 null 리턴
+        }
+    }
+
     // ✅ 회원가입 처리 메서드
     public void join(JoinRequestDto dto) {
         // 아이디 중복 체크

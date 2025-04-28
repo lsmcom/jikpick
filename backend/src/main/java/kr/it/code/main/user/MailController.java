@@ -20,6 +20,7 @@ public class MailController {
         String code = mailService.sendEmail(email); // 이메일 보내고 인증번호 생성
 
         Map<String, String> result = new HashMap<>();
+        result.put("success", String.valueOf(true));
         result.put("code", code); // 🔥 인증번호를 JSON 형태로 보내줌
         return ResponseEntity.ok(result);
     }

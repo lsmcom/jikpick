@@ -1,6 +1,7 @@
 package kr.it.code.main.user;
 
 import jakarta.validation.Valid;
+import kr.it.code.main.user.dto.FindIdRequestDto;
 import kr.it.code.main.user.dto.JoinRequestDto;
 import kr.it.code.main.user.dto.LoginRequestDto;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +48,7 @@ public class UserController {
         return ResponseEntity.ok(result);
     }
 
+    // ✅ 로그인 API
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto dto) {
         User user = userRepository.findById(dto.getId()).orElse(null);
@@ -64,5 +66,26 @@ public class UserController {
         }
 
         return ResponseEntity.ok("로그인 성공");
+    }
+
+    // 🔥 아이디 찾기 API
+    @PostMapping("/findId")
+    public ResponseEntity<Map<String, Object>> findId(@RequestBody Map<String, String> request) {
+        String name = request.get("name");
+        String email = request.get("email");
+
+        User user = userRepository.findByNameAndEmail(name, email);
+
+        if (user != null) {
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("userId", user.getId());
+            return ResponseEntity.ok(result);
+        } else {
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", false);
+            result.put("message", "해당하는 회원을 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
+        }
     }
 }
