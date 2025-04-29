@@ -286,7 +286,6 @@ export default function FindBranch() {
 
     return (
         <Wrapper>
-            <Header isLoggedIn={false} />
             <Outer>
                 <Inner>
                     <PageTitle>직픽 지점별 위치를 안내드립니다.</PageTitle>
