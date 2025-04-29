@@ -1164,7 +1164,7 @@ export default function Header({ isLoggedIn, setIsLoggedIn }) {
             </ModalBackground>
           )}
 
-          <NavLink to="/branches">직픽지점 조회</NavLink>
+          <NavLink to="/findBranch">직픽지점 조회</NavLink>
         </BottomBar>
       </HeadContainer>
     </HeaderWrapper>

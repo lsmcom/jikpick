@@ -27,6 +27,8 @@ import WithdrawReason from './pages/WithdrawReason';
 import WithdrawConfirm from './pages/WithdrawConfirm';
 import PopularProduct from './pages/PopularProduct';
 import ModifyInfo from './pages/ModifyInfo';
+import FindBranch from './pages/FindBranch';
+import Chat from './pages/Chat';
 
 function AppContent({ isLoggedIn, setIsLoggedIn }) {
   const location = useLocation();
@@ -65,6 +67,17 @@ function AppContent({ isLoggedIn, setIsLoggedIn }) {
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/myPage" element={<MyPage />} />
         <Route path="/myShop" element={<SellerStore />} />
+        <Route path="/modifyInfo" element={<ModifyInfo/>}/>
+        <Route path="/product/:id" element={<ProductDetail/>}/>
+        <Route path="/myPage" element={<MyPage />} />
+        <Route path="/myShop" element={<SellerStore/>}/>
+        <Route path="/shopLike" element={<ShopLike />}/>
+        <Route path="/shopOrder" element={<ShopOrder />}/>
+        <Route path="/category/:main/:sub?" element={<CategoryPage />} />
+        <Route path="/withdrawReason" element={<WithdrawReason />}/>
+        <Route path="/withdrawConfirm" element={<WithdrawConfirm />}/>
+        <Route path="/findBranch" element={<FindBranch />}/>
+        <Route path="/chat" element={<Chat />} />
         <Route path="/modifyInfo" element={<ModifyInfo />} />
         <Route path="/shopLike" element={<ShopLike />} />
         <Route path="/shopOrder" element={<ShopOrder />} />
