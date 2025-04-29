@@ -1,5 +1,6 @@
 package kr.it.code.main.user;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import kr.it.code.main.user.dto.FindIdRequestDto;
 import kr.it.code.main.user.dto.JoinRequestDto;
@@ -30,9 +31,9 @@ public class UserController {
 
     // ✅ 아이디 중복확인 API
     @PostMapping("/check-id")
-    public ResponseEntity<?> checkId(@RequestBody Map<String, String> request) {
-        String id = request.get("id");
-        boolean available = userService.checkIdAvailable(id);
+    public ResponseEntity<Map<String, Boolean>> checkId(@RequestBody Map<String, String> request) {
+        String userId = request.get("id");
+        boolean available = userService.checkIdAvailable(userId);
         Map<String, Boolean> result = new HashMap<>();
         result.put("available", available);
         return ResponseEntity.ok(result);
@@ -51,7 +52,7 @@ public class UserController {
     // ✅ 로그인 API
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto dto) {
-        User user = userRepository.findById(dto.getId()).orElse(null);
+        User user = userRepository.findByUserId(dto.getId()).orElse(null);
 
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -68,6 +69,13 @@ public class UserController {
         return ResponseEntity.ok("로그인 성공");
     }
 
+    // 🔥 로그아웃 API
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpSession session) {
+        session.invalidate(); // 세션 끊기
+        return ResponseEntity.ok("로그아웃 완료");
+    }
+
     // 🔥 아이디 찾기 API
     @PostMapping("/findId")
     public ResponseEntity<Map<String, Object>> findId(@RequestBody Map<String, String> request) {
@@ -79,7 +87,7 @@ public class UserController {
         if (user != null) {
             Map<String, Object> result = new HashMap<>();
             result.put("success", true);
-            result.put("userId", user.getId());
+            result.put("userId", user.getUserId());
             return ResponseEntity.ok(result);
         } else {
             Map<String, Object> result = new HashMap<>();

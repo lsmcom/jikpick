@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 // ✅ 회원 정보를 관리하는 엔티티 클래스
 @Entity
-@Table(name = "MEMBER") // DB의 'MEMBER' 테이블과 매핑
+@Table(name = "member") // DB의 'MEMBER' 테이블과 매핑
 @Getter
 @Setter
 public class User {
@@ -21,7 +21,7 @@ public class User {
 
     // ✅ 아이디
     @Column(name = "USER_ID")
-    private String id;
+    private String userId;
 
     // ✅ 비밀번호
     @Column(name = "USER_PW")
