@@ -26,9 +26,11 @@ import ShopLike from './pages/ShopLike';
 import ShopOrder from './pages/ShopOrder';
 import CategoryPage from './pages/CategoryPage';
 import WithdrawReason from './pages/WithdrawReason';
-import WithdrawConfirm from './pages/WithdrawConfirm'
+import WithdrawConfirm from './pages/WithdrawConfirm';
 
 import ModifyInfo from './pages/ModifyInfo';
+import FindBranch from './pages/FindBranch';
+import Chat from './pages/Chat';
 
 function App() {
   return (
@@ -63,6 +65,8 @@ function App() {
         <Route path="/category/:main/:sub?" element={<CategoryPage />} />
         <Route path="/withdrawReason" element={<WithdrawReason />}/>
         <Route path="/withdrawConfirm" element={<WithdrawConfirm />}/>
+        <Route path="/findBranch" element={<FindBranch />}/>
+        <Route path="/chat" element={<Chat />} />
       </Routes>
     </BrowserRouter>
   );
