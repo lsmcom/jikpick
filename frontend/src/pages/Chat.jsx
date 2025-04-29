@@ -399,7 +399,6 @@ export default function Chat() {
 
     return (
         <Wrapper>
-            <Header isLoggedIn={false} />
             <Outer>
                 <Inner>
                     <TitleBox>직픽톡</TitleBox>
