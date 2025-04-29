@@ -126,12 +126,12 @@ const TimeChoiceBtn = styled.button`
 `;
 
 const CheckBtn = styled.button`
-    width: 100px;
+    width: 130px;
     background-color: #fb4a67;
     color: white;
     border: none;
-    padding: 10px 24px;
-    border-radius: 8px;
+    padding: 5px 0px;
+    border-radius: 15px;
     font-size: 20px;
     cursor: pointer;
 `;

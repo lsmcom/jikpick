@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+<<<<<<< HEAD
+    <data-source source="LOCAL" name="jikpick" uuid="288cf408-fdad-41dc-b400-2fee75042127">
+=======
     <data-source source="LOCAL" name="jikpick" uuid="c6b4ea7c-d655-492d-8e57-0829fef86579">
+>>>>>>> 62251e35ba01583518d1525e494af7bcf4aa337d
       <driver-ref>mariadb</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.mariadb.jdbc.Driver</jdbc-driver>
