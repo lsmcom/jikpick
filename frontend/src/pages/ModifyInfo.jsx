@@ -72,7 +72,8 @@ const UserTextBox = styled.div`
   flex-direction: column;
   gap: 12px;
   flex: 1;
-  margin-top: 10px;
+  height: 240px; /* 📌 사진 높이에 맞춤 */
+  justify-content: center; /* 📌 가운데 정렬 */
 `;
 
 const Rating = styled.div`
