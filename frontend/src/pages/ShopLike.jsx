@@ -1,5 +1,4 @@
 import styled from 'styled-components'; 
-import Header from '../components/Header';
 import Footer from '../components/Footer';
 import leftArrow from '../assets/icon/LeftArrow.svg'
 import { useNavigate } from 'react-router-dom';
@@ -43,16 +42,18 @@ const Title = styled.h2`
   font-size: 26px;
   font-weight: 600;
   margin: 0;
-  padding-bottom: 34px; // 구분선과 간격
+  padding-bottom: 35px; // 구분선과 간격
 `;
 
 const LeftArrowIcon = styled.img`
   width: 30px;
   height: 30px;
   margin-right: 10px; // 아이콘과 텍스트 간 간격
-  padding-bottom: 34px; // 구분선과 간격
+  margin-left: -5px;
+  padding-bottom: 35px; // 구분선과 간격
   cursor: pointer;
 `;
+
 
 const ItemList = styled.div`
   display: flex;
@@ -138,7 +139,7 @@ const LikeSection = styled.div`
 
   span {
     display: block;
-    font-size: 12px;
+    font-size: 16sspx;
     margin-top: 4px;
     color: #333;
   }
@@ -213,7 +214,6 @@ export default function ShopLike() {
 
     return (
         <Wrapper>
-            <Header />
             <Outer>
                 <Inner>
                 <TitleBox>

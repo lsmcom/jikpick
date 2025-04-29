@@ -1,8 +1,9 @@
 import styled from 'styled-components';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom'; 
 import { Wrapper, Logo } from '../pages/LoginContainer';
+import axios from '../api/axios'; 
 
 // 🔲 회원가입 박스 전체
 const JoinBox = styled.div`
@@ -83,6 +84,56 @@ const CheckButton = styled.button`
   }
 `;
 
+// 🔥 인증번호 입력창 버튼 묶는 박스 (확인 + 다시 보내기)
+const CodeButtonGroup = styled.div`
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+// CodeButtonGroup 안에 있는 버튼 스타일 조정
+const CodeButton = styled(CheckButton)`
+  position: static;
+  margin-top: -15px;
+  transform: none;
+  height: 29px;  // 높이 통일
+  padding: 0 12px; // 좌우 여백 통일
+  font-size: 14px;
+  border: 1px solid #aaa;
+  background-color: white;
+  color: #555;
+  &:hover {
+    background-color: #FB4A67;
+    color: white;
+    border: none;
+  }
+`;
+
+// ✅ 다시 보내기 버튼 (CheckButton과 거의 같지만 약간 넓게)
+const ResendButton = styled.button`
+  padding: 7px 16px;   // 🔥 살짝 더 넓은 패딩
+  height: auto;
+  line-height: 1;
+  border: 1px solid #aaa;
+  border-radius: 8px;
+  background-color: white;
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  margin-top: -15px;
+
+  &:hover {
+    background-color: #FB4A67;
+    color: white;
+    border: none;
+  }
+`;
+
 // ✅ 아이디찾기 버튼
 const FindIDButton = styled.button`
   width: 100%;
@@ -124,30 +175,15 @@ export default function JoinForm() {
   const [emailValid, setEmailValid] = useState(true);
   const [code, setCode] = useState('');
   const [codeValid, setCodeValid] = useState(null);
-  const fakeSentCode = '123456'; //예시로 사용중인 이메일 인증 코드
+  const [sentCode, setSentCode] = useState('');
+
+  // 🔥 이메일 인증 추가 상태
+  const [emailTimer, setEmailTimer] = useState(0); // 남은 시간(초)
+  const [emailExpired, setEmailExpired] = useState(false); // 만료 여부
+  const timerRef = useRef(null); // 타이머 저장용 ref
 
   // ✅ 아이디 찾기 상태 정의
   const [name, setName] = useState('');
-
-  const dummyUsers = [
-    {
-      name: '홍길동',
-      email: 'test1@email.com',
-      id: 'jikpick123',  // ✅ 추가
-    },
-    {
-      name: '김영희',
-      email: 'test2@email.com',
-      id: 'admin',
-    },
-    {
-      name: '박철수',
-      email: 'test3@email.com',
-      id: 'user1',
-    },
-  ];
-  
-  
 
   const navigate = useNavigate(); 
 
@@ -155,41 +191,85 @@ export default function JoinForm() {
   const isEmailFormat = (email) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  const handleVerifyClick = () => {
+  // ✅ 이메일 인증하기 버튼 클릭 시
+  const handleVerifyClick = async () => {
     if (!isEmailFormat(email)) {
       setEmailValid(false);
       setShowCodeInput(false);
       return;
     }
-
-    setEmailValid(true);
-    setShowCodeInput(true);
-    setCodeValid(null);
+  
+    try {
+      // 서버에 이메일 인증 요청
+      const res = await axios.post('/api/users/send-email', { email });
+  
+      if (res.status === 200 && res.data.code) {
+        alert('인증 코드가 이메일로 발송되었습니다!');
+        setEmailValid(true);
+        setShowCodeInput(true);
+        setCodeValid(null);
+  
+        // 인증번호 저장
+        setSentCode(res.data.code); // ✅ 서버에서 받은 인증번호는 별도로 저장만!
+  
+        // 🔥 타이머 시작
+        clearInterval(timerRef.current);
+        setEmailTimer(300); // 5분(300초) 설정
+        setEmailExpired(false);
+  
+        timerRef.current = setInterval(() => {
+          setEmailTimer((prev) => {
+            if (prev <= 1) {
+              clearInterval(timerRef.current);
+              setEmailExpired(true);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      }
+    } catch (error) {
+      console.error('이메일 인증 요청 실패:', error);
+      alert('이메일 인증 요청에 실패했습니다.');
+    }
   };
 
   // 이메일 인증 코드 검증 함수
   const handleCodeConfirm = () => {
-    setCodeValid(code === fakeSentCode);
+    if (emailExpired) {
+      setCodeValid(false); // 🔥 만료됐으면 무조건 실패
+      alert('인증 시간이 만료되었습니다. 다시 인증을 요청해주세요.');
+      return;
+    }
+  
+    setCodeValid(code === sentCode);
   };
 
   // 아이디 찾기 검증 함수
-  const handleFindId = () => {
+  const handleFindId = async () => {
     if (!name || !email || codeValid !== true) {
       alert('모든 정보를 정확히 입력하고 인증을 완료해주세요.');
       return;
     }
   
-    const foundUser = dummyUsers.find(
-      (user) => user.name === name && user.email === email
-    );
-  
-    if (foundUser) {
-      // ✅ 아이디 찾은 경우 해당 페이지로 이동 + 아이디 전달
-      navigate('/foundID', {
-        state: { foundId: foundUser.id },
+    try {
+      const response = await axios.post('/api/users/findId', {
+        name: name,
+        email: email,
       });
-    } else {
-      alert('일치하는 회원 정보가 없습니다.');
+  
+      console.log('아이디 찾기 서버 응답:', response.data); // 🔥 응답 확인용
+  
+      if (response.status === 200 && response.data.success) {
+        navigate('/foundID', {
+          state: { foundId: response.data.userId }
+        });
+      } else {
+        alert('아이디를 찾을 수 없습니다.');
+      }
+    } catch (error) {
+      console.error('아이디 찾기 실패:', error);
+      alert('서버 오류로 아이디를 찾을 수 없습니다.');
     }
   };
 
@@ -239,8 +319,35 @@ export default function JoinForm() {
                   }
                 }}
               />
-              <CheckButton onClick={handleCodeConfirm}>확인</CheckButton>
+
+              {/* 🔥 확인 + 다시 보내기 버튼 */}
+              <CodeButtonGroup>
+                {/* 만료되기 전이면 '확인' 버튼 보여줌 */}
+                {!emailExpired && (
+                  <CodeButton onClick={handleCodeConfirm}>확인</CodeButton>
+                )}
+
+                {/* 만료되었으면 '다시 보내기' 버튼만 보여줌 */}
+                {emailExpired && (
+                  <ResendButton onClick={handleVerifyClick}>다시 보내기</ResendButton>
+                )}
+              </CodeButtonGroup>
             </InputWithButton>
+
+            {/* 🔥 이메일 인증 유효시간/만료/재전송 */}
+            {showCodeInput && (
+              <>
+                {emailExpired ? (
+                  <Message isValid={false}>
+                    인증 시간이 만료되었습니다.
+                  </Message>
+                ) : (
+                  <Message isValid={true}>
+                    남은 시간 {Math.floor(emailTimer / 60)}:{String(emailTimer % 60).padStart(2, '0')}
+                  </Message>
+                )}
+              </>
+            )}
             
             {/* ✅ 이메일 인증 메시지 출력 */}
             {codeValid !== null && code && (

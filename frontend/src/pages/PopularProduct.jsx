@@ -1,8 +1,7 @@
 import styled from 'styled-components';
-import { useParams, useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
+import { useParams } from 'react-router-dom';
 import Footer from '../components/Footer';
-import heartIcon from '../assets/icon/HeartIcon.svg'
+import heartIcon from '../assets/icon/HeartIcon.svg';
 import { useEffect, useState } from 'react';
 
 // 🔧 스타일 컴포넌트
@@ -27,31 +26,6 @@ const Location = styled.div`
   font-size: 22px;
   font-weight: 600;
   margin-bottom: 20px;
-`;
-
-const CategoryGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
-  margin-bottom: 40px;
-`;
-
-const CategoryBox = styled.div`
-  padding: 14px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  text-align: center;
-  font-size: 20px;
-
-  font-weight: 500; 
-
-  cursor: pointer;
-  background: white;
-
-  &:hover {
-    border-color: #FB4A67;
-    color: #FB4A67;
-  }
 `;
 
 const SectionTitle = styled.h2`
@@ -112,14 +86,10 @@ const Like = styled.div`
   gap: 6px;
 `;
 
-export default function CategoryPage() {
+export default function PopularCategoryPage() {
   const { categoryName } = useParams();
-  const navigate = useNavigate();
-  
-  // ⭐ 현재 선택된 카테고리 상태 추가
   const [currentCategory, setCurrentCategory] = useState(categoryName);
 
-  // ⭐ categoryName이 바뀔 때마다 업데이트
   useEffect(() => {
     setCurrentCategory(categoryName);
   }, [categoryName]);
@@ -130,25 +100,11 @@ export default function CategoryPage() {
     like: 17,
   }));
 
-  const categories = ['전체보기', '아우터', '상의', '바지', '치마', '원피스', '점프수트', '세트', '언더웨어/홈웨어', '테마/이벤트'];
-
-  const handleCategoryClick = (category) => {
-    navigate(`/category/${encodeURIComponent(category)}`);
-  };
-
   return (
     <Wrapper>
       <Container>
-        <Breadcrumb>홈 &gt; 여성의류 &gt; 아우터 &gt; {currentCategory}</Breadcrumb>
+        <Breadcrumb>홈 &gt; 인기 카테고리 &gt; {currentCategory}</Breadcrumb>
         <Location>경기도 고양시 일산동구</Location>
-
-        <CategoryGrid>
-          {categories.map((cat) => (
-            <CategoryBox key={cat} onClick={() => handleCategoryClick(cat)}>
-              {cat}
-            </CategoryBox>
-          ))}
-        </CategoryGrid>
 
         <SectionTitle><span>{currentCategory}</span>의 추천 상품</SectionTitle>
 

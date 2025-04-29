@@ -1,17 +1,38 @@
 import styled from 'styled-components';
-import Header from '../components/Header';
 import Footer from '../components/Footer';
 import leftArrow from '../assets/icon/LeftArrow.svg';
 import exampleProfile from '../assets/images/ExampleProfile.svg';
 import starIcon from '../assets/icon/StarIcon.svg';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+// 📦 뒤로가기 아이콘 스타일
+const LeftArrowIcon = styled.img`
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+  margin-left: -5px; 
+  cursor: pointer;
+`;
 
 const Wrapper = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
+`;
+
+const TitleBox = styled.div`
+  display: flex;
+  align-items: center;
+  padding-bottom: 34px;
+  border-bottom: 1px solid #e5e5e5;
+`;
+
+const Title = styled.h2`
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  padding-left: 10px;
 `;
 
 const Outer = styled.div`
@@ -21,34 +42,9 @@ const Outer = styled.div`
 const Inner = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 18px 16px;
+  padding: 18px 0 80px; /* ⬅️ 아래쪽 패딩으로 푸터 여백 확보 */
+  min-height: 70vh; /* ⬅️ 기본 높이 확보 (스크롤 유도용) */
 `;
-
-const TitleBox = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 32px 0; /* 제목 영역 여백 추가 */
-  border-bottom: 1px solid #e5e5e5;
-  padding-bottom: 34px; 
-`;
-
-
-const Title = styled.h2`
-  font-size: 26px;
-  font-weight: 600;
-  line-height: 1;  /* ✨ baseline 정렬 보정 */
-  margin: 0;
-`;
-
-
-const LeftArrowIcon = styled.img`
-  width: 22px;
-  height: 22px;
-  margin-right: 12px;
-  cursor: pointer;
-`;
-
 const UserInfoBox = styled.div`
   display: flex;
   align-items: flex-start;
@@ -83,8 +79,8 @@ const Rating = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 16px;
-  color: #D30000;
+  font-size: 20px;
+  color: #FB4A67;
   font-weight: bold;
 `;
 
@@ -93,8 +89,8 @@ const RatingNum = styled.span`
 `;
 
 const StarIconImg = styled.img`
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 `;
 
 const ReviewCount = styled.span``;
@@ -103,7 +99,8 @@ const ReviewCount = styled.span``;
 const EditBtn = styled.button`
   background-color: #FB4A67;
   color: white;
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: 600; /* 글씨 두께를 700으로 설정 */
   padding: 6px 14px;
   border: none;
   border-radius: 16px;
@@ -115,7 +112,7 @@ const EditBtn = styled.button`
 `;
 
 const InfoLine = styled.div`
-  font-size: 16px;
+  font-size: 20px;
   color: #555;
   display: flex;
   align-items: center;
@@ -130,7 +127,7 @@ const Label = styled.span`
 `;
 
 const StaticText = styled.span`
-  font-size: 16px;
+  font-size: 20px;
   line-height: 22px;
   height: 36px;
   display: flex;
@@ -139,7 +136,7 @@ const StaticText = styled.span`
 `;
 
 const Input = styled.input`
-  font-size: 15px;
+  font-size: 20px;
   padding: 6px 10px;
   line-height: 22px;  /* ✨ 고정된 텍스트 라인 높이 */
   height: 20px;       /* ✨ 정적인 높이 지정 */
@@ -151,7 +148,7 @@ const Input = styled.input`
 
 const RightButton = styled.button`
   padding: 6px 10px;
-  font-size: 14px;
+  font-size: 20px;
   border: 1px solid #ccc;
   border-radius: 8px;
   background: white;
@@ -189,7 +186,6 @@ export default function ModifyInfo() {
 
   return (
     <Wrapper>
-      <Header />
       <Outer>
         <Inner>
           <TitleBox>
@@ -375,7 +371,7 @@ const ModalButtonRow = styled.div`
 
 const ModalButton = styled.button`
   padding: 8px 20px;
-  font-size: 14px;
+  font-size:20px;
   border-radius: 999px;
   border: ${({ variant }) => (variant === 'solid' ? 'none' : '1px solid #ccc')};
   background-color: ${({ variant }) => (variant === 'solid' ? '#FB4A67' : '#fff')};

@@ -19,22 +19,34 @@ spring:
 
   #Database 설정
   datasource:
-#    driver-class-name: org.mariadb.jdbc.Driver
-    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-    url: jdbc:log4jdbc:mariadb://localhost:13306/boot_web
-    username: root
-    password: 1234
+    driver-class-name: org.mariadb.jdbc.Driver
+#    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    url: jdbc:mariadb://jikpick.cniogu4geuvu.ap-northeast-2.rds.amazonaws.com:3306/jikpick?useUnicode=true&characterEncoding=utf8mb4
+    username: testdb
+    password: 123456789
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       connection-timeout: 60000
       maximum-pool-size: 50
-      minimum-idle: 20
-      idle-timeout: 10000
+      minimum-idle: 1
+      idle-timeout: 5000
       data-source-properties:
         cachePrepStmts: true #캐쉬 설정 on
         prepStmtCacheSize: 250 #statement 할당 수
         prepStmtCacheSqlLimit: 2048 #sql문서 최대 길이
         useServerPrepStmts: true #최신버전 지원설정
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: bus00216@gmail.com
+    password: kdhs bfnl cuso ysvg
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
   jpa:
     database-platform: org.hibernate.dialect.MariaDBDialect

@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
@@ -143,6 +142,7 @@ const RequestTextarea = styled.textarea`
   height: 40px;
   padding: 16px;
   font-size: 16px;
+  font-family: 'pretendard';
   border: 1px solid #ccc;
   border-radius: 10px;
   resize: none;
@@ -304,7 +304,6 @@ export default function ProductOrder() {
     const total = productPrice + fee;
     return (
       <Wrapper>
-        <Header />
         <Outer>
           <Inner>
             <TitleBox>

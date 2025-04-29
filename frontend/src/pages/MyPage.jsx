@@ -1,5 +1,4 @@
 import styled from 'styled-components'; 
-import Header from '../components/Header'; // 공통 헤더
 import Footer from '../components/Footer'; // 공통 푸터
 import { NavLink } from 'react-router-dom'; 
 import rightIcon from '../assets/icon/RightIcon.svg';
@@ -23,13 +22,13 @@ const Outer = styled.div`
   width: 100%;
 `;
 
-// 📦 콘텐츠 최대 너비 제한 및 중앙 정렬을 위한 wrapper
+
 const Inner = styled.div`
   max-width: 1200px;
-  margin: 0 auto; // 수평 중앙 정렬
-  padding: 18px 0; // 위아래 여백
+  margin: 0 auto;
+  padding: 18px 0 80px; /* ⬅️ 아래쪽 패딩으로 푸터 여백 확보 */
+  min-height: 70vh; /* ⬅️ 기본 높이 확보 (스크롤 유도용) */
 `;
-
 // 📌 페이지 최상단의 제목과 구분선을 감싸는 영역
 const TitleBox = styled.div`
   display: flex;
@@ -187,7 +186,6 @@ const MenuIcon = styled.img`
 export default function MyPage() {
   return (
     <Wrapper>
-      <Header />
       <Outer>
         <Inner>
           <TitleBox>
@@ -251,7 +249,7 @@ export default function MyPage() {
             <RightIcon src={rightIcon} alt="화살표" />
             </MenuItem>
 
-            <MenuItem to="/logout">로그아웃<RightIcon src={rightIcon} alt="화살표" /></MenuItem>
+            <MenuItem to="/">로그아웃<RightIcon src={rightIcon} alt="화살표" /></MenuItem>
             <MenuItem to="/modifyInfo">회원정보 관리<RightIcon src={rightIcon} alt="화살표" /></MenuItem>
             <MenuItem to="/withdrawReason">회원탈퇴<RightIcon src={rightIcon} alt="화살표" /></MenuItem>
         </Inner>

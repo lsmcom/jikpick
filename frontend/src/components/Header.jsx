@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import box from '../assets/icon/Logo.svg';
 import search from '../assets/icon/SearchIcon.svg';
 import ping from '../assets/icon/LocationPing.svg';
@@ -26,7 +26,7 @@ const HeadContainer = styled.div`
 const TopBar = styled.div`
   display: flex;
   justify-content: flex-end;
-  padding: 8px 0 15px;
+  padding: 8px 0 8px;
   font-size: 18px;
   color: #555;
   gap: 16px;
@@ -46,7 +46,7 @@ const MiddleBar = styled.div`
   padding: 12px 0;
   flex-wrap: wrap;
   gap: 32px;
-  margin-top: 15px;
+  margin-top: 10px;
 `;
 
 const LeftContainer = styled.div`
@@ -108,7 +108,7 @@ const SearchInput = styled.input`
   flex: 1;
   border: none;
   background: transparent;
-  font-size: 16px;
+  font-size: 18px;
   outline: none;
 `;
 
@@ -132,7 +132,7 @@ const MiddleRight = styled.div`
 
   a {
     text-decoration: none;
-    color: #333;
+    color: #000000;
     font-weight: 600;
 
     &.active {
@@ -151,7 +151,7 @@ const BottomBar = styled.div`
 
   a {
     text-decoration: none;
-    color: #333;
+    color: #000000;
     font-weight: 600;
 
     &.active {
@@ -230,7 +230,7 @@ const ModalTitle = styled.h3`
   font-size: 20px;
   font-weight: 700;
   color: #333;
-  margin-left: -4px;
+  margin-left: 0px;
 `;
 
 const CloseButton = styled.button`
@@ -331,20 +331,12 @@ const ModalListContainer = styled.div`
 `;
 
 const ModalListTitle = styled.div`
-  font-size: 14px;
+  font-size: 16px;
   color: #0095f6;
   font-weight: 600;
   margin-bottom: -6px;
 `;
 
-const ModalListItem = styled.div`
-  padding: 12px 0;
-  font-size: 16px;
-  line-height: 135%;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  color: #333;
-  line-height: 1.6;
-`;
 
 // 알림 모달 내의 스타일들
 const AlertModalWrapper = styled.div`
@@ -357,8 +349,8 @@ const AlertModalWrapper = styled.div`
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   z-index: 100;
-  padding: 14px;
-  max-height: 500px;
+  padding: 16px;
+  max-height: 500px;                    
   overflow-y: auto;
 `;
 
@@ -369,7 +361,7 @@ const AlertModalBox = styled.div`
 `;
 
 const AlertGroupTitle = styled.div`
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
   color: #333;
   margin-top: 20px;
@@ -422,13 +414,15 @@ const AlertHeader = styled.div`
 `;
 
 const AlertNickname = styled.span`
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
+  margin-bottom: 5px;
   color: #333;
 `;
 
 const AlertDate = styled.span`
   font-size: 14px;
+  margin-bottom: 5px;
   color: #aaa;
 `;
 
@@ -440,7 +434,7 @@ const AlertMessage = styled.div`
 `;
 
 const AlertTitle = styled.div`
-  font-size: 18px;
+  font-size: 20px;
   font-weight: bold;
   padding-top: 5px;
 `
@@ -470,7 +464,7 @@ const SettingsMenu = styled.div`
 
 const SettingsItem = styled.div`
   padding: 8px 0;
-  font-size: 14px;
+  font-size: 16px;
   text-align: center;
   cursor: pointer;
   color: ${({ color }) => color || '#333'};
@@ -507,7 +501,7 @@ const HideModalDivider = styled.div`
 `;
 
 const HideModalBody = styled.div`
-  font-size: 16px;
+  font-size: 18px;
   color: #666;
   padding-top: 8px;
   text-align: center;
@@ -564,7 +558,7 @@ const DropdownMenu = styled.div`
 
 const DropdownItem = styled.div`
   padding: 8px 0;
-  font-size: 14px;
+  font-size: 16px;
   cursor: pointer;
   color: ${({ color }) => color || '#333'};
 
@@ -585,25 +579,25 @@ const StatusSteps = styled.div`
   display: flex;
   justify-content: space-between;
   margin-bottom: 24px;
+  gap:8px;
 `;
 
 const Step = styled(({ active, ...props }) => <div {...props} />)`
   flex: 1;
   text-align: center;
-  padding: 6px;
+  padding: 9px;
   border-radius: 8px;
   font-weight: 600;
   color: ${({ active }) => (active ? 'white' : '#ccc')};
-  background-color: ${({ active }) => (active ? '#4CAF50' : '#eee')};
-  margin: 0 4px;
-  font-size: 14px;
+  background-color: ${({ active }) => (active ? '#FB4A67' : '#eee')};
+  font-size: 18px;
 `;
 
 const StatusLabel = styled.div`
   font-size: 20px;
   font-weight: 700;
-  color: #4CAF50;
-  margin-bottom: 12px;
+  color: #FB4A67;
+  margin-bottom: 20px;
 `;
 
 const ProductInfoBox = styled.div`
@@ -622,17 +616,18 @@ const ProductImage = styled.img`
 const ProductTextArea = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
 `;
 
 const ProductName = styled.div`
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
 `;
 
 const ProductPrice = styled.div`
   margin-top: 6px;
   font-size: 18px;
+  font-weight: 700;
   color: #777;
 `;
 
@@ -647,15 +642,15 @@ const RequestRow = styled.div`
 `;
 
 const RequestLabel = styled.div`
-  width: 100px;
-  font-size: 16px;
+  width: 120px;
+  font-size: 18px;
   color: #666;
   font-weight: 600;
   margin-right: 5px;
 `;
 
 const RequestText = styled.div`
-  font-size: 16px;
+  font-size: 18px;
   color: #333;
   margin-right: 5px;
 `;
@@ -667,24 +662,39 @@ const ButtonArea = styled.div`
   margin-top: 24px;
 `;
 
-const CancelButton = styled.button`
-  padding: 8px 16px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background: #fff;
-  cursor: pointer;
-`;
+// const CancelButton = styled.button`
+//   padding: 8px 16px;
+//   border: 1px solid #ccc;
+//   border-radius: 8px;
+//   background: #fff;
+//   cursor: pointer;
+// `;
 
 const ReviewButton = styled.button`
   padding: 8px 16px;
-  background-color: #FB4A67;
-  color: white;
-  border: none;
+  background-color: #fff;
+  border: 1px solid #717171;
+  font-size: 16px;
   border-radius: 8px;
   cursor: pointer;
+  font-weight: 500;
 `;
+const ModalListItem = styled.div`
+padding: 12px 0;
+font-size: 16px;
+line-height: 135%;
+border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+color: #333;
+line-height: 1.6;
+cursor: pointer;
 
-export default function Header({ isLoggedIn }) {
+&:hover {
+  background-color: #f9f9f9;
+}
+`;
+export default function Header({ isLoggedIn, setIsLoggedIn }) {
+  const navigate = useNavigate();
+
   const [showCategory, setShowCategory] = useState(false);
 
   //알림 모달 상태 관리
@@ -701,6 +711,7 @@ export default function Header({ isLoggedIn }) {
   const [showHideModal, setShowHideModal] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [isMenuClick, setIsMenuClick] = useState(false);
   
   // 1. 검색 키워드 상태관리
   const [searchQuery, setSearchQuery] = useState('');
@@ -764,6 +775,22 @@ export default function Header({ isLoggedIn }) {
       document.removeEventListener('mouseup', handleDocumentMouseUp);
     };
   }, []);
+
+  // ✅ 1. 지역 상태 추가
+  const [selectedLocation, setSelectedLocation] = useState(() => {
+    return localStorage.getItem('selectedLocation') || '지역설정';
+  });
+
+  // ✅ 2. 리스트 클릭했을 때 지역 선택
+  const handleLocationClick = (location) => {
+    
+    const splitLocation = location.split(', ');
+    const shortLocation = splitLocation[splitLocation.length - 1]; 
+  
+    setSelectedLocation(shortLocation);
+    localStorage.setItem('selectedLocation', shortLocation); 
+    setShowModal(false);
+  };
 
   // 알림 데이터
   const alerts = [
@@ -849,17 +876,30 @@ export default function Header({ isLoggedIn }) {
     setModalOpen(false);
   };
 
+  // 로그아웃 처리 함수
+  const handleLogout = (e) => {
+    e.preventDefault(); // 링크의 기본 동작인 페이지 이동을 막음
+    
+    // localStorage 또는 sessionStorage에서 사용자 정보 삭제
+    localStorage.removeItem('user');
+    sessionStorage.removeItem('user');
+    
+    // 로그인 상태 변경
+    setIsLoggedIn(false);
+    
+    // 메인 화면으로 리다이렉트
+    navigate('/');
+  };
+
   return (
     <HeaderWrapper>
       <HeadContainer>
         <TopBar>
           {isLoggedIn ? (
             <>
-              <NavLink to="/logout">로그아웃</NavLink>
-              
-            </>
-          ) : (
-            <>
+              <NavLink to="#" onClick={handleLogout}>
+                로그아웃
+              </NavLink>
               <div style={{ position: 'relative' }} ref={alertRef}>
                 <AlertText onClick={() => setShowAlert(!showAlert)}>알림</AlertText>
                 {showAlert && (
@@ -913,14 +953,17 @@ export default function Header({ isLoggedIn }) {
                               {/* 메뉴 아이콘 */}
                               <AlertMenuWrapper className="alert-menu">
                                 <MenuDropDownButton
-                                  onClick={() => setOpenMenuId(openMenuId === alert.id ? null : alert.id)}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOpenMenuId(openMenuId === alert.id ? null : alert.id);
+                                  }}
                                 >
                                   <MenuDropDownIcon src={menuDrop} alt="메뉴" />
                                 </MenuDropDownButton>
                                 {openMenuId === alert.id && (
                                   <DropdownMenu className="alert-menu">
-                                    <DropdownItem>숨김</DropdownItem>
-                                    <DropdownItem color="#FB4A67">삭제</DropdownItem>
+                                    <DropdownItem onClick={(e)=> {e.stopPropagation()}}>숨김</DropdownItem>
+                                    <DropdownItem color="#FB4A67" onClick={(e)=> {e.stopPropagation()}}>삭제</DropdownItem>
                                   </DropdownMenu>
                                 )}
                               </AlertMenuWrapper>
@@ -942,14 +985,17 @@ export default function Header({ isLoggedIn }) {
                               {/* 메뉴 아이콘 */}
                               <AlertMenuWrapper className="alert-menu">
                                 <MenuDropDownButton
-                                  onClick={() => setOpenMenuId(openMenuId === alert.id ? null : alert.id)}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOpenMenuId(openMenuId === alert.id ? null : alert.id);
+                                  }}
                                 >
                                   <MenuDropDownIcon src={menuDrop} alt="메뉴" />
                                 </MenuDropDownButton>
                                 {openMenuId === alert.id && (
                                   <DropdownMenu className="alert-menu">
-                                    <DropdownItem>숨김</DropdownItem>
-                                    <DropdownItem color="#FB4A67">삭제</DropdownItem>
+                                    <DropdownItem onClick={(e)=> {e.stopPropagation()}}>숨김</DropdownItem>
+                                    <DropdownItem color="#FB4A67" onClick={(e)=> {e.stopPropagation()}}>삭제</DropdownItem>
                                   </DropdownMenu>
                                 )}
                               </AlertMenuWrapper>
@@ -994,7 +1040,7 @@ export default function Header({ isLoggedIn }) {
                       </RequestBox>
 
                       <ButtonArea>
-                        <CancelButton>거래 취소</CancelButton>
+                        {/* <CancelButton>거래 취소</CancelButton> */}
                         <ReviewButton onClick={() => setModalOpen(true)}>리뷰쓰기</ReviewButton>
                       </ButtonArea>
                     </StatusModalContent>
@@ -1008,7 +1054,9 @@ export default function Header({ isLoggedIn }) {
                   onSubmit={handleReviewSubmit}
                 />
               )}
-
+            </>
+          ) : (
+            <>
               <NavLink to="/login">로그인</NavLink>
               <NavLink to="/signup">회원가입</NavLink>
             </>
@@ -1045,7 +1093,9 @@ export default function Header({ isLoggedIn }) {
 
           <LocationSetting onClick={() => setShowModal(true)}>
             <LocationIcon src={ping} />
-            <span style={{ cursor: 'pointer', fontWeight: 600 , color: '333333'}}>지역설정</span>
+            <span style={{ cursor: 'pointer', fontWeight: 600 , color: '333333'}}>
+              {selectedLocation}
+            </span>
           </LocationSetting>
           
           {showModal && (
@@ -1089,16 +1139,20 @@ export default function Header({ isLoggedIn }) {
 
                   {searchQuery === '' ? (
                     <ModalListContainer>
-                      <ModalListTitle>추천</ModalListTitle>
-                      {recommendedLocations.map((item, i) => (
-                        <ModalListItem key={i}>{item}</ModalListItem>
-                      ))}
-                    </ModalListContainer>
+                    <ModalListTitle>추천</ModalListTitle>
+                    {recommendedLocations.map((item, i) => (
+                      <ModalListItem key={i} onClick={() => handleLocationClick(item)}>
+                        {item}
+                      </ModalListItem>
+                    ))}
+                  </ModalListContainer>
                   ) : (
                     <ModalListContainer>
                       {filteredLocations.length > 0 ? (
                         filteredLocations.map((item, i) => (
-                          <ModalListItem key={i}>{item}</ModalListItem>
+                          <ModalListItem key={i} onClick={() => handleLocationClick(item)}>
+                          {item}
+                        </ModalListItem>
                         ))
                       ) : (
                         <ModalListItem>검색 결과가 없습니다.</ModalListItem>
