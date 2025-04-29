@@ -213,7 +213,7 @@ const MessageBubble = styled.div`
     max-width: 60%;
     padding: 10px 16px;
     border-radius: 20px;
-    font-size: 14px;
+    font-size: 16px;
     align-self: ${({ isMine }) => (isMine ? 'flex-end' : 'flex-start')};
     background-color: ${({ isMine }) => (isMine ? '#fb4a67' : '#f1f1f1')};
     color: ${({ isMine }) => (isMine ? '#fff' : '#000')};
@@ -234,7 +234,7 @@ const ChatInputWrapper = styled.div`
 `;
 
 const ChatInput = styled.input`
-    width: 60%;
+    width: 80%;
     padding: 10px;
     border: none;
     background-color: #f1f1f1;
