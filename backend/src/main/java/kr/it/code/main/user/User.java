@@ -21,7 +21,7 @@ public class User {
 
     // ✅ 아이디
     @Column(name = "USER_ID")
-    private String id;
+    private String userId;
 
     // ✅ 비밀번호
     @Column(name = "USER_PW")

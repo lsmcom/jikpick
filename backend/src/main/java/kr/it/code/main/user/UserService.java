@@ -26,8 +26,8 @@ public class UserService {
     }
 
     // ✅ 아이디 사용 가능 여부 체크 메서드 추가
-    public boolean checkIdAvailable(String id) {
-        return !userRepository.existsById(id);
+    public boolean checkIdAvailable(String userId) {
+        return !userRepository.existsByUserId(userId);
     }
 
     // ✅ 닉네임 사용 가능 여부 체크 추가
@@ -38,11 +38,7 @@ public class UserService {
     // 🔥 이름과 이메일로 아이디 찾기
     public String findUserId(String name, String email) {
         User user = userRepository.findByNameAndEmail(name, email);
-        if (user != null) {
-            return user.getId(); // 🔥 찾은 경우 user_id 리턴
-        } else {
-            return null; // 🔥 못 찾은 경우 null 리턴
-        }
+        return (user != null) ? user.getUserId() : null;
     }
 
     // ✅ 회원가입 처리 메서드
@@ -59,7 +55,7 @@ public class UserService {
 
         // User 엔티티 생성 및 값 세팅
         User user = new User();
-        user.setId(dto.getId());
+        user.setUserId(dto.getId());
         user.setPassword(passwordEncoder.encode(dto.getPassword())); // 비밀번호 암호화해서 저장
         user.setEmail(dto.getEmail());
         user.setNick(dto.getNick());
