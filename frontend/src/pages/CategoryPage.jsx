@@ -2,10 +2,10 @@ import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import heartIcon from '../assets/icon/HeartIcon.svg'
-import { useEffect, useState } from 'react';
+import heartIcon from '../assets/icon/HeartIcon.svg';
+import { use, useEffect, useState } from 'react';
+import axios from '../api/axios';
 
-// 🔧 스타일 컴포넌트
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -42,9 +42,7 @@ const CategoryBox = styled.div`
   border-radius: 10px;
   text-align: center;
   font-size: 20px;
-
-  font-weight: 500; 
-
+  font-weight: 500;
   cursor: pointer;
   background: white;
 
@@ -58,6 +56,7 @@ const SectionTitle = styled.h2`
   font-size: 26px;
   font-weight: bold;
   margin-bottom: 24px;
+
   span {
     color: #FB4A67;
   }
@@ -113,62 +112,125 @@ const Like = styled.div`
 `;
 
 export default function CategoryPage() {
-  const { categoryName } = useParams();
+  const { categoryNo } = useParams();
   const navigate = useNavigate();
-  
-  // ⭐ 현재 선택된 카테고리 상태 추가
-  const [currentCategory, setCurrentCategory] = useState(categoryName);
 
-  // ⭐ categoryName이 바뀔 때마다 업데이트
-  useEffect(() => {
-    setCurrentCategory(categoryName);
-  }, [categoryName]);
+  // 상태 정의
+  const [categoryName, setCategoryName] = useState('');
+  const [siblingCategories, setSiblingCategories] = useState([]);
+  const [items, setItems] = useState([]);
+  const [parentNo, setParentNo] = useState(null); // 형제 카테고리를 위한 부모 번호
+  const [breadcrumList, setBreadcrumList] = useState([]);
 
-  const dummyList = Array.from({ length: 8 }).map((_, i) => ({
-    name: `${currentCategory} 상품 ${i + 1}`,
-    price: '38,000원',
-    like: 17,
-  }));
-
-  const categories = ['전체보기', '아우터', '상의', '바지', '치마', '원피스', '점프수트', '세트', '언더웨어/홈웨어', '테마/이벤트'];
-
-  const handleCategoryClick = (category) => {
-    navigate(`/category/${encodeURIComponent(category)}`);
+  // 카테고리 클릭 시 이동
+  const handleCategoryClick = (no) => {
+    navigate(`/category/${no}`);
   };
 
+  console.log('선택된 카테고리 번호:', categoryNo);
+
+
+  useEffect(() => {
+    if (!categoryNo) return;
+  
+    // 1. 선택된 카테고리 상세 조회
+    axios.get(`/api/categories/detail/${categoryNo}`)
+      .then(res => {
+        const { cateName, cateParentNo, cateLevel } = res.data;
+        setCategoryName(cateName);
+        setParentNo(cateParentNo);
+  
+        // 2. 상품 목록 요청 URL 분기 (대분류는 하위 포함)
+        const itemUrl =
+          cateLevel === 1
+            ? '/api/items/in-category-tree'
+            : '/api/items';
+  
+        axios
+          .get(itemUrl, {
+            params: { categoryNo },
+          })
+          .then(res => setItems(res.data))
+          .catch(err => {
+            console.error('❌ 상품 리스트 조회 실패', err);
+          });
+  
+        // 3. 형제 카테고리 조회
+        return axios.get('/api/categories/children', {
+          params: { parentNo: cateParentNo },
+        });
+      })
+      .then(res => {
+        setSiblingCategories(res.data);
+      })
+      .catch(err => {
+        console.error('❌ 카테고리 조회 실패', err);
+      });
+  }, [categoryNo]);
+  
+  
+  
+
   return (
-    <Wrapper>
-      <Container>
-        <Breadcrumb>홈 &gt; 여성의류 &gt; 아우터 &gt; {currentCategory}</Breadcrumb>
-        <Location>경기도 고양시 일산동구</Location>
+    <>
+      <Wrapper>
+        <Container>
+          <Breadcrumb>홈 &gt; {categoryName}</Breadcrumb>
+          <Location>경기도 고양시 일산동구</Location>
 
-        <CategoryGrid>
-          {categories.map((cat) => (
-            <CategoryBox key={cat} onClick={() => handleCategoryClick(cat)}>
-              {cat}
-            </CategoryBox>
-          ))}
-        </CategoryGrid>
+          <CategoryGrid>
+  {/* 전체보기 (대분류 제외) */}
+  {parentNo !== null && (
+    <CategoryBox onClick={() => handleCategoryClick(parentNo)}>
+      전체보기
+    </CategoryBox>
+  )}
 
-        <SectionTitle><span>{currentCategory}</span>의 추천 상품</SectionTitle>
+  {/* 형제 카테고리 목록 */}
+  {siblingCategories.map(cat => (
+    <CategoryBox
+      key={cat.cateNo}
+      onClick={() => handleCategoryClick(cat.cateNo)}
+      style={{
+        borderColor: cat.cateNo == categoryNo ? '#FB4A67' : '#ddd',
+        color: cat.cateNo == categoryNo ? '#FB4A67' : '#000',
+        fontWeight: cat.cateNo == categoryNo ? '700' : '500',
+      }}
+    >
+      {cat.cateName}
+    </CategoryBox>
+  ))}
+</CategoryGrid>
 
-        <Grid>
-          {dummyList.map((item, index) => (
-            <Card key={index}>
-              <Thumbnail />
-              <ProductName>{item.name}</ProductName>
-              <PriceAndLike>
-                <Price>{item.price}</Price>
-                <Like>
-                  <img src={heartIcon} alt="좋아요" style={{ width: '18px', height: '18px' }} />
-                  3
-                </Like>
-              </PriceAndLike>
-            </Card>
-          ))}
-        </Grid>
-      </Container>
+
+          <SectionTitle>
+            <span>{categoryName}</span>의 추천 상품
+          </SectionTitle>
+
+          <Grid>
+            {items.map(item => (
+              <Card key={item.itemNo}>
+                <Thumbnail
+                  style={{
+                    backgroundImage: `url(${item.itemImage})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }}
+                />
+                <ProductName>{item.itemName}</ProductName>
+                <PriceAndLike>
+                  <Price>{item.itemCost.toLocaleString()}원</Price>
+                  <Like>
+                    <img src={heartIcon} alt="좋아요" width={18} height={18} />
+                    {item.itemWish}
+                  </Like>
+                </PriceAndLike>
+              </Card>
+            ))}
+          </Grid>
+        </Container>
+      </Wrapper>
       <Footer />
-    </Wrapper>
+    </>
   );
 }
