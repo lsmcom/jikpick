@@ -73,7 +73,6 @@ function AppContent({ isLoggedIn, setIsLoggedIn }) {
         <Route path="/myShop" element={<SellerStore/>}/>
         <Route path="/shopLike" element={<ShopLike />}/>
         <Route path="/shopOrder" element={<ShopOrder />}/>
-        <Route path="/category/:main/:sub?" element={<CategoryPage />} />
         <Route path="/withdrawReason" element={<WithdrawReason />}/>
         <Route path="/withdrawConfirm" element={<WithdrawConfirm />}/>
         <Route path="/findBranch" element={<FindBranch />}/>
@@ -81,7 +80,7 @@ function AppContent({ isLoggedIn, setIsLoggedIn }) {
         <Route path="/modifyInfo" element={<ModifyInfo />} />
         <Route path="/shopLike" element={<ShopLike />} />
         <Route path="/shopOrder" element={<ShopOrder />} />
-        <Route path="/category/:categoryName" element={<CategoryPage />} />
+        <Route path="/category/:categoryNo" element={<CategoryPage />} />
         <Route path="/withdrawReason" element={<WithdrawReason />} />
         <Route path="/withdrawConfirm" element={<WithdrawConfirm />} />
         <Route path="/popular/:categoryName" element={<PopularProduct />} />
