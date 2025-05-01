@@ -127,9 +127,9 @@ export default function CategoryDropdown() {
       )}
 
       {/* 소분류 */}
-      {subSubCategories.length > 0 && (
+      {subSubCategories.length > 0 && selectedSub &&(
         <Column>
-          <ColumnTitle>{selectedSub.cateName}</ColumnTitle>
+          <ColumnTitle>{selectedSub?.cateName}</ColumnTitle>
           {subSubCategories.map(cat => (
             <Item
               key={cat.cateNo}
