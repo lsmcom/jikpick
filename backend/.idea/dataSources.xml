@@ -2,7 +2,11 @@
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
 <<<<<<< HEAD
+<<<<<<< HEAD
+    <data-source source="LOCAL" name="jikpick" uuid="bb89b180-9ecc-49a9-a215-dcd76ed98f74">
+=======
     <data-source source="LOCAL" name="jikpick" uuid="288cf408-fdad-41dc-b400-2fee75042127">
+>>>>>>> 93be4e5a5eebe2217beae6e65ee2ca81ee2bc6f7
 =======
     <data-source source="LOCAL" name="jikpick" uuid="c6b4ea7c-d655-492d-8e57-0829fef86579">
 >>>>>>> 62251e35ba01583518d1525e494af7bcf4aa337d

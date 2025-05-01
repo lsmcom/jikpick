@@ -1,42 +1,11 @@
 import styled from 'styled-components';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import rightArrow from '../assets/icon/RightArrow.svg';
 import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom'; 
-
-
-// 예시 데이터
-const categories = [
-  {
-    name: '남성의류',
-    children: [
-      {
-        name: '상의',
-        children: ['후드티/후드집업', '맨투맨', '니트/스웨터', '셔츠', '반팔 티셔츠', '긴팔 티셔츠', '민소매 티셔츠']
-      },
-      {
-        name: '아우터',
-        children: ['자켓', '코트', '패딩']
-      }
-    ]
-  },
-  {
-    name: '여성의류',
-    children: [
-      {
-        name: '스커트',
-        children: ['미니', '미디', '롱']
-      },
-      {
-        name: '블라우스',
-        children: ['셔츠형', '레이스형']
-      }
-    ]
-  }
-];
+import axios from '../api/axios';
 
 const DropdownWrapper = styled.div`
- display: flex;
+  display: flex;
   position: absolute;
   top: 100%;
   left: 0;
@@ -53,7 +22,7 @@ const Column = styled.div`
   min-width: 200px;
   border-right: 1px solid #eee;
   height: 500px;
-  overflow-y: auto; //고정 높이 초과 시 스크롤 생성
+  overflow-y: auto;
 `;
 
 const ColumnTitle = styled.div`
@@ -61,24 +30,20 @@ const ColumnTitle = styled.div`
   font-size: 16px;
   padding: 12px 16px;
   border-bottom: 1px solid #eee;
-  color: #111;
   display: flex;
-  align-items: center;
-  gap: 6px;
   justify-content: space-between;
+  align-items: center;
 `;
 
 const RightArrow = styled.img`
-    width: 15px;
-    height: 15px;
-`
+  width: 15px; height: 15px;
+`;
 
 const Item = styled.div`
   padding: 12px 16px;
   cursor: pointer;
-  background-color: ${({ active }) => (active ? '#FB4A67' : 'white')};
-  color: ${({ active }) => (active ? 'white' : '#333')};
-
+  background-color: ${({ $active }) => ($active ? '#FB4A67' : 'white')};
+  color: ${({ $active }) => ($active ? 'white' : '#333')};
   &:hover {
     background-color: #FB4A67;
     color: white;
@@ -86,80 +51,94 @@ const Item = styled.div`
 `;
 
 export default function CategoryDropdown() {
-  const [selectedMain, setSelectedMain] = useState(null);
-  const [selectedSub, setSelectedSub] = useState(null);
+  const [mainCategories, setMainCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
+  const [subSubCategories, setSubSubCategories] = useState([]);
+
+  const [selectedMain, setSelectedMain] = useState(null);       // { cateNo, cateName }
+  const [selectedSub, setSelectedSub] = useState(null);         // { cateNo, cateName }
+
   const navigate = useNavigate();
 
+  // 1) 최초에 대분류만 불러오기
+  useEffect(() => {
+    axios.get('/api/categories/children', { params: { parentNo: null } })
+      .then(res => setMainCategories(res.data))
+      .catch(console.error);
+  }, []);
 
-  const sub =
-  selectedMain &&
-  categories.find((cat) => cat.name === selectedMain)?.children || [];
+  // 2) main 선택 시 중분류 불러오기
+  useEffect(() => {
+    if (!selectedMain) return setSubCategories([]);
+    axios.get('/api/categories/children', { params: { parentNo: selectedMain.cateNo } })
+      .then(res => setSubCategories(res.data))
+      .catch(console.error);
+  }, [selectedMain]);
 
-  const subSub = selectedSub?.children || [];
-
-  const hasSub = (categoryName) => {
-    const target = categories.find((cat) => cat.name === categoryName);
-    return target && target.children && target.children.length > 0;
-  };
-
-  const hasSubSub = (subCategory) => {
-    return subCategory && subCategory.children && subCategory.children.length > 0;
-  };
+  // 3) sub 선택 시 소분류 불러오기
+  useEffect(() => {
+    if (!selectedSub) return setSubSubCategories([]);
+    axios.get('/api/categories/children', { params: { parentNo: selectedSub.cateNo } })
+      .then(res => setSubSubCategories(res.data))
+      .catch(console.error);
+  }, [selectedSub]);
 
   return (
     <DropdownWrapper>
-      {/* 1단 */}
+      {/* 대분류 */}
       <Column>
         <ColumnTitle>
           전체 카테고리
-          {hasSub(selectedMain) && <RightArrow src={rightArrow} />}
+          {selectedMain && !!subCategories.length && <RightArrow src={rightArrow} />}
         </ColumnTitle>
-        {categories.map((cat) => (
+        {mainCategories.map(cat => (
           <Item
-            key={cat.name}
-            active={cat.name === selectedMain}
+            key={cat.cateNo}
+            $active={selectedMain?.cateNo === cat.cateNo}
             onMouseEnter={() => {
-              setSelectedMain(cat.name);
+              setSelectedMain(cat);
               setSelectedSub(null);
             }}
+            onClick={() => navigate(`/category/${cat.cateNo}`)} // ✅ 클릭 시 이동 추가
           >
-            {cat.name}
+            {cat.cateName}
           </Item>
         ))}
       </Column>
 
-      {/* 2단 */}
-      {sub.length > 0 && (
+      {/* 중분류 */}
+      {subCategories.length > 0 && (
         <Column>
           <ColumnTitle>
-            {selectedMain}
-            {hasSubSub(selectedSub) && <RightArrow src={rightArrow} />}
+            {selectedMain.cateName}
+            {selectedSub && !!subSubCategories.length && <RightArrow src={rightArrow} />}
           </ColumnTitle>
-          {sub.map((child) => (
+          {subCategories.map(cat => (
             <Item
-              key={child.name}
-              active={child.name === selectedSub?.name}
-              onMouseEnter={() => setSelectedSub(child)}
+              key={cat.cateNo}
+              $active={selectedSub?.cateNo === cat.cateNo}
+              onMouseEnter={() => setSelectedSub(cat)}
+              onClick={() => navigate(`/category/${cat.cateNo}`)} // ✅ 클릭 시 이동 추가
             >
-              {child.name}
+              {cat.cateName}
             </Item>
           ))}
         </Column>
       )}
 
-     {/* 3단 */}
-      {subSub.length > 0 && (
+      {/* 소분류 */}
+      {subSubCategories.length > 0 && selectedSub &&(
         <Column>
-        <ColumnTitle>{selectedSub.name}</ColumnTitle>
-        {subSub.map((leaf) => (
-          <Item
-            key={leaf}
-            onClick={() => navigate(`/category/${encodeURIComponent(leaf)}`)}
-          >
-            {leaf}
-          </Item>
-        ))}
-      </Column>
+          <ColumnTitle>{selectedSub?.cateName}</ColumnTitle>
+          {subSubCategories.map(cat => (
+            <Item
+              key={cat.cateNo}
+              onClick={() => navigate(`/category/${cat.cateNo}`)}
+            >
+              {cat.cateName}
+            </Item>
+          ))}
+        </Column>
       )}
     </DropdownWrapper>
   );
