@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Footer from '../components/Footer';
 import cameraIcon from '../assets/icon/Camera.svg';
 import { useNavigate } from 'react-router-dom'; // 🔥 이미 되어 있을 수도 있음
+import axios from '../api/axios';
 
 // dnd-kit import
 import {
