@@ -886,23 +886,8 @@ useEffect(() => {
   };
   // 로그인된 사용자 ID
 
-  useEffect(() => {
-    // userNo가 없으면 API 호출하지 않음
-    if (!userNo) return;
 
-    const fetchNotifications = async () => {
-      setLoading(true); // 데이터 불러오기 시작 시 로딩 시작
-      try {
-        const response = await axios.get(`/api/notifications/user/${userNo}`);
-        setNotifications(response.data); // 받아온 데이터로 상태 업데이트
-      } catch (error) {
-        console.error('알림을 가져오는 데 실패했습니다:', error);
-      } finally {
-        setLoading(false); // 데이터 불러오기 완료 시 로딩 종료
-      }
-    };
-    fetchNotifications(); // 알림 데이터 가져오기
-  }, [userNo]); //
+
   return (
     <HeaderWrapper>
     <HeadContainer>
