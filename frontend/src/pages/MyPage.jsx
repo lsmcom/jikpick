@@ -1,6 +1,6 @@
 import styled from 'styled-components'; 
 import Footer from '../components/Footer'; // 공통 푸터
-import { NavLink } from 'react-router-dom'; 
+import { Navigate, NavLink, useNavigate } from 'react-router-dom'; 
 import rightIcon from '../assets/icon/RightIcon.svg';
 import exampleProfile from '../assets/images/ExampleProfile.svg';
 import shoppingBag from '../assets/icon/ShoppingBag.svg';
@@ -183,7 +183,25 @@ const MenuIcon = styled.img`
   height: 22px;
 `;
 
-export default function MyPage() {
+export default function MyPage({ isLoggedIn, setIsLoggedIn }) {
+
+  const navigate = useNavigate();
+
+  // 로그아웃 처리 함수
+  const handleLogout = (e) => {
+    e.preventDefault(); // 링크의 기본 동작인 페이지 이동을 막음
+    
+    // localStorage 또는 sessionStorage에서 사용자 정보 삭제
+    localStorage.removeItem('user');
+    sessionStorage.removeItem('user');
+    
+    // 로그인 상태 변경
+    setIsLoggedIn(false);
+    
+    // 메인 화면으로 리다이렉트
+    navigate('/');
+  };
+
   return (
     <Wrapper>
       <Outer>
@@ -249,7 +267,7 @@ export default function MyPage() {
             <RightIcon src={rightIcon} alt="화살표" />
             </MenuItem>
 
-            <MenuItem to="/">로그아웃<RightIcon src={rightIcon} alt="화살표" /></MenuItem>
+            <MenuItem to="#" onClick={handleLogout}>로그아웃<RightIcon src={rightIcon} alt="화살표" /></MenuItem>
             <MenuItem to="/modifyInfo">회원정보 관리<RightIcon src={rightIcon} alt="화살표" /></MenuItem>
             <MenuItem to="/withdrawReason">회원탈퇴<RightIcon src={rightIcon} alt="화살표" /></MenuItem>
         </Inner>

@@ -63,27 +63,21 @@ function AppContent({ isLoggedIn, setIsLoggedIn }) {
         <Route path="/order" element={<ProductOrder />} />
         <Route path="/order/success" element={<OrderSuccess />} />
         <Route path="/shopSale" element={<ShopSale />} />
-        <Route path="/productUpload" element={<ProductUpload />} />
         <Route path="/product/:id" element={<ProductDetail />} />
-        <Route path="/myPage" element={<MyPage />} />
+        <Route path="/myPage" element={<MyPage setIsLoggedIn={setIsLoggedIn} />} />
         <Route path="/myShop" element={<SellerStore />} />
         <Route path="/modifyInfo" element={<ModifyInfo/>}/>
-        <Route path="/product/:id" element={<ProductDetail/>}/>
-        <Route path="/myPage" element={<MyPage />} />
-        <Route path="/myShop" element={<SellerStore/>}/>
         <Route path="/shopLike" element={<ShopLike />}/>
         <Route path="/shopOrder" element={<ShopOrder />}/>
         <Route path="/category/:main/:sub?" element={<CategoryPage />} />
-        <Route path="/withdrawReason" element={<WithdrawReason />}/>
-        <Route path="/withdrawConfirm" element={<WithdrawConfirm />}/>
         <Route path="/findBranch" element={<FindBranch />}/>
         <Route path="/chat" element={<Chat />} />
-        <Route path="/modifyInfo" element={<ModifyInfo />} />
-        <Route path="/shopLike" element={<ShopLike />} />
-        <Route path="/shopOrder" element={<ShopOrder />} />
         <Route path="/category/:categoryName" element={<CategoryPage />} />
         <Route path="/withdrawReason" element={<WithdrawReason />} />
-        <Route path="/withdrawConfirm" element={<WithdrawConfirm />} />
+        <Route
+          path="/withdrawConfirm"
+          element={<WithdrawConfirm setIsLoggedIn={setIsLoggedIn} />}
+        />
         <Route path="/popular/:categoryName" element={<PopularProduct />} />
       </Routes>
     </>

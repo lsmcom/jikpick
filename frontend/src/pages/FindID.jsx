@@ -182,7 +182,7 @@ export default function JoinForm() {
   const [emailExpired, setEmailExpired] = useState(false); // 만료 여부
   const timerRef = useRef(null); // 타이머 저장용 ref
 
-  // ✅ 아이디 찾기 상태 정의
+  // ✅ 이름 찾기 상태 정의
   const [name, setName] = useState('');
 
   const navigate = useNavigate(); 

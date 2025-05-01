@@ -1,11 +1,7 @@
 import styled from 'styled-components';
 import Footer from '../components/Footer';
 import { useLocation, useNavigate } from 'react-router-dom';
-// styled-components 생략 (이전 코드 재사용)
-
-
-// styled-components 생략 (기존과 동일)
-
+import axios from '../api/axios';
 
 // ✅ 레이아웃
 // 📦 뒤로가기 아이콘 스타일
@@ -54,8 +50,6 @@ const ReasonList = styled.ul`
   gap: 20px;
   margin: 40px 0;
 `;
-
-
 
 const Notice = styled.ul`
   font-size: 20px;
@@ -114,14 +108,35 @@ const WithdrawButton = styled.button`
 `;
 
 
-export default function WithdrawConfirm() {
+export default function WithdrawConfirm({ setIsLoggedIn }) {
   const location = useLocation();
   const navigate = useNavigate();
   const reason = location.state?.reason || '기타';
 
-  const handleWithdraw = () => {
-    alert(`탈퇴 처리 완료`);
-    navigate('/');
+  // 로컬/세션 스토리지 중에서 user 정보 꺼내기
+  const stored = localStorage.getItem('user') ?? sessionStorage.getItem('user');
+  const { id: userId } = stored ? JSON.parse(stored) : {};
+
+  const handleWithdraw = async () => {
+    try {
+      await axios.delete('/api/users/withdraw', {
+        data: { userId, reason }
+      });
+
+      // 탈퇴되면 로그인 상태 해제
+      setIsLoggedIn(false);
+
+      // 로컬/세션 스토리지에서 사용자 정보 삭제
+      localStorage.removeItem('user');
+      sessionStorage.removeItem('user');
+
+      alert('탈퇴 처리 완료');
+      navigate('/');
+
+    } catch (err) {
+      console.error('탈퇴 실패:', err);
+      alert('탈퇴 중 오류가 발생했습니다.');
+    }
   };
 
   return (
