@@ -75,6 +75,7 @@ const Card = styled.div`
   padding: 10px;
   font-size: 20px;
   font-family: 'Pretendard', sans-serif;
+  cursor: pointer;
 `;
 
 const Thumbnail = styled.div`
@@ -168,8 +169,9 @@ export default function CategoryPage() {
       });
   }, [categoryNo]);
   
-  
-  
+  const handleCardClick = (itemNo) => {
+    navigate(`/items/${itemNo}`);
+  };
 
   return (
     <>
@@ -209,7 +211,7 @@ export default function CategoryPage() {
 
           <Grid>
             {items.map(item => (
-              <Card key={item.itemNo}>
+              <Card key={item.itemNo} onClick={() => handleCardClick(item.itemNo)}>
                 <Thumbnail
                   style={{
                     backgroundImage: `url(${item.itemImage})`,

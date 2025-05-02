@@ -6,9 +6,10 @@ import SellerProfile from '../components/ProductDetail/SellerProfile';
 import ReviewList from '../components/ProductDetail/ReviewList';
 import shoes from '../assets/images/shoes.jpg';
 import profileImg from '../assets/images/profile1.jpg';
-import ReviewTab from '../components/ProductDetail/ReviewTab'; // 
-
-
+import ReviewTab from '../components/ProductDetail/ReviewTab';
+import { useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import axios from '../api/axios'; 
 
 const Container = styled.div`
   max-width: 1200px;
@@ -36,46 +37,46 @@ const ProductImage = styled.img`
   
 `;
 
-
-
 export default function ProductDetail() {
-  // ✅ 더미데이터
-  const product = {
-    id: 1,
-    title: '캐논 DIGITAL IXUS 디지털 카메라',
-    category: '카메라',
-    price: 50000,
-    seller: {
-      name: '오로라여신',
-      rating: 3.0,
-      profileImage:profileImg,
-    },
-    description: '고장났습니다. 수리,정보,복원용품입니다! 보기만해!!예민하신분 구입을 반!품불가용 ㅠㅠ!! 고장났습니다.수리,정보,복원용품입니다! 보기만해!!예민하신분 구입을 반!품불가용 ㅠㅠ!!',
-    image: shoes,
-    createdAt: '5일 전',
-  };
+
+  const { itemNo } = useParams(); // URL에서 /items/:itemNo 값 추출
+  const [product, setProduct] = useState(null);
+
+  useEffect(() => {
+    const fetchItem = async () => {
+      try {
+        const res = await axios.get(`/api/items/${itemNo}`);
+        setProduct(res.data);
+      } catch (err) {
+        console.error('상품 불러오기 실패:', err);
+      }
+    };
+    fetchItem();
+  }, [itemNo]);
+
+  // ✅ 로딩 중 처리
+  if (!product) return null;
 
   return (
     <Container>
       {/* 상단: 이미지 + 상품정보 */}
       <ProductTop>
-        <ProductImage src={product.image} alt="상품 이미지" />
+        {/* <ProductImage src={product.itemImage} alt="상품 이미지" /> DB에 상품 이미지 있을경우 활성화 */}
+        <ProductImage src={shoes} alt="상품 이미지" />
         <ProductInfo
-          title={product.title}
-          category={product.category}
-          price={product.price}
-          sellerName={product.seller.name}
-          createdAt={product.createdAt}
+          title={product.itemName}
+          category={product.categoryName}
+          price={product.itemCost}
+          sellerName={product.sellerNick}
+          createdAt={product.itemDate}
         />
       </ProductTop>
 
       {/* 설명 */}
-      <ProductDescription description={product.description} />
+      <ProductDescription description={product.itemInfo} />
 
       {/* 판매자 정보 */}
-      <SellerProfile seller={product.seller} />
-
-     
+      <SellerProfile seller={{ name: product.sellerNick, profileImage: profileImg }} />
      
       <ReviewTab />
       <Footer/>
