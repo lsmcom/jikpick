@@ -2,6 +2,7 @@ package kr.it.code.main.item.entity;
 
 import jakarta.persistence.*;
 import kr.it.code.main.category.entity.Category;
+import kr.it.code.main.store.entity.Store;
 import kr.it.code.main.user.User;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,13 +20,20 @@ public class Item {
     @Column(name = "ITEM_NO")
     private Long itemNo;
 
+    // 사용자 정보 (FK)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_NO")
     private User user;
 
+    // 카테고리 정보 (FK)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CATE_NO")
     private Category category;
+
+    // 직픽 지점 정보 (FK)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "STORE_NO")
+    private Store store;
 
     @Column(name = "ITEM_NAME")
     private String itemName;

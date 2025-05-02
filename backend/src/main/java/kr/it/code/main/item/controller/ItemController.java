@@ -1,6 +1,7 @@
 package kr.it.code.main.item.controller;
 
 import kr.it.code.main.item.dto.ItemDto;
+import kr.it.code.main.item.dto.ItemRequestDto;
 import kr.it.code.main.item.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,5 +26,12 @@ public class ItemController {
     @GetMapping("/in-category-tree")
     public ResponseEntity<List<ItemDto>> getItemsInCategoryTree(@RequestParam Long categoryNo) {
         return ResponseEntity.ok(itemService.getItemsInCategoryAndSubCategories(categoryNo));
+    }
+
+    // ✅ 상품 등록
+    @PostMapping
+    public ResponseEntity<String> registerItem(@RequestBody ItemRequestDto dto) {
+        itemService.registerItem(dto);
+        return ResponseEntity.ok("등록 완료");
     }
 }
