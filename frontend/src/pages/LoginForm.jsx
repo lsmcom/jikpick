@@ -5,7 +5,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { Wrapper, Logo } from '../pages/LoginContainer';
 import axios from '../api/axios';
 
-const LoginBox = styled.div`
+const LoginBox = styled.form`
   width: 400px;
   background: white;
   border-radius: 16px;
@@ -20,8 +20,6 @@ text-align: center;
   font-size: 24px;
   margin-bottom: 30px;
 `;
-
-
 
 const Input = styled.input`
   width: 100%;
@@ -151,10 +149,15 @@ export default function LoginForm({ setIsLoggedIn }) {
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    handleLogin();
+  };
+
   return (
     <Wrapper>
       <Logo to="/">JIKPICK</Logo>
-      <LoginBox>
+      <LoginBox onSubmit={handleSubmit}>
         <Title>로그인</Title>
         <Input
           placeholder="ID"
@@ -175,7 +178,7 @@ export default function LoginForm({ setIsLoggedIn }) {
           />
           로그인 상태 유지
         </StayLogin>
-        <LoginButton onClick={handleLogin}>로그인</LoginButton>
+        <LoginButton type="submit">로그인</LoginButton>
         <Links>
           <NavLink to="/findID">아이디 찾기</NavLink>
           <NavLink to="/findPW">비밀번호 찾기</NavLink>

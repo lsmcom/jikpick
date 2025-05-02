@@ -4,9 +4,12 @@ import kr.it.code.main.user.dto.JoinRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Map;
 
 @Service // ✅ 서비스 계층을 나타내는 어노테이션
 @RequiredArgsConstructor // ✅ 생성자 주입 자동 생성 (final 필드)
@@ -67,6 +70,51 @@ public class UserService {
         user.setNational(dto.getNational());
 
         // DB에 저장
+        userRepository.save(user);
+    }
+
+    // ✅ 비밀번호 재설정 기능
+    public void resetPassword(String userId, String newPassword) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    // ✅ 회원탈퇴 기능
+    public void withdraw(String userId, String reason) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        // (optional) 탈퇴 사유를 로그로 남기거나 DB에 저장할 수 있음
+        userRepository.delete(user);
+    }
+
+    // ✅ 변경된 회원정보만 변경 기능
+    @Transactional
+    public void updateUserInfo(String userId, Map<String, Object> updates) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
+
+        if (updates.containsKey("nickname")) {
+            user.setNick((String) updates.get("nickname"));
+        }
+
+        if (updates.containsKey("email")) {
+            user.setEmail((String) updates.get("email"));
+        }
+
+        if (updates.containsKey("tell")) {
+            user.setTell((String) updates.get("tell"));
+        }
+
+        if (updates.containsKey("password")) {
+            String raw = (String) updates.get("password");
+            String encoded = new BCryptPasswordEncoder().encode(raw);
+            user.setPassword(encoded);
+        }
+
         userRepository.save(user);
     }
 }
