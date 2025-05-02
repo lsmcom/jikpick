@@ -26,4 +26,11 @@ public class ItemController {
     public ResponseEntity<List<ItemDto>> getItemsInCategoryTree(@RequestParam Long categoryNo) {
         return ResponseEntity.ok(itemService.getItemsInCategoryAndSubCategories(categoryNo));
     }
+
+    // 상품 상세 조회
+    @GetMapping("/{itemNo}")
+    public ResponseEntity<ItemDto> getItemDetail(@PathVariable Long itemNo) {
+        ItemDto item = itemService.getItemDetail(itemNo);
+        return ResponseEntity.ok(item);
+    }
 }

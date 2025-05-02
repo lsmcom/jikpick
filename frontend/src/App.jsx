@@ -63,7 +63,7 @@ function AppContent({ isLoggedIn, setIsLoggedIn }) {
         <Route path="/order" element={<ProductOrder />} />
         <Route path="/order/success" element={<OrderSuccess />} />
         <Route path="/shopSale" element={<ShopSale />} />
-        <Route path="/product/:id" element={<ProductDetail />} />
+        <Route path="/items/:itemNo" element={<ProductDetail />} />
         <Route path="/myPage" element={<MyPage setIsLoggedIn={setIsLoggedIn} />} />
         <Route path="/myShop" element={<SellerStore />} />
         <Route path="/modifyInfo" element={<ModifyInfo/>}/>
