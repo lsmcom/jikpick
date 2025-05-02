@@ -44,7 +44,7 @@ export default function SellerProfile({ seller }) {
       <strong>{seller.name}</strong>
       &nbsp;
       <img src={starIcon} alt="별 아이콘" style={{ width: '14px', height: '14px', verticalAlign: 'middle', marginBottom: '2px' }} />
-      &nbsp;{seller.rating.toFixed(1)} (14)
+      &nbsp;{(seller.rating ?? 0).toFixed(1)} (14)
     </p>
     <p>상품 6개</p>
   </SellerInfo>

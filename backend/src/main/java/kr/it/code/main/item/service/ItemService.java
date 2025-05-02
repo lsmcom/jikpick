@@ -71,4 +71,11 @@ public class ItemService {
 
         itemRepository.save(item);
     }
+    // 상품 상세 조회
+    public ItemDto getItemDetail(Long itemNo) {
+        Item item = itemRepository.findByItemNo(itemNo)
+                .orElseThrow(() -> new RuntimeException("해당 상품이 존재하지 않습니다."));
+        return new ItemDto(item);
+    }
+
 }
