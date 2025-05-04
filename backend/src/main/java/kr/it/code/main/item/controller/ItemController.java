@@ -1,6 +1,7 @@
 package kr.it.code.main.item.controller;
 
 import kr.it.code.main.item.dto.ItemDto;
+import kr.it.code.main.item.dto.ItemLikeDto;
 import kr.it.code.main.item.entity.Item;
 import kr.it.code.main.item.service.ItemService;
 import lombok.RequiredArgsConstructor;
@@ -60,5 +61,11 @@ public class ItemController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+    }
+
+    // 좋아요 수 기준으로 상품을 내림차순으로 정렬하여 반환
+    @GetMapping("/popular")
+    public ResponseEntity<List<ItemLikeDto>> getPopularItems() {
+        return ResponseEntity.ok(itemService.findItemListOrderByLikeCount());
     }
 }

@@ -1,14 +1,18 @@
 package kr.it.code.main.item.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import kr.it.code.main.category.entity.Category;
+import kr.it.code.main.category.repository.CategoryRepository;
 import kr.it.code.main.category.service.CategoryService;
 import kr.it.code.main.item.dto.ItemDto;
+import kr.it.code.main.item.dto.ItemLikeDto;
 import kr.it.code.main.item.entity.Item;
 import kr.it.code.main.item.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -45,6 +49,12 @@ public class ItemService {
         Item item = itemRepository.findByItemNo(itemNo)
                 .orElseThrow(() -> new RuntimeException("해당 상품이 존재하지 않습니다."));
         return new ItemDto(item);
+    }
+
+    
+    // 좋아요 수 기준으로 상품 목록을 가져오는 메소드
+    public List<ItemLikeDto> findItemListOrderByLikeCount() {
+        return itemRepository.findItemsOrderByLikeCount();
     }
 
     // 찜 추가/해제
