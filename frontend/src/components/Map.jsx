@@ -58,34 +58,38 @@ export default function Map({ selectedAddress, roadAddressList }) {
     const [searchToggle, setSearchToggle] = useState(false); // 지도 이동시 재검색 토글
     const addressList = roadAddressList;
 
-    
 
     useEffect(() => {
         const fetchUserLocation = async () => {
             try {
-              const memberId = JSON.parse(localStorage.getItem('user')).id;
-              const response = await fetch(`/api/location/get?memberId=${memberId}`);
-              const data = await response.json();
-      
-              if (data) {
-                const userLat = data.latitude;
-                const userLng = data.longitude;
-      
-                window.kakao.maps.load(() => {
-                  const map = new window.kakao.maps.Map(container.current, {
-                    center: new window.kakao.maps.LatLng(userLat, userLng),
-                    level: 5,
-                  });
-                  mapRef.current = map;
-                  // 나머지 기존 로직 (마커 표시 등)
+                const memberId = JSON.parse(localStorage.getItem('user')).id;
+                // 백엔드에서 위도, 경도 요청
+                const response = await axios.get('/api/location/get', {
+                    params: { 
+                        memberId: memberId
+                    },
                 });
-              } else {
-                console.log('사용자 위치 없음. 기본 서울 좌표 사용');
-                createDefaultMap();
-              }
+                const data = response.data;
+      
+                if (data) {
+                    const userLat = data.latitude;
+                    const userLng = data.longitude;
+      
+                    window.kakao.maps.load(() => {
+                        const map = new window.kakao.maps.Map(container.current, {
+                            center: new window.kakao.maps.LatLng(userLat, userLng),
+                            level: 5,
+                        });
+                        mapRef.current = map;
+                        // 나머지 기존 로직 (마커 표시 등)
+                    });
+                } else {
+                    console.log('사용자 위치 없음. 기본 서울 좌표 사용');
+                    createDefaultMap();
+                }
             } catch (error) {
-              console.error('사용자 위치 가져오기 실패:', error);
-              createDefaultMap();
+                console.error('사용자 위치 가져오기 실패:', error);
+                createDefaultMap();
             }
         }
         
