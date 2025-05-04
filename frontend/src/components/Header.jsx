@@ -1,16 +1,19 @@
 import styled from 'styled-components';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { useState, useRef, useEffect } from 'react';
 import box from '../assets/icon/Logo.svg';
 import search from '../assets/icon/SearchIcon.svg';
 import ping from '../assets/icon/LocationPing.svg';
 import menu from '../assets/icon/Menu.svg';
-import CategoryDropdown from './CategoryDropdown';
-import { useState, useRef, useEffect } from 'react';
 import closeXIcon from '../assets/icon/CloseXIcon.svg';
 import settingIcon from '../assets/icon/SettiingIcon.png';
 import menuDrop from '../assets/icon/menudrop.svg';
 import iPhone from '../assets/images/iphone.png';
 import ReviewModal from '../components/ReviewModal';
+import CategoryDropdown from './CategoryDropdown';
+import axios from '../api/axios'; 
+import { getSidoList, getSigunguList, getDongList } from '../api/addressApi';
+
 
 const HeaderWrapper = styled.header`
   font-family: 'Pretendard', sans-serif;
@@ -711,7 +714,16 @@ export default function Header({ isLoggedIn, setIsLoggedIn }) {
   const [showHideModal, setShowHideModal] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [isMenuClick, setIsMenuClick] = useState(false);
+ 
+  const [location, setLocation] = useState({ latitude: null, longitude: null });
+
+  const [sidoList, setSidoList] = useState([]);         // 시/도 리스트
+  const [sigunguList, setSigunguList] = useState([]);    // 시/군/구 리스트
+  const [dongList, setDongList] = useState([]);          // 동 리스트
+
+  const [selectedSido, setSelectedSido] = useState(null);
+  const [selectedSigungu, setSelectedSigungu] = useState(null);
+  const [selectedDong, setSelectedDong] = useState(null);
   
   // 1. 검색 키워드 상태관리
   const [searchQuery, setSearchQuery] = useState('');
@@ -775,6 +787,16 @@ export default function Header({ isLoggedIn, setIsLoggedIn }) {
       document.removeEventListener('mouseup', handleDocumentMouseUp);
     };
   }, []);
+
+  const handleOpenModal = async () => {
+    setShowModal(true);
+    try {
+      const sidoData = await getSidoList();
+      setSidoList(sidoData);
+    } catch (error) {
+      console.error('시/도 리스트 로딩 실패:', error);
+    }
+  };
 
   // ✅ 1. 지역 상태 추가
   const [selectedLocation, setSelectedLocation] = useState(() => {
@@ -890,6 +912,64 @@ export default function Header({ isLoggedIn, setIsLoggedIn }) {
     // 메인 화면으로 리다이렉트
     navigate('/');
   };
+
+  // 위치 정보를 받아오고 상태를 업데이트하는 함수
+  const handleUseCurrentLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const { latitude, longitude } = position.coords;
+
+        // 상태에 위치 정보 저장
+        setLocation({ latitude, longitude }); // latitude, longitude를 상태로 저장
+      }, (error) => {
+        alert('위치를 가져오는데 실패했습니다.');
+        console.error('위치 정보 오류:', error);
+      });
+    } else {
+      alert('브라우저가 위치 정보를 지원하지 않습니다.');
+    }
+  };
+
+  // location 상태가 업데이트되면 실행되는 useEffect
+  useEffect(() => {
+    // location.latitude와 location.longitude가 null이 아니면
+    if (location.latitude !== null && location.longitude !== null) {
+      const saveLocation = async () => {
+        try {
+          const memberId = JSON.parse(localStorage.getItem('user')).id; // localStorage에서 memberId 불러오기
+  
+          // 1. 백엔드에 위치 정보 저장
+          await axios.post('/api/location/save', null, {
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            params: {
+              memberId,
+              latitude: location.latitude,
+              longitude: location.longitude,
+            },
+          });
+  
+          // 2. 백엔드에서 위도, 경도 -> 주소 변환 요청
+          const response = await axios.get('/api/location/getaddress', {
+            params: { 
+              latitude: location.latitude,
+              longitude: location.longitude
+            },
+          });
+  
+          const address = response.data;
+          setSelectedLocation(address); // 주소 정보만 설정
+          localStorage.setItem('selectedLocation', address); // OO동 형식 저장
+  
+          alert('현재 위치가 저장되었습니다!');
+        } catch (error) {
+          console.error('위치 저장 실패:', error);
+        }
+      };
+  
+      saveLocation(); // 위치 저장 처리 실행
+    }
+  }, [location]);
+
 
   return (
     <HeaderWrapper>
@@ -1091,7 +1171,7 @@ export default function Header({ isLoggedIn, setIsLoggedIn }) {
             {showCategory && <CategoryDropdown />}
           </MenuWrapper>
 
-          <LocationSetting onClick={() => setShowModal(true)}>
+          <LocationSetting onClick={handleOpenModal}>
             <LocationIcon src={ping} />
             <span style={{ cursor: 'pointer', fontWeight: 600 , color: '333333'}}>
               {selectedLocation}
@@ -1132,7 +1212,7 @@ export default function Header({ isLoggedIn, setIsLoggedIn }) {
                     />
                   </ModalSearchArea>
 
-                  <ModalLocationButton>
+                  <ModalLocationButton onClick={handleUseCurrentLocation}>
                     <img src={ping} alt="위치 아이콘" />
                     현재 내 위치 사용하기
                   </ModalLocationButton>
