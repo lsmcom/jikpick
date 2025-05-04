@@ -5,7 +5,7 @@ import { NavLink } from 'react-router-dom';
 import heartIcon from '../../assets/icon/HeartIcon.svg'
 import emptyHeartIcon from '../../assets/icon/EmptyHeartIcon.svg';
 import starIcon from '../../assets/icon/StarIcon.svg'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from '../../api/axios';
 
 const InfoWrapper = styled.div`
@@ -158,7 +158,13 @@ export default function ProductInfo({
       setIsWish(newIsWish);
   
       // 찜 상태 변경 요청 (보안 설정 없이)
-      axios.post(`/api/items/${productId}/wish`, { wish: newIsWish })
+      const userData = JSON.parse(sessionStorage.getItem('user'));
+      const userNo = userData?.userNo; // 또는 userId 기반으로 서버에서 userNo를 찾아올 수 있다면 그 방식
+
+      axios.post(`/api/items/${productId}/wish`, {
+        wish: newIsWish,
+        userNo: userNo
+      })
         .then((response) => {
           if (newIsWish) {
             // 찜 추가: 찜 횟수 증가
@@ -172,6 +178,25 @@ export default function ProductInfo({
           console.error('찜 상태 변경 실패', error);
         });
     };
+
+    const userNo = sessionStorage.getItem('userNo');
+
+    useEffect(() => {
+      if (!userNo) return;
+
+      const fetchWishStatus = async () => {
+        try {
+          const res = await axios.get(`/api/favorites/check`, {
+            params: { itemNo: productId, userNo }
+          });
+          setIsWish(res.data);
+        } catch (error) {
+          console.error('찜 여부 불러오기 실패', error);
+        }
+      };
+
+      fetchWishStatus();
+    }, [productId, userNo]);
 
     return (
       <InfoWrapper>

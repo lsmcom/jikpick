@@ -2,7 +2,7 @@ package kr.it.code.main.favorite.entity;
 
 import jakarta.persistence.*;
 import kr.it.code.main.item.entity.Item;
-//import kr.it.code.main.;
+import kr.it.code.main.store.entity.Store;
 import kr.it.code.main.category.entity.Category;
 import kr.it.code.main.user.User;
 import lombok.Getter;
@@ -23,9 +23,9 @@ public class Favorite {
     @JoinColumn(name = "ITEM_NO")
     private Item item;
 
-//    @ManyToOne
-//    @JoinColumn(name = "STORE_NO")
-//    private Store store;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "STORE_NO", nullable = false)
+    private Store store;
 
     @ManyToOne
     @JoinColumn(name = "CATE_NO")

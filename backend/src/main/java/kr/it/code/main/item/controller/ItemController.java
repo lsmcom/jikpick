@@ -45,8 +45,10 @@ public class ItemController {
 
     // 찜 추가/해제
     @PostMapping("/{itemNo}/wish")
-    public ResponseEntity<Void> toggleWish(@PathVariable Long itemNo, @RequestBody Map<String, Boolean> requestBody) {
-        boolean isWish = requestBody.get("wish");
+    public ResponseEntity<Void> toggleWish(@PathVariable Long itemNo, @RequestBody Map<String, Object> requestBody) {
+        boolean isWish = (Boolean) requestBody.get("wish");
+        Long userNo = Long.parseLong(requestBody.get("userNo").toString()); // ✅ userNo 추출
+
         try {
             // 상품 존재 여부 확인
             Item item = itemService.getItemById(itemNo);
@@ -54,8 +56,8 @@ public class ItemController {
                 return ResponseEntity.notFound().build();
             }
 
-            // 찜 상태 업데이트 - updateItemWish 메서드 호출 없이 처리
-            itemService.toggleWish(itemNo, isWish);  // toggleWish를 사용하여 찜 상태 처리
+            // 찜 상태 업데이트 - 사용자 정보 포함
+            itemService.toggleWish(itemNo, isWish, userNo); // ✅ userNo 함께 전달
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
