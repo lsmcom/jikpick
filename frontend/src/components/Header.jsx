@@ -12,7 +12,7 @@ import iPhone from '../assets/images/iphone.png';
 import ReviewModal from '../components/ReviewModal';
 import CategoryDropdown from './CategoryDropdown';
 import axios from '../api/axios'; 
-import { getSidoList, getSigunguList, getDongList } from '../api/addressApi';
+// import { getSidoList, getSigunguList, getDongList } from '../api/addressApi';
 
 
 const HeaderWrapper = styled.header`
