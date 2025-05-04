@@ -1,6 +1,8 @@
 package kr.it.code.main.item.controller;
 
 import kr.it.code.main.item.dto.ItemDto;
+import kr.it.code.main.item.dto.ItemLikeDto;
+import kr.it.code.main.item.repository.ItemRepository;
 import kr.it.code.main.item.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import java.util.List;
 public class ItemController {
 
     private final ItemService itemService;
+    private final ItemRepository itemRepository;
 
     // 📦 기존: 단일 카테고리 번호로 상품 조회
     @GetMapping
@@ -32,5 +35,11 @@ public class ItemController {
     public ResponseEntity<ItemDto> getItemDetail(@PathVariable Long itemNo) {
         ItemDto item = itemService.getItemDetail(itemNo);
         return ResponseEntity.ok(item);
+    }
+
+    // 좋아요 수 기준으로 상품을 내림차순으로 정렬하여 반환
+    @GetMapping("/popular")
+    public ResponseEntity<List<ItemLikeDto>> getPopularItems() {
+        return ResponseEntity.ok(itemService.findItemListOrderByLikeCount());
     }
 }

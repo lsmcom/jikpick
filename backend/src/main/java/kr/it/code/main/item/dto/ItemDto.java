@@ -11,9 +11,9 @@ public class ItemDto {
 
     private Long itemNo;
     private String itemName;
-    private Integer itemCost;
+    private int itemCost;
     private String itemImage;
-    private Integer itemWish;
+
 
     // ✅ 상세 페이지용 필드 추가
     private String itemInfo;
@@ -28,7 +28,7 @@ public class ItemDto {
         this.itemName = item.getItemName();
         this.itemCost = item.getItemCost();
         this.itemImage = item.getItemImage();
-        this.itemWish = item.getItemWish();
+
 
         // ✅ 추가 필드 값 주입
         this.itemInfo = item.getItemInfo();
