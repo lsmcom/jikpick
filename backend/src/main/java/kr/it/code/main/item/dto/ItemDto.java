@@ -27,9 +27,12 @@ public class ItemDto {
         this.itemNo = item.getItemNo();
         this.itemName = item.getItemName();
         this.itemCost = item.getItemCost();
-        this.itemImage = item.getItemImage();
+        this.itemImage = item.getItemImage() != null
+                ? item.getItemImage().replace("image/", "products/")
+                : null;
         this.itemWish = item.getItemWish();
         this.storeNo = item.getStore() != null ? item.getStore().getStoreNo() : null; // ✅ 지점 정보가 있을 경우만
+
 
         // ✅ 추가 필드 값 주입
         this.itemInfo = item.getItemInfo();
@@ -39,4 +42,5 @@ public class ItemDto {
         this.sellerNick = item.getUser().getNick();
         this.categoryName = item.getCategory().getCateName();
     }
+
 }

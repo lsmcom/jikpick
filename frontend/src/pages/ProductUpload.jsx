@@ -251,7 +251,10 @@ const Select = styled.select`
   border-radius: 15px;
   position: relative;
   z-index: 1000;  /* 드롭다운이 다른 요소 위에 표시되도록 설정 */
+  position: relative;
+  z-index: 1000;  /* 드롭다운이 다른 요소 위에 표시되도록 설정 */
 
+  background-image: url('/assets/icon/DropDown.svg'); /* 드롭다운 아이콘 */
   background-image: url('/assets/icon/DropDown.svg'); /* 드롭다운 아이콘 */
   background-repeat: no-repeat;
   background-position: right 18px center;
@@ -260,7 +263,10 @@ const Select = styled.select`
   &:focus {
     outline: none;
     border-color: #FB4A67; /* 포커스 시 강조 */
+    border-color: #FB4A67; /* 포커스 시 강조 */
   }
+
+  pointer-events: auto;
 
   pointer-events: auto;
 `;
@@ -1429,6 +1435,8 @@ export default function ProductRegistration() {
             }}>
               임시저장
             </SaveButton>
+
+        <SubmitButton onClick={handleSubmit}>등록하기</SubmitButton>
 
         <SubmitButton onClick={handleSubmit}>등록하기</SubmitButton>
 

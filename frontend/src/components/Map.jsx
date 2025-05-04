@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import check from '../assets/icon/Check.svg';
+import axios from '../api/axios'; 
 
 const MapWrapper = styled.div`
     display: flex;
@@ -51,15 +52,44 @@ const MapContainer = styled.div`
 `;
 
 export default function Map({ selectedAddress, roadAddressList }) {
-    const KAKAO_MAP_API_KEY = import.meta.env.VITE_KAKAO_MAP_API_KEY;
     const container = useRef(null);
     const mapRef = useRef(null);
     const [markers, setMarkers] = useState([]); // 모든 마커 저장
     const [searchToggle, setSearchToggle] = useState(false); // 지도 이동시 재검색 토글
     const addressList = roadAddressList;
 
+    
+
     useEffect(() => {
-        const createMap = () => {
+        const fetchUserLocation = async () => {
+            try {
+              const memberId = JSON.parse(localStorage.getItem('user')).id;
+              const response = await fetch(`/api/location/get?memberId=${memberId}`);
+              const data = await response.json();
+      
+              if (data) {
+                const userLat = data.latitude;
+                const userLng = data.longitude;
+      
+                window.kakao.maps.load(() => {
+                  const map = new window.kakao.maps.Map(container.current, {
+                    center: new window.kakao.maps.LatLng(userLat, userLng),
+                    level: 5,
+                  });
+                  mapRef.current = map;
+                  // 나머지 기존 로직 (마커 표시 등)
+                });
+              } else {
+                console.log('사용자 위치 없음. 기본 서울 좌표 사용');
+                createDefaultMap();
+              }
+            } catch (error) {
+              console.error('사용자 위치 가져오기 실패:', error);
+              createDefaultMap();
+            }
+        }
+        
+        const createDefaultMap = () => {
             window.kakao.maps.load(() => {
             const map = new window.kakao.maps.Map(container.current, {
                 center: new window.kakao.maps.LatLng(37.5665, 126.9780),
@@ -92,19 +122,9 @@ export default function Map({ selectedAddress, roadAddressList }) {
             });
         });
         });
-    }
+        }
 
-    // Kakao script가 이미 있으면 map 생성
-    if (window.kakao && window.kakao.maps) {
-        createMap();
-    } else {
-        const script = document.createElement('script');
-        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_MAP_API_KEY}&libraries=services&autoload=false`;
-        script.async = true;
-        script.onload = createMap;
-        document.head.appendChild(script);
-        console.log('script loaded');
-    }
+        fetchUserLocation();
     }, []);
 
     useEffect(() => {

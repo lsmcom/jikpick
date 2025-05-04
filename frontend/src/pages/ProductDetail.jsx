@@ -61,14 +61,17 @@ export default function ProductDetail() {
     <Container>
       {/* 상단: 이미지 + 상품정보 */}
       <ProductTop>
-        {/* <ProductImage src={product.itemImage} alt="상품 이미지" /> DB에 상품 이미지 있을경우 활성화 */}
-        <ProductImage src={shoes} alt="상품 이미지" />
+        <ProductImage src={`http://localhost:9090/images/${product.itemImage}`} alt="상품 이미지" />
+        {/* <ProductImage src={shoes} alt="상품 이미지" /> */}
         <ProductInfo
           title={product.itemName}
           category={product.categoryName}
           price={product.itemCost}
           sellerName={product.sellerNick}
           createdAt={product.itemDate}
+          itemWish={product.itemWish}
+          itemStatus={product.itemStatus}
+          productId={product.itemNo}
         />
       </ProductTop>
 

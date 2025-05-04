@@ -17,8 +17,9 @@ public class SecurityConfig {
 	public WebSecurityCustomizer  wbSecurityCustomizer() {
 		return (web)-> web.ignoring()
 				.requestMatchers("/**")
+				.requestMatchers("/images/**")
 				.requestMatchers(PathRequest.toStaticResources().atCommonLocations());
 	}
 
-	
+
 }

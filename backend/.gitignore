@@ -152,3 +152,6 @@ logs
 .classpath
 .settings
 /src/main/generated/
+
+# .env 파일 제외
+.env
