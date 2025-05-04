@@ -9,7 +9,6 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "store")
-@Table(name = "STORE")
 @Getter
 @Setter
 public class Store {
