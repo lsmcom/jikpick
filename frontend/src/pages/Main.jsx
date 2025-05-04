@@ -234,7 +234,7 @@ export default function Main() {
              <Card>
                <Thumbnail
                  style={{
-                   backgroundImage: `url(/${product.itemImage || 'images/placeholder.jpg'})`,
+                  backgroundImage: `url(http://localhost:9090/images/${product.itemImage})`,
                    backgroundSize: 'cover',
                    backgroundPosition: 'center',
                  }}
