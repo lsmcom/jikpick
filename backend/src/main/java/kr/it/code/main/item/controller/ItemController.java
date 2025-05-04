@@ -28,15 +28,16 @@ public class ItemController {
         return ResponseEntity.ok(itemService.getItemsInCategoryAndSubCategories(categoryNo));
     }
 
-    // ✅ 상품 등록
+     //✅ 상품 등록
     @PostMapping
     public ResponseEntity<String> registerItem(@RequestBody ItemRequestDto dto) {
         itemService.registerItem(dto);
         return ResponseEntity.ok("등록 완료");
-    // 상품 상세 조회
-    @GetMapping("/{itemNo}")
-    public ResponseEntity<ItemDto> getItemDetail(@PathVariable Long itemNo) {
-        ItemDto item = itemService.getItemDetail(itemNo);
-        return ResponseEntity.ok(item);
     }
+////    // 상품 상세 조회
+////    @GetMapping("/{itemNo}")
+////    public ResponseEntity<ItemDto> getItemDetail(@PathVariable Long itemNo) {
+////        ItemDto item = itemService.getItemDetail(itemNo);
+////        return ResponseEntity.ok(item);
+////    }
 }

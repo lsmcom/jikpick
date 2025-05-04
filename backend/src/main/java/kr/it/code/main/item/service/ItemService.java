@@ -12,6 +12,8 @@ import kr.it.code.main.store.repository.StoreRepository;
 import kr.it.code.main.user.User;
 import kr.it.code.main.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -21,13 +23,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemService {
 
+    private static final Logger logger = LoggerFactory.getLogger(ItemService.class); // 로그 선언
     private final ItemRepository itemRepository;
     private final CategoryService categoryService;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
-    private final StoreRepository storeRepository; // ✅ 직픽 지점용
+    private final StoreRepository storeRepository; // 직픽 지점용
 
-    // ✅ 단일 카테고리 상품 조회
+    // 단일 카테고리 상품 조회
     public List<ItemDto> getItemsByCategory(Long categoryNo) {
         List<Item> items = itemRepository.findByCategory_CateNo(categoryNo);
         return items.stream()
@@ -35,7 +38,7 @@ public class ItemService {
                 .toList();
     }
 
-    // ✅ 대분류 포함 하위 모든 카테고리 상품 조회
+    // 대분류 포함 하위 모든 카테고리 상품 조회
     public List<ItemDto> getItemsInCategoryAndSubCategories(Long parentCategoryId) {
         List<Long> cateNos = categoryService.getAllChildCategoryIds(parentCategoryId);
         List<Item> items = itemRepository.findByCategoryCateNoIn(cateNos);
@@ -44,38 +47,68 @@ public class ItemService {
                 .toList();
     }
 
-    // ✅ 신규 상품 등록
+    // 신규 상품 등록
     public void registerItem(ItemRequestDto dto) {
-        Item item = new Item();
-        item.setItemName(dto.getItemName());
-        item.setItemCost(dto.getItemCost());
-        item.setItemInfo(dto.getItemInfo());
-        item.setItemImage(dto.getItemImage());
-        item.setItemStatus(dto.getItemStatus());
-        item.setItemDate(LocalDate.now());
-        item.setPickOption(dto.getPickOption() == 1);
-        item.setItemWish(0);
-        item.setPickStatus("예약중");
+        try {
+            logger.info("상품 등록 요청 받음: itemName={}, itemCost={}, itemInfo={}, categoryNo={}, storeNo={}",
+                    dto.getItemName(), dto.getItemCost(), dto.getItemInfo(), dto.getCategoryNo(), dto.getStoreNo());
 
-        // 사용자, 카테고리, 지점 조회
-        User user = userRepository.findById(dto.getUserNo())
-                .orElseThrow(() -> new RuntimeException("사용자 없음"));
-        Category category = categoryRepository.findById(dto.getCategoryNo())
-                .orElseThrow(() -> new RuntimeException("카테고리 없음"));
-        Store store = storeRepository.findById(dto.getStoreNo())
-                .orElseThrow(() -> new RuntimeException("지점 없음"));
+            Item item = new Item();
+            item.setItemName(dto.getItemName());
+            item.setItemCost(dto.getItemCost());
+            item.setItemInfo(dto.getItemInfo());
+            item.setItemImage(dto.getItemImage());
+            item.setItemStatus(dto.getItemStatus());
+            item.setItemDate(LocalDate.now());
+            item.setPickOption(dto.getPickOption() == 1);
+            item.setItemWish(0);
+            item.setPickStatus("예약중");
 
-        item.setUser(user);
-        item.setCategory(category);
-        item.setStore(store); // ✅ 지점 정보 설정
+            logger.info("상품 정보 설정 완료: {}", item);
 
-        itemRepository.save(item);
+            User user = userRepository.findById(dto.getUserNo())
+                    .orElseThrow(() -> new RuntimeException("사용자 없음"));
+            Category category = categoryRepository.findById(dto.getCategoryNo())
+                    .orElseThrow(() -> new RuntimeException("카테고리 없음"));
+            Store store = storeRepository.findById(dto.getStoreNo())
+                    .orElseThrow(() -> new RuntimeException("지점 없음"));
+
+            logger.info("사용자 정보: {}", user);
+            logger.info("카테고리 정보: {}", category);
+            logger.info("지점 정보: {}", store);
+
+            item.setUser(user);
+            item.setCategory(category);
+            item.setStore(store);
+
+            itemRepository.save(item);
+
+            logger.info("상품 등록 완료: itemNo={}", item.getItemNo());
+        } catch (Exception e) {
+            logger.error("상품 등록 중 오류 발생", e);
+            throw e;
+        }
+        {
+
+            if (dto.getCategoryNo() == null) {
+                throw new IllegalArgumentException("카테고리가 선택되지 않았습니다.");
+            }
+
+            }
+            if (dto.getStoreNo() == null) {
+                throw new RuntimeException("Store ID cannot be null");
+            }
+
+            try {
+                // 기존 코드
+            } catch (Exception e) {
+                logger.error("상품 등록 중 오류 발생", e);
+                throw e;
+            }
+        }
+
     }
+
     // 상품 상세 조회
-    public ItemDto getItemDetail(Long itemNo) {
-        Item item = itemRepository.findByItemNo(itemNo)
-                .orElseThrow(() -> new RuntimeException("해당 상품이 존재하지 않습니다."));
-        return new ItemDto(item);
-    }
 
-}
+
