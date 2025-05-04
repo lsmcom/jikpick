@@ -1,15 +1,14 @@
 package kr.it.code.main.item.service;
 
-import kr.it.code.main.category.entity.Category;
-import kr.it.code.main.category.repository.CategoryRepository;
+import jakarta.persistence.EntityNotFoundException;
 import kr.it.code.main.category.service.CategoryService;
 import kr.it.code.main.item.dto.ItemDto;
 import kr.it.code.main.item.entity.Item;
 import kr.it.code.main.item.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -19,6 +18,7 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final CategoryService categoryService;
 
+    // 상품 리스트 조회
     public List<ItemDto> getItemsByCategory(Long categoryNo) {
         List<Item> items = itemRepository.findByCategory_CateNo(categoryNo);
         return items.stream()
@@ -47,4 +47,23 @@ public class ItemService {
         return new ItemDto(item);
     }
 
+    // 찜 추가/해제
+    @Transactional
+    public void toggleWish(Long itemNo, boolean isWish) {
+        Item item = itemRepository.findByItemNo(itemNo)
+                .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
+
+        if (isWish) {
+            item.setItemWish(item.getItemWish() + 1); // 찜 추가
+        } else {
+            item.setItemWish(item.getItemWish() - 1); // 찜 해제
+        }
+
+        itemRepository.save(item); // DB에 저장
+    }
+
+    // 상품 조회
+    public Item getItemById(Long itemNo) {
+        return itemRepository.findById(itemNo).orElse(null);
+    }
 }

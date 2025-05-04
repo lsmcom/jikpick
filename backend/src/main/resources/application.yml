@@ -10,6 +10,9 @@ spring:
     allow-bean-definition-overriding: true  #config 수정 가능모드
   jwt:
     secret: vmfhaltmskdlstkfkdgodyroqkfwkdbalroqkfwkdbalaaaaaaaaaaaaaaaabbbbb
+  web:
+    resources:
+      static-locations: classpath:/static/uploads/images/
 
   servlet:
     multipart:
@@ -101,6 +104,7 @@ logging:
       springframework:
         boot:
           autoconfigure: OFF
+        web: DEBUG
       thymeleaf: OFF
       hibernate:
         sql: INFO
