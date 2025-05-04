@@ -121,15 +121,11 @@ export default function CategoryPage() {
   const [siblingCategories, setSiblingCategories] = useState([]);
   const [items, setItems] = useState([]);
   const [parentNo, setParentNo] = useState(null); // 형제 카테고리를 위한 부모 번호
-  const [breadcrumList, setBreadcrumList] = useState([]);
 
   // 카테고리 클릭 시 이동
   const handleCategoryClick = (no) => {
     navigate(`/category/${no}`);
   };
-
-  console.log('선택된 카테고리 번호:', categoryNo);
-
 
   useEffect(() => {
     if (!categoryNo) return;
@@ -214,7 +210,7 @@ export default function CategoryPage() {
               <Card key={item.itemNo} onClick={() => handleCardClick(item.itemNo)}>
                 <Thumbnail
                   style={{
-                    backgroundImage: `url(${item.itemImage})`,
+                    backgroundImage: `url(http://localhost:9090/images/${item.itemImage})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                   }}
