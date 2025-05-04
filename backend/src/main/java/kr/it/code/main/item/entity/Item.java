@@ -2,6 +2,7 @@ package kr.it.code.main.item.entity;
 
 import jakarta.persistence.*;
 import kr.it.code.main.category.entity.Category;
+import kr.it.code.main.store.entity.Store;
 import kr.it.code.main.user.User;
 import lombok.Getter;
 import lombok.Setter;
@@ -53,4 +54,8 @@ public class Item {
 
     @Column(name = "PICK_STATUS")
     private String pickStatus;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "STORE_NO")
+    private Store store;
 }

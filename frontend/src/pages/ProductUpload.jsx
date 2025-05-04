@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Footer from '../components/Footer';
 import cameraIcon from '../assets/icon/Camera.svg';
 import { useNavigate } from 'react-router-dom'; // 🔥 이미 되어 있을 수도 있음
+import axios from '../api/axios';
 
 // dnd-kit import
 import {
@@ -227,35 +228,6 @@ const CharCount = styled.span`
   flex-shrink: 0;
 `;
 
-// 📂 3단 카테고리 구조를 표현한 계층형 데이터
-const categories = [
-  {
-    name: '남성의류', // 대분류
-    children: [
-      {
-        name: '상의', // 중분류
-        children: ['후드티/후드집업', '맨투맨', '니트/스웨터', '셔츠', '반팔 티셔츠', '긴팔 티셔츠', '민소매 티셔츠'] // 소분류
-      },
-      {
-        name: '아우터',
-        children: ['자켓', '코트', '패딩']
-      }
-    ]
-  },
-  {
-    name: '여성의류',
-    children: [
-      {
-        name: '스커트',
-        children: ['미니', '미디', '롱']
-      },
-      {
-        name: '블라우스',
-        children: ['셔츠형', '레이스형']
-      }
-    ]
-  }
-];
 
 // 🧩 카테고리 드롭다운들이 나란히 들어가는 행(Row) 스타일
 const DropdownRow = styled.div`
@@ -265,26 +237,30 @@ const DropdownRow = styled.div`
 
 // 🔽 공통 드롭다운 Select 스타일 (1~3단 카테고리)
 const Select = styled.select`
-  appearance: none; // 브라우저 기본 스타일 제거
+  appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
 
   width: 300px;
   height: 50px;
-  padding: 12px 40px 12px 16px; // 오른쪽 공간은 아이콘 자리
+  padding: 12px 40px 12px 16px;
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 15px;
+  position: relative;
+  z-index: 1000;  /* 드롭다운이 다른 요소 위에 표시되도록 설정 */
 
-  background-image: url('/assets/icon/DropDown.svg'); // 드롭다운 아이콘
+  background-image: url('/assets/icon/DropDown.svg'); /* 드롭다운 아이콘 */
   background-repeat: no-repeat;
   background-position: right 18px center;
   background-size: 18px;
 
   &:focus {
     outline: none;
-    border-color: #FB4A67; // 포커스 시 강조
+    border-color: #FB4A67; /* 포커스 시 강조 */
   }
+
+  pointer-events: auto;
 `;
 
 // 🏷️ 입력된 태그들을 보여주는 박스 전체
@@ -762,9 +738,57 @@ export default function ProductRegistration() {
   const [productName, setProductName] = useState(''); // 상품명 입력값 저장
 
   // 카테고리 드롭다운 (3단)
+  const [categories, setCategories] = useState([]); // 카테고리 데이터
   const [mainCategory, setMainCategory] = useState(''); // 대분류
   const [subCategory, setSubCategory] = useState(''); // 중분류
   const [thirdCategory, setThirdCategory] = useState(''); // 소분류
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axios.get('/api/categories/tree')
+      .then(response => {
+        setCategories(response.data);  // 카테고리 데이터 설정
+        setLoading(false);  // 데이터 로딩 완료 후 상태 변경
+      })
+      .catch(error => {
+        console.error("Error loading categories:", error);
+        setLoading(false);
+      });
+  }, []);
+
+  const handleMainCategoryChange = (e) => {
+    const selectedCateNo = e.target.value;
+  
+    if (selectedCateNo === "") {
+      // 대분류 초기화
+      setMainCategory("");  // 대분류 선택 시 대분류 초기화
+      setSubCategory("");   // 중분류 초기화
+      setThirdCategory(""); // 소분류 초기화
+      return;
+    }
+  
+    // 대분류 선택 시 카테고리 찾기
+    const selectedCategory = categories.find((cat) => cat.cateNo === parseInt(selectedCateNo, 10));
+  
+    if (selectedCategory) {
+      setMainCategory(selectedCateNo);  // 대분류 선택
+      setSubCategory('');  // 중분류 초기화
+      setThirdCategory('');  // 소분류 초기화
+    } else {
+      console.error('Category not found!');
+    }
+  };
+  
+  const handleSubCategoryChange = (e) => {
+    const selectedCateNo = e.target.value;
+    setSubCategory(selectedCateNo);  // 중분류 선택
+    setThirdCategory('');  // 소분류 초기화
+  };
+  
+  const handleThirdCategoryChange = (e) => {
+    setThirdCategory(e.target.value); // 소분류 선택
+  };
 
   // 태그 입력 관련
   const [tags, setTags] = useState([]); // 추가된 태그 목록
@@ -958,7 +982,39 @@ export default function ProductRegistration() {
   });
 
   const navigate = useNavigate(); // 🔥 메인으로 이동할 때 쓰는 navigate 추가
+  const handleSubmit = async () => {
+    const categoryNo = thirdCategory?.cateNo || subCategory?.cateNo || mainCategory?.cateNo;
+  
+    try {
+      const response = await axios.post('http://localhost:9090/api/items', {
+        userNo: 1, // 로그인된 사용자 번호로 교체
+        categoryNo: categoryNo, // 선택된 카테고리 번호
+        itemName: productName,
+        itemCost: 1000, // 가격 예시
+        itemInfo: '상품 설명 예시',
+        itemStatus: 'A', // 상품 상태 예시
+        pickOption: 0, // 직픽 여부 예시
+      });
+      console.log('등록 성공:', response.data);
+      alert('상품이 등록되었습니다!');
+    } catch (error) {
+      console.error('등록 실패:', error);
+      alert('등록 중 오류가 발생했습니다.');
+    }
+  };
+  
 
+  const mapConditionToCode = (label) => {
+    switch (label) {
+      case '새 상품': return 'A';
+      case '사용감 없음': return 'B';
+      case '사용감 적음': return 'C';
+      case '사용감 많음': return 'D';
+      case '고장/파손 상품': return 'E';
+      default: return 'Z';
+    }
+  };
+  
   return (
     <Wrapper>
       <Outer>
@@ -1017,40 +1073,50 @@ export default function ProductRegistration() {
             {/* 카테고리 항목 시작 */}
             <SectionTitle>카테고리</SectionTitle>
             <DropdownRow>
-                {/* 1차: 대분류 */}
-                <Select value={mainCategory} onChange={(e) => {
-                    setMainCategory(e.target.value);
-                    setSubCategory('');
-                    setThirdCategory('');
-                    }}>
-                    <option value="">대분류 선택</option>
-                    {categories.map((cat) => (
-                        <option key={cat.name} value={cat.name}>{cat.name}</option>
+              {/* 1차: 대분류 */}
+              <Select value={mainCategory || ''} onChange={handleMainCategoryChange}>
+                <option value="">대분류 선택</option>
+                {categories.map((cat) => (
+                  <option key={cat.cateNo} value={cat.cateNo}>
+                    {cat.cateName}
+                  </option>
+                ))}
+              </Select>
+
+              {/* 2차: 중분류 */}
+              <Select 
+                value={subCategory} 
+                onChange={handleSubCategoryChange} 
+                disabled={!mainCategory} // 대분류 선택되지 않으면 비활성화
+              >
+                <option value="">중분류 선택</option>
+                {mainCategory &&
+                  categories
+                  .find((cat) => cat.cateNo === parseInt(mainCategory, 10))
+                    ?.children.map((sub) => (
+                      <option key={sub.cateNo} value={sub.cateNo}>
+                        {sub.cateName}
+                      </option>
                     ))}
-                </Select>
-                {/* 2차: 중분류 */}
-                {/* 대분류 선택시 중분류 선택 가능 */}
-                {/* 대분류 항목과 연결되는 중분류 항목만 보여준다. */}
-                <Select value={subCategory} onChange={(e) => {
-                    setSubCategory(e.target.value);
-                    setThirdCategory('');
-                    }} disabled={!mainCategory}>
-                    <option value="">중분류 선택</option>
-                    {mainCategory &&
-                        categories.find((cat) => cat.name === mainCategory)?.children.map((sub) => (
-                        <option key={sub.name} value={sub.name}>{sub.name}</option>
+              </Select>
+
+              {/* 3차: 소분류 */}
+              <Select 
+                value={thirdCategory} 
+                onChange={handleThirdCategoryChange} 
+                disabled={!subCategory} // 중분류 선택되지 않으면 비활성화
+              >
+                <option value="">소분류 선택</option>
+                {subCategory &&
+                  categories
+                    .find((cat) => cat.cateNo === parseInt(mainCategory, 10))
+                    ?.children.find((sub) => sub.cateNo === parseInt(subCategory, 10))
+                    ?.children.map((item) => (
+                      <option key={item.cateNo} value={item.cateNo}>
+                        {item.cateName}
+                      </option>
                     ))}
-                </Select>
-                {/* 3차: 소분류 */}
-                {/* 중분류 선택시 소분류 선택 가능 */}
-                {/* 중분류 항목과 연결되는 소분류 항목만 보여준다. */}
-                <Select value={thirdCategory} onChange={(e) => setThirdCategory(e.target.value)} disabled={!subCategory}>
-                    <option value="">소분류 선택</option>
-                    {mainCategory && subCategory &&
-                    categories.find((cat) => cat.name === mainCategory)
-                    ?.children.find((sub) => sub.name === subCategory)
-                    ?.children.map((item) => (<option key={item} value={item}>{item}</option>))}
-                </Select>
+              </Select>
             </DropdownRow>
             {/* 카테고리 항목 끝 */}
 
@@ -1307,15 +1373,8 @@ export default function ProductRegistration() {
               임시저장
             </SaveButton>
 
-            <SubmitButton onClick={() => {
-                const isConfirmed = window.confirm('등록을 완료하시겠습니까?');
-                if (isConfirmed) {
-                  alert('등록이 완료되었습니다.');
-                  navigate('/');
-                }
-              }}>
-                등록하기
-              </SubmitButton>
+        <SubmitButton onClick={handleSubmit}>등록하기</SubmitButton>
+
 
                         </ButtonContainer>
             {/* 최종 마무리 버튼 끝 */}

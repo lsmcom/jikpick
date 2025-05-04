@@ -3,8 +3,10 @@ import styled from 'styled-components';
 import profileImg from '../../assets/images/profile1.jpg';
 import { NavLink } from 'react-router-dom';
 import heartIcon from '../../assets/icon/HeartIcon.svg'
+import emptyHeartIcon from '../../assets/icon/EmptyHeartIcon.svg';
 import starIcon from '../../assets/icon/StarIcon.svg'
-
+import { useEffect, useState } from 'react';
+import axios from '../../api/axios';
 
 const InfoWrapper = styled.div`
   flex: 1;
@@ -32,6 +34,7 @@ const Like = styled.div`
   display: flex;
   align-items: center;
   gap: 6px; /* 아이콘과 숫자 사이 여백 */
+  cursor: pointer;
 `;
 
 
@@ -60,8 +63,6 @@ const SellerText = styled.div`
   flex-direction: column;
   height: 50px;
 `;
-
-
 
 const SellerName = styled.p`
   font-weight: bold;
@@ -119,19 +120,95 @@ const Button = styled(NavLink)`
 `;
 
 
-export default function ProductInfo({ title,
+export default function ProductInfo({ 
+  title,
   category,
   price,
   sellerName,
   createdAt,
+  itemWish,
+  itemStatus,
+  productId
   }) {
+
+    // 찜 상태와 찜 횟수 상태 관리
+    const [isWish, setIsWish] = useState(false);  // 찜 상태 (true/false)
+    const [itemWishCount, setItemWishCount] = useState(itemWish);  // 찜 횟수
+
+    // 상품 상태에 따른 텍스트 매핑
+    const getItemStatusText = (status) => {
+      switch (status) {
+        case 'A':
+          return '새 상품';
+        case 'B':
+          return '사용감 없음';
+        case 'C':
+          return '사용감 적음';
+        case 'D':
+          return '사용감 많음';
+        case 'E':
+          return '고장/파손 상품';
+        default:
+          return '상태 정보 없음';
+      }
+    };
+
+    const handleWishToggle = () => {
+      const newIsWish = !isWish;
+      setIsWish(newIsWish);
+  
+      // 찜 상태 변경 요청 (보안 설정 없이)
+      const userData = JSON.parse(sessionStorage.getItem('user'));
+      const userNo = userData?.userNo; // 또는 userId 기반으로 서버에서 userNo를 찾아올 수 있다면 그 방식
+
+      axios.post(`/api/items/${productId}/wish`, {
+        wish: newIsWish,
+        userNo: userNo
+      })
+        .then((response) => {
+          if (newIsWish) {
+            // 찜 추가: 찜 횟수 증가
+            setItemWishCount(itemWishCount + 1);
+          } else {
+            // 찜 해제: 찜 횟수 감소
+            setItemWishCount(itemWishCount - 1);
+          }
+        })
+        .catch((error) => {
+          console.error('찜 상태 변경 실패', error);
+        });
+    };
+
+    const userNo = sessionStorage.getItem('userNo');
+
+    useEffect(() => {
+      if (!userNo) return;
+
+      const fetchWishStatus = async () => {
+        try {
+          const res = await axios.get(`/api/favorites/check`, {
+            params: { itemNo: productId, userNo }
+          });
+          setIsWish(res.data);
+        } catch (error) {
+          console.error('찜 여부 불러오기 실패', error);
+        }
+      };
+
+      fetchWishStatus();
+    }, [productId, userNo]);
+
     return (
       <InfoWrapper>
         <Title>{title}</Title>
         <Category>{category} ∙ {createdAt}</Category>
-        <Like>
-          <img src={heartIcon} alt="좋아요" style={{ width: '18px', height: '18px' }} />
-          3
+        <Like onClick={handleWishToggle}>
+          <img 
+            src={isWish ? heartIcon : emptyHeartIcon} 
+            alt="좋아요" 
+            style={{ width: '18px', height: '18px' }} 
+          />
+          {itemWishCount}
         </Like>
 
   
@@ -146,11 +223,8 @@ export default function ProductInfo({ title,
               <img src={starIcon} alt="별점" style={{ width: '16px', height: '16px', marginLeft: '2px' }} />
               (4)
             </Rating>
-            <ProductStatus>• 상품 상태: 고장/파손 상품</ProductStatus>
+            <ProductStatus>• 상품 상태: {getItemStatusText(itemStatus)}</ProductStatus>
           </SellerText>
-
-          
-          
         </SellerInfo>
   
         <Buttons>

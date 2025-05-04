@@ -2,10 +2,7 @@ package kr.it.code.main.user;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import kr.it.code.main.user.dto.FindIdRequestDto;
-import kr.it.code.main.user.dto.JoinRequestDto;
-import kr.it.code.main.user.dto.LoginRequestDto;
-import kr.it.code.main.user.dto.ResetPasswordRequestDto;
+import kr.it.code.main.user.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -67,7 +64,14 @@ public class UserController {
                     .body("아이디 또는 비밀번호가 일치하지 않습니다.");
         }
 
-        return ResponseEntity.ok("로그인 성공");
+        // ✅ 로그인 성공 시 사용자 정보 응답
+        LoginResponseDto responseDto = new LoginResponseDto(
+                user.getUserNo(),
+                user.getUserId(),
+                user.getNick()
+        );
+
+        return ResponseEntity.ok(responseDto);
     }
 
     // 🔥 로그아웃 API
