@@ -27,7 +27,9 @@ public class ItemDto {
         this.itemNo = item.getItemNo();
         this.itemName = item.getItemName();
         this.itemCost = item.getItemCost();
-        this.itemImage = item.getItemImage().replace("uploads/images/", "");
+        this.itemImage = item.getItemImage() != null
+                ? item.getItemImage().replace("image/", "products/")
+                : null;
         this.itemWish = item.getItemWish();
 
 
