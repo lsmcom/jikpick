@@ -132,7 +132,9 @@ export default function LoginForm({ setIsLoggedIn }) {
 
       if (response.status === 200) {
 
-        const userData = { id }; // 필요하면 여기서 토큰 등을 추가할 수 있음
+        const { userNo, id, nick } = response.data;
+
+        const userData = { userNo, id, nick };
 
         if (stayLoggedIn) {
           localStorage.setItem('user', JSON.stringify(userData));

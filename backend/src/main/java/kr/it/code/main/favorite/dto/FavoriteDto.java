@@ -8,19 +8,22 @@ import lombok.Setter;
 @Setter
 public class FavoriteDto {
 
-    private Long itemNo;
-    private String itemName;
-    private int itemCost;
-    private String itemImage;
-    private Long favNo;
+    private Long itemNo;       // item.id
+    private String itemName;   // item.name
+    private String itemImage;  // item.image
+    private Integer itemWish;  // item.likes
+    private Integer itemCost;  // item.price
+    private String pickStatus; // item.status
 
     public static FavoriteDto fromEntity(Favorite fav) {
+        var item = fav.getItem();
         FavoriteDto dto = new FavoriteDto();
-        dto.setItemNo(fav.getItem().getItemNo());
-        dto.setItemName(fav.getItem().getItemName());
-        dto.setItemCost(fav.getItem().getItemCost());
-        dto.setItemImage(fav.getItem().getItemImage());
-        dto.setFavNo(fav.getFavNo());
+        dto.setItemNo(item.getItemNo());
+        dto.setItemName(item.getItemName());
+        dto.setItemImage(item.getItemImage());
+        dto.setItemWish(item.getItemWish());
+        dto.setItemCost(item.getItemCost());
+        dto.setPickStatus(item.getPickStatus());
         return dto;
     }
 }

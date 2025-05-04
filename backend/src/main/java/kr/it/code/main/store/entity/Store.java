@@ -9,6 +9,7 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "store")
+@Table(name = "STORE")
 @Getter
 @Setter
 public class Store {
@@ -21,5 +22,25 @@ public class Store {
     @Column(name = "STORE_NAME")
     private String storeName;
 
+    @Column(name = "REG_NO")
+    private Long regNo;
+
+    @Column(name = "STORE_TELL")
+    private String storeTell;
+
+    @Column(name = "STORE_TIME")
+    private String storeTime;
+
+    @Column(name = "STORE_ADDRESS")
+    private String storeAddress;
+
+    @Column(name = "ITEM_LOCATION")
+    private String itemLocation;
+
+    @Column(name = "STORE_MANAGER")
+    private String storeManager;
+
+    @Column(name = "STORE_TYPE")
+    private String storeType;
 }
 

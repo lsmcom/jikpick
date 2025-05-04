@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import kr.it.code.main.category.entity.Category;
 import kr.it.code.main.category.repository.CategoryRepository;
 import kr.it.code.main.category.service.CategoryService;
+import kr.it.code.main.favorite.service.FavoriteService;
 import kr.it.code.main.item.dto.ItemDto;
 import kr.it.code.main.item.dto.ItemRequestDto;
 import kr.it.code.main.item.dto.ItemLikeDto;
@@ -31,6 +32,7 @@ public class ItemService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final StoreRepository storeRepository;
+    private final FavoriteService favoriteService;
 
     // 단일 카테고리 상품 조회
     public List<ItemDto> getItemsByCategory(Long categoryNo) {
@@ -104,21 +106,23 @@ public class ItemService {
 
     // 찜 추가/해제
     @Transactional
-    public void toggleWish(Long itemNo, boolean isWish) {
-        Item item = itemRepository.findByItemNo(itemNo)
-                .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
+    public void toggleWish(Long itemNo, boolean isWish, Long userNo) {
+        Item item = itemRepository.findById(itemNo).orElseThrow();
 
         if (isWish) {
+            favoriteService.addFavorite(item, userNo);
             item.setItemWish(item.getItemWish() + 1);
         } else {
+            favoriteService.removeFavorite(item, userNo); // ❗ removeFavorite 필요
             item.setItemWish(item.getItemWish() - 1);
         }
 
         itemRepository.save(item);
     }
 
+
     // 상품 조회
     public Item getItemById(Long itemNo) {
-        return itemRepository.findById(itemNo).orElse(null);
+        return itemRepository.findByItemNo(itemNo).orElse(null); // ✅ 여기!
     }
 }

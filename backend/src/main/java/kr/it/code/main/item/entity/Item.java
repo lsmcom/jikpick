@@ -61,4 +61,8 @@ public class Item {
 
     @Column(name = "PICK_STATUS")
     private String pickStatus;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "STORE_NO")
+    private Store store;
 }

@@ -9,6 +9,8 @@ import airPodsMax from '../assets/images/AirPodsMax.svg';
 import miniGoldEarring from '../assets/images/MiniGoldEarring.svg';
 import spray from '../assets/images/Spray.svg';
 import shopperBag from '../assets/images/ShopperBag.svg';
+import axios from '../api/axios';
+import { useEffect, useState } from 'react';
 
 // 📦 전체 페이지 레이아웃 컨테이너
 const Wrapper = styled.div`
@@ -148,69 +150,22 @@ const LikeSection = styled.div`
 export default function ShopLike() {
 
     const navigate = useNavigate();
+    const [favorites, setFavorites] = useState([]);
 
-    const dummyData = [
-        {
-          id: 1,
-          name: '아이폰 5S 골드',
-          region: '서울특별시 강남구',
-          seller: '오로라마켓',
-          price: '75,000원',
-          status: '거래완료',
-          likes: 60,
-          image: iPhone,
-        },
-        {
-          id: 2,
-          name: '아이패드 미니 5세대',
-          region: '인천광역시 연수구',
-          seller: '디지털상점',
-          price: '125,000원',
-          status: '',
-          likes: 25,
-          image: iPad,
-        },
-        {
-          id: 3,
-          name: '에어팟맥스',
-          region: '경기도 성남시 분당구',
-          seller: 'IT홀릭',
-          price: '750,000원',
-          status: '',
-          likes: 21,
-          image: airPodsMax,
-        },
-        {
-          id: 4,
-          name: '미니골드 귀걸이',
-          region: '서울특별시 서대문구',
-          seller: '스포샵',
-          price: '95,000원',
-          status: '거래완료',
-          likes: 30,
-          image: miniGoldEarring,
-        },
-        {
-          id: 5,
-          name: '이솝 룸스프레이',
-          region: '경기도 고양시 일산동구',
-          seller: '향기로운생활',
-          price: '85,000원',
-          status: '거래완료',
-          likes: 10,
-          image: spray,
-        },
-        {
-          id: 6,
-          name: '고야드 쇼퍼백',
-          region: '부산광역시 해운대구',
-          seller: '게임마켓',
-          price: '75,000원',
-          status: '',
-          likes: 8,
-          image: shopperBag,
+    useEffect(() => {
+      const fetchFavorites = async () => {
+        try {
+          const res = await axios.get('/api/favorites/my', {
+            params: { userNo: 1 } // 🔄 로그인된 사용자 번호로 교체
+          });
+          setFavorites(res.data);
+        } catch (error) {
+          console.error('관심목록 불러오기 실패', error);
         }
-      ];
+      };
+  
+      fetchFavorites();
+    }, []);
 
     return (
         <Wrapper>
@@ -226,25 +181,25 @@ export default function ShopLike() {
                 </TitleBox>
 
                 <ItemList>
-                    {dummyData.map((item) => (
-                        <ItemCard key={item.id}>
-                        <ItemImage src={item.image} alt={item.name} />
-                        <ItemInfo>
-                            <InfoTop>
-                                <ItemName>{item.name}</ItemName>
-                                <Region>{item.region}</Region>
-                                <Seller>{item.seller}</Seller>
-                                <Price>{item.price}</Price>
-                            </InfoTop>
-                            {item.status && <StatusTag>{item.status}</StatusTag>}
-                        </ItemInfo>
-                        <LikeSection>
-                            <img src={heartIcon} alt="하트" />
-                            <span>{item.likes}</span>
-                        </LikeSection>
-                        </ItemCard>
-                    ))}
-                    </ItemList>
+                  {favorites.map((item) => (
+                    <ItemCard key={item.itemNo}>
+                      <ItemImage src={item.itemImage} alt={item.itemName} />
+                      <ItemInfo>
+                        <InfoTop>
+                          <ItemName>{item.itemName}</ItemName>
+                          <Region>서울특별시 강남구</Region> {/* 지금은 더미 값, 추후 백엔드 추가 가능 */}
+                          <Seller>오로라마켓</Seller> {/* 지금은 더미 값, 추후 백엔드 추가 가능 */}
+                          <Price>{item.itemCost.toLocaleString()}원</Price>
+                        </InfoTop>
+                        {item.pickStatus && <StatusTag>{item.pickStatus}</StatusTag>}
+                      </ItemInfo>
+                      <LikeSection>
+                        <img src={heartIcon} alt="하트" />
+                        <span>{item.itemWish}</span>
+                      </LikeSection>
+                    </ItemCard>
+                  ))}
+                </ItemList>
                 </Inner>
             </Outer>
             <Footer />

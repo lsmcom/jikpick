@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
     // ✅ 상세 조회 시 연관 객체 즉시 로딩
-    @EntityGraph(attributePaths = {"user", "category"})
+    @EntityGraph(attributePaths = {"user", "category", "store"})
     Optional<Item> findByItemNo(Long itemNo);
 
     // ✅ 카테고리 상품 목록도 연관 객체 함께 로딩 (중요!)
