@@ -14,12 +14,9 @@ public class ItemDto {
     private Integer itemCost;
     private String itemImage;
     private Integer itemWish;
-
-    // ✅ 상세 페이지용 필드 추가
     private String itemInfo;
     private String itemStatus;
     private LocalDate itemDate;
-
     private String sellerNick;
     private String categoryName;
 
@@ -27,14 +24,11 @@ public class ItemDto {
         this.itemNo = item.getItemNo();
         this.itemName = item.getItemName();
         this.itemCost = item.getItemCost();
-        this.itemImage = item.getItemImage();
+        this.itemImage = item.getItemImage().replace("uploads/images/", "");
         this.itemWish = item.getItemWish();
-
-        // ✅ 추가 필드 값 주입
         this.itemInfo = item.getItemInfo();
         this.itemStatus = item.getItemStatus();
         this.itemDate = item.getItemDate();
-
         this.sellerNick = item.getUser().getNick();
         this.categoryName = item.getCategory().getCateName();
     }
