@@ -109,3 +109,12 @@ logging:
       hibernate:
         sql: INFO
         type: OFF
+
+# 카카오맵 api 활용을 위한 key 설정
+kakao:
+  rest-api-key: ${VITE_KAKAO_MAP_API_KEY}
+
+# SGIS api 활용을 위한 key 설정
+sigs:
+  consumer-key: ${VITE_SGIS_CONSUMER_KEY}
+  consumer-secret: ${VITE_SGIS_CONSUMER_SECRET}
