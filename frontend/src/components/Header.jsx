@@ -716,17 +716,9 @@ export default function Header({ isLoggedIn, setIsLoggedIn }) {
   const [showHideModal, setShowHideModal] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
  
-  const [location, setLocation] = useState({ latitude: null, longitude: null });
-
-  const [sidoList, setSidoList] = useState([]);         // 시/도 리스트
-  const [sigunguList, setSigunguList] = useState([]);    // 시/군/구 리스트
-  const [dongList, setDongList] = useState([]);          // 동 리스트
-
-  const [selectedSido, setSelectedSido] = useState(null);
-  const [selectedSigungu, setSelectedSigungu] = useState(null);
-  const [selectedDong, setSelectedDong] = useState(null);
+  const [location, setLocation] = useState({ latitude: null, longitude: null })
   
-  // 1. 검색 키워드 상태관리
+  // 검색 키워드 상태관리
   const [searchQuery, setSearchQuery] = useState('');
   const recommendedLocations = [
     '인천광역시, 연수구, 송도동',
@@ -808,16 +800,6 @@ useEffect(() => {
       document.removeEventListener('mouseup', handleDocumentMouseUp);
     };
   }, []);
-
-  const handleOpenModal = async () => {
-    setShowModal(true);
-    try {
-      const sidoData = await getSidoList();
-      setSidoList(sidoData);
-    } catch (error) {
-      console.error('시/도 리스트 로딩 실패:', error);
-    }
-  };
 
   // ✅ 1. 지역 상태 추가
   const [selectedLocation, setSelectedLocation] = useState(() => {
@@ -949,9 +931,11 @@ useEffect(() => {
             },
           });
   
-          const address = response.data;
-          setSelectedLocation(address); // 주소 정보만 설정
-          localStorage.setItem('selectedLocation', address); // OO동 형식 저장
+          const address = response.data.split(' ');
+          const dong = address.slice(2, 3)[0]; // 주소에서 동만 추출
+          
+          setSelectedLocation(dong); // 주소 정보만 설정
+          localStorage.setItem('selectedLocation', dong);
   
           alert('현재 위치가 저장되었습니다!');
         } catch (error) {
@@ -1111,7 +1095,7 @@ useEffect(() => {
           {showCategory && <CategoryDropdown />}
         </MenuWrapper>
 
-          <LocationSetting onClick={handleOpenModal}>
+          <LocationSetting onClick={() => setShowModal(true)}>
             <LocationIcon src={ping} />
             <span style={{ cursor: 'pointer', fontWeight: 600 , color: '333333'}}>
               {selectedLocation}
