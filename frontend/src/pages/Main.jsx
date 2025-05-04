@@ -4,7 +4,8 @@ import Footer from '../components/Footer';
 import { useEffect, useRef, useState } from 'react';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+
 import axios from 'axios';
 
 
@@ -83,6 +84,7 @@ const Card = styled.div`
   font-size: 20px;
   font-family: 'Pretendard', sans-serif;
   margin-bottom: 20px;
+  cursor: pointer;
 `;
 
 const Thumbnail = styled.div`
@@ -125,6 +127,8 @@ export default function Main() {
   //상품리스트 상태관리
   const [productList, setProductList] = useState([]);
   
+  const navigate = useNavigate();
+
   useEffect(() => {
     // 백엔드에서 인기 상품 데이터 가져오기
     axios.get('http://localhost:9090/api/items/popular')
@@ -167,6 +171,10 @@ export default function Main() {
     const x = e.pageX - scrollRef.current.offsetLeft;
     const walk = (x - startX) * 1.5;
     scrollRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleCardClick = (itemNo) => {
+    navigate(`/items/${itemNo}`);
   };
 
   // const categories = [
@@ -222,16 +230,12 @@ export default function Main() {
         <SectionTitle>직픽인들의 픽!</SectionTitle>
         {Array.isArray(productList) && productList.length > 0 ? (
        <Grid>
-       {productList.map((itemLike) => {
+       {productList.slice(0, 12).map((itemLike) => {
          const product = itemLike.item;
      
          return (
-           <Link
-             to={`/product/${product.itemNo}`}
-             key={product.itemNo}
-             style={{ textDecoration: 'none', color: 'inherit' }}
-           >
-             <Card>
+           
+             <Card key={product.itemNo} onClick={()=> handleCardClick(product.itemNo)}>
                <Thumbnail
                  style={{
                   backgroundImage: `url(http://localhost:9090/images/${product.itemImage})`,
@@ -242,13 +246,10 @@ export default function Main() {
                <Title>{product.itemName}</Title>
                <ItemInfo>
                  <Price>{product.itemCost.toLocaleString()}원</Price>
-                 <Like>
-                   <img src={heartIcon} alt="좋아요" style={{ width: '18px', height: '18px' }} />
-                   {itemLike.likeCount}
-                 </Like>
+               
                </ItemInfo>
              </Card>
-           </Link>
+          
          );
        })}
      </Grid>
