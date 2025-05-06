@@ -2,13 +2,22 @@ package kr.it.code.main.location.controller;
 
 import kr.it.code.main.location.entity.MemberLocation;
 import kr.it.code.main.location.service.MemberLocationService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/location")
 public class MemberLocationController {
+
+    @Value("${kakao.rest-api-key}")
+    private String kakaoRestApiKey;
 
     private final MemberLocationService service;
 
@@ -40,7 +49,26 @@ public class MemberLocationController {
 
     // 위도/경도로 주소 변환 API
     @GetMapping("/getaddress")
-    public String getAddress(@RequestParam Double latitude, @RequestParam Double longitude) {
-        return service.convertToAddress(latitude, longitude);
+    public ResponseEntity<String> convertToAddress(@RequestParam Double latitude, @RequestParam Double longitude) {
+        // 백엔드 IP를 직접 지정
+        String callerIp = "localhost:9090"; // 추후 서버 배포한 후 ip 지정 넣을 것(kakaoMapApi 쪽 ip 등록에도 넣을 것)
+
+        // 카카오 API URL
+        String url = String.format("https://dapi.kakao.com/v2/local/geo/coord2address.json?x=%f&y=%f", longitude, latitude);
+
+        // API 요청 헤더에 REST API 키 추가
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "KakaoAK " + kakaoRestApiKey);
+
+        // callerIp를 헤더에 추가
+        headers.set("callerIp", callerIp);
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        // RestTemplate을 사용하여 API 호출
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response = restTemplate.exchange(url, org.springframework.http.HttpMethod.GET, entity, String.class);
+
+        return response;
     }
 }
