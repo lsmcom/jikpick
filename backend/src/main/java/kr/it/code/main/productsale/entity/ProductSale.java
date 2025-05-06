@@ -41,4 +41,8 @@ public class ProductSale {
 
     @Column(name = "user_id")
     private String userId;
+
+    @Column(name = "status")
+    private String status;
+
 }
