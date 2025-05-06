@@ -143,6 +143,7 @@ export default function LoginForm({ setIsLoggedIn }) {
         }
 
         setIsLoggedIn(true);
+        localStorage.setItem("user", JSON.stringify(response.data)); // ✅ 저장
         navigate('/');
       }
     } catch (error) {
@@ -150,7 +151,6 @@ export default function LoginForm({ setIsLoggedIn }) {
       alert('아이디 또는 비밀번호가 올바르지 않습니다.');
     }
   };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     handleLogin();

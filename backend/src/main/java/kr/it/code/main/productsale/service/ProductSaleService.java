@@ -51,7 +51,7 @@ public class ProductSaleService {
                             .itemName(item.getItemName())
                             .itemCost(item.getItemCost())
                             .regionName(sale.getStore().getRegion().getRegName() + " " + sale.getStore().getStoreName())
-                            .itemImage(item.getItemImage())
+                            .itemImage(item.getFirstImagePath())
                             .itemWishCount(item.getItemWish())
                             .saleDate(sale.getSaleDate().toString())
                             .pickStatus(item.getPickStatus())

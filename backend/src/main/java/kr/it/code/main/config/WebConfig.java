@@ -16,8 +16,10 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowCredentials(true);
     }
 
+    @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // URL 경로: /images/** => 실제 폴더: /jikpick_uploads/
         registry.addResourceHandler("/images/**")
-                .addResourceLocations("classpath:/static/uploads/images/");
+                .addResourceLocations("file:C:/jikpick_uploads/");
     }
 }

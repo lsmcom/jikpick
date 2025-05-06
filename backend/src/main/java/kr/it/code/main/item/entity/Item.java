@@ -20,13 +20,20 @@ public class Item {
     @Column(name = "ITEM_NO")
     private Long itemNo;
 
+    // 사용자 정보 (FK)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_NO")
     private User user;
 
+    // 카테고리 정보 (FK)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CATE_NO")
     private Category category;
+
+    // 직픽 지점 정보 (FK)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "STORE_NO")
+    private Store store;
 
     @Column(name = "ITEM_NAME")
     private String itemName;
@@ -37,8 +44,20 @@ public class Item {
     @Column(name = "ITEM_INFO")
     private String itemInfo;
 
-    @Column(name = "ITEM_IMAGE")
-    private String itemImage;
+    @Column(name = "IMAGE_PATH_LIST", length = 2000)
+    private String imagePathList; //Json문자열로 저장
+//
+//    @Column(name = "ITEM_IMAGE")
+//    private String itemImage; //대표이미지
+public String getFirstImagePath() {
+    if (imagePathList == null || imagePathList.isEmpty()) return null;
+    return imagePathList.split(",")[0]; // 첫 번째 이미지 경로 반환
+}
+
+    @Column(name = "PICK_PERIOD")
+    private Integer pickPeriod;  // ✅ 유효기간 저장
+
+
 
     @Column(name = "ITEM_DATE")
     private LocalDate itemDate;
@@ -54,8 +73,4 @@ public class Item {
 
     @Column(name = "PICK_STATUS")
     private String pickStatus;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "STORE_NO")
-    private Store store;
 }

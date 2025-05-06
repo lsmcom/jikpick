@@ -1,3 +1,6 @@
+// ✅ [1] Store 엔티티 생성
+// 📁 경로: src/main/java/kr/it/code/main/store/entity/Store.java
+
 package kr.it.code.main.store.entity;
 
 import jakarta.persistence.*;
@@ -20,8 +23,9 @@ public class Store {
     private String storeName;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reg_no")
+    @JoinColumn(name = "REG_NO")
     private Region region;
+
 
     @Column(name = "STORE_TELL")
     private String storeTell;
@@ -40,4 +44,7 @@ public class Store {
 
     @Column(name = "STORE_MANAGER")
     private String storeManager;
+
+
 }
+
