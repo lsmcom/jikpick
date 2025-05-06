@@ -27,15 +27,10 @@ public class ProductSaleService {
         ProductSale sale = productSaleRepository.findById(saleNo)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 판매내역입니다."));
 
-        Item item = sale.getItem();
-        if ("숨김".equals(item.getPickStatus())) {
-            item.setPickStatus(null);
-        } else {
-            item.setPickStatus("숨김");
-        }
-        itemRepository.save(item); // 또는 sale 안에서 Cascade 설정되어 있다면 save는 생략 가능
-
+        String current = sale.getStatus();
+        sale.setStatus("숨김".equals(current) ? "판매중" : "숨김");
     }
+
 
     @Transactional(readOnly = true)
     public List<MysaleDto> getSalesByUser(Long userNo) {
@@ -47,7 +42,9 @@ public class ProductSaleService {
         return sales.stream()
                 .filter(sale -> sale.getItem() != null) // ✅ Item이 없는 경우 제거
                 .map(sale -> {
-                    Item item = sale.getItem();
+                    Item item = itemRepository.findById(sale.getItem().getItemNo())
+                            .orElse(null);
+                    if (item == null) return null; // 이후 filter에서 제거하거나 예외처리
                     return MysaleDto.builder()
                             .saleNo(sale.getSaleNo())
                             .itemNo(item.getItemNo())
@@ -58,18 +55,23 @@ public class ProductSaleService {
                             .itemWishCount(item.getItemWish())
                             .saleDate(sale.getSaleDate().toString())
                             .pickStatus(item.getPickStatus())
+
                             .build();
                 })
                 .collect(Collectors.toList());
     }
 
 
+    @Transactional
     public void deleteSale(Long saleNo) {
-        if (!productSaleRepository.existsById(saleNo)) {
-            throw new IllegalArgumentException("존재하지 않는 판매내역입니다.");
-        }
-        productSaleRepository.deleteById(saleNo);
+        ProductSale sale = productSaleRepository.findById(saleNo)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 판매내역입니다."));
+
+        productSaleRepository.delete(sale);
     }
+
+
+
 }
 
 
