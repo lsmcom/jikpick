@@ -28,5 +28,12 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             "LEFT JOIN ProductLikes pl ON i.itemNo = pl.item.itemNo " +
             "GROUP BY i.itemNo ORDER BY COUNT(pl) DESC")
     List<ItemLikeDto> findItemsOrderByLikeCount();
+
+    // User별 판매한 상품 개수 조회
+    @Query("SELECT COUNT(i) FROM Item i WHERE i.user.userNo = :userNo")
+    long countItemsByUser(Long userNo);
+
+    // User별로 등록한 Item 조회
+    List<Item> findByUserUserNo(Long userNo);  // User의 `userNo`로 아이템 조회
 }
 

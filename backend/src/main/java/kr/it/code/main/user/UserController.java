@@ -171,19 +171,13 @@ public class UserController {
 
     // ✅ 사용자 정보 조회 API
     @GetMapping("/me")
-    public ResponseEntity<?> getUserInfo(@RequestParam String userId) {
+    public ResponseEntity<UserInfoDto> getUserInfo(@RequestParam String userId) {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("userId", user.getUserId());
-        result.put("password", user.getPassword());
-        result.put("nickname", user.getNick());
-        result.put("email", user.getEmail());
-        result.put("tell", user.getTell());
-        result.put("rating", user.getRating());
-
-        return ResponseEntity.ok(result);
+        // UserInfoDto로 변환하여 필요한 정보만 반환
+        UserInfoDto userInfo = new UserInfoDto(user);  // UserInfoDto로 변환
+        return ResponseEntity.ok(userInfo);  // UserInfoDto를 반환
     }
 
     // ✅ 회원 정보 수정 API

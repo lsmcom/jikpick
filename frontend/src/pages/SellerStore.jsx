@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Footer from '../components/Footer';
 import ReviewTab from '../components/ProductDetail/ReviewTab';
@@ -6,6 +6,7 @@ import sellerProfile from '../assets/images/profile1.jpg';
 import PageContainer from '../pages/PageContainer';
 import cameraIcon from '../assets/icon/Camera.svg'; // 카메라 아이콘 파일을 추가합니다.
 import StarIcon from'../assets/icon/StarIcon.svg';
+import axios from '../api/axios';
 
 const FlexArea = styled.div`
   display: flex;
@@ -129,12 +130,17 @@ const StarImg = styled.img`
 `;
 export default function SellerStore() {
   const [isEditing, setIsEditing] = useState(false);
-  const [description, setDescription] = useState('안녕하세요 오로라마켓 믿고 맡겨주세요!');
-  const [tempDescription, setTempDescription] = useState(description);
-  const [profileImage, setProfileImage] = useState(sellerProfile); // 프로필 사진 상태 관리
   const [newImage, setNewImage] = useState(null); // 새로 선택된 이미지
+  const [profileImage, setProfileImage] = useState(''); // 프로필 사진 상태 관리
+  const [nickname, setNickname] = useState('');
+  const [rating, setRating] = useState(0);
+  const [ratingCount, setRatingCount] = useState(0);
+  const [reviewCount, setReviewCount] = useState(0);
+  const [saleCount, setSaleCount] = useState(0);
+  const [intro, setIntro] = useState('');
+  const [tempIntro, setTempIntro] = useState('');
 
-  const seller = {
+  const temp = {
     name: '오로라마켓',
     rating: 3.5,
     reviewCount: 21,
@@ -144,16 +150,33 @@ export default function SellerStore() {
 
   // 프로필 수정 클릭 시
   const handleEditClick = () => {
-    setTempDescription(description);
+    setTempIntro(intro);
     setIsEditing(true);
   };
 
   // 프로필 수정 완료 클릭 시
-  const handleSaveClick = () => {
-    setDescription(tempDescription);
+  const handleSaveClick = async () => {
+    setIntro(tempIntro);
     setIsEditing(false);
     if (newImage) {
       setProfileImage(URL.createObjectURL(newImage)); // 새 이미지로 프로필 이미지 변경
+    }
+
+    // 서버에 데이터 업데이트 요청 (프로필 이미지와 설명 수정)
+    try {
+      const formData = new FormData();
+      formData.append('image', newImage);
+      formData.append('intro', tempIntro);
+
+      await axios.post('/api/users/update', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      alert('프로필이 수정되었습니다.');
+    } catch (error) {
+      console.error('프로필 수정 실패:', error);
     }
   };
 
@@ -166,17 +189,37 @@ export default function SellerStore() {
     }
   };
 
-  // 수정 후 다시 수정모드로 전환
-  const handleReEditClick = () => {
-    setIsEditing(true);
-  };
+  useEffect(() => {
+    const fetchSellerInfo = async () => {
+      try {
+        const memberId = JSON.parse(localStorage.getItem('user')).id; // localStorage에서 memberId 불러오기
+        const userInfo = await axios.get('/api/users/me', {
+          params: { userId: memberId }
+        });
+        console.log(userInfo.data);
+
+        // 서버에서 받은 데이터를 state로 저장
+        setProfileImage(userInfo.data.image || sellerProfile);
+        setNickname(userInfo.data.nickname);
+        setRating(userInfo.data.rating || 0.0);
+        setRatingCount(userInfo.data.ratingCount || 0);
+        setReviewCount(userInfo.data.reviewCount || 0);
+        setSaleCount(userInfo.data.saleCount || 0); // 판매 상품 수
+        setIntro(userInfo.data.intro); // 소개글 초기화
+      } catch (error) {
+        console.error('사용자 정보 조회 실패:', error);
+      }
+    };
+
+    fetchSellerInfo();
+  }, [profileImage, nickname, rating, ratingCount, reviewCount, saleCount, intro]);
 
   return (
     <>
       <PageContainer>
         <SellerBox>
           <ProfileImageWrapper>
-            <ProfileImage src={profileImage} alt="판매자 프로필" />
+            <ProfileImage src={profileImage || null} alt="판매자 프로필" />
             {isEditing && (
               <label htmlFor="file-input">
                 <CameraIcon src={cameraIcon} alt="카메라 아이콘" />
@@ -191,7 +234,7 @@ export default function SellerStore() {
           </ProfileImageWrapper>
           <InfoBox>
           <FlexArea>
-              <Name>{seller.name}</Name>
+              <Name>{nickname}</Name>
               {!isEditing && (
                 <EditButton onClick={handleEditClick}>
                   프로필 수정
@@ -202,19 +245,19 @@ export default function SellerStore() {
             <Rating>
               별점
               <StarImg src={StarIcon} alt="별 아이콘" />
-              {seller.rating.toFixed(1)} (14) · 후기 {seller.reviewCount} · 상품 {seller.productCount}개
+              {rating.toFixed(1)} ({ratingCount}) · 후기 {reviewCount} · 상품 {saleCount}개
             </Rating>
 
             {isEditing ? (
               <>
                 <DescriptionTextarea
-                  value={tempDescription}
-                  onChange={(e) => setTempDescription(e.target.value)}
+                  value={tempIntro}
+                  onChange={(e) => setTempIntro(e.target.value)}
                 />
                 <SaveButton onClick={handleSaveClick}>수정 완료</SaveButton>
               </>
             ) : (
-              <Description>{description}</Description>
+              <Description>{intro}</Description>
             )}
           </InfoBox>
         </SellerBox>

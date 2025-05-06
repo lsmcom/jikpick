@@ -8,6 +8,8 @@ import starIcon from '../assets/icon/StarIcon.svg';
 import heartIcon from '../assets/icon/HeartIcon.svg';
 import walletIcon from '../assets/icon/WalletIcon.svg'
 import receiptIcon from '../assets/icon/ReceiptIcon.svg'
+import { useEffect, useState } from 'react';
+import axios from '../api/axios'; 
 
 // 📦 전체 페이지 레이아웃 컨테이너
 const Wrapper = styled.div`
@@ -184,8 +186,13 @@ const MenuIcon = styled.img`
 `;
 
 export default function MyPage({ isLoggedIn, setIsLoggedIn }) {
-
   const navigate = useNavigate();
+  const [profile, setProfile] = useState('');
+  const [userName, setUserName] = useState('');
+  const [shopName, setShopName] = useState('');
+  const [rating, setRating] = useState(0);
+  const [reviewCount, setReviewCount] = useState(0);
+  const [saleCount, setSaleCount] = useState(0);
 
   // 로그아웃 처리 함수
   const handleLogout = (e) => {
@@ -202,6 +209,30 @@ export default function MyPage({ isLoggedIn, setIsLoggedIn }) {
     navigate('/');
   };
 
+  useEffect(() => {
+    const loadProfile = async() => {
+      try {
+        const memberId = JSON.parse(localStorage.getItem('user')).id; // localStorage에서 memberId 불러오기
+        const userInfo = await axios.get('/api/users/me', {
+          params: { userId: memberId }
+        });
+        console.log(userInfo);
+        // 해당 정보들을 state로 업데이트
+        setProfile(userInfo.data.userImage || exampleProfile); // 프로필 이미지
+        //setUserName(userInfo.data.nickname); // 유저 닉네임
+        setShopName(userInfo.data.nickname || '상점명 없음'); // 상점명
+        setRating(userInfo.data.rating || 0); // 평점
+        setReviewCount(userInfo.data.reviewCount || 0); // 리뷰 개수
+        setSaleCount(userInfo.data.saleCount || 0); // 판매 개수
+
+      } catch (error) {
+        console.error('프로필 로드 실패:', error);
+      }
+    };
+
+    loadProfile();
+  }, []);
+
   return (
     <Wrapper>
       <Outer>
@@ -213,25 +244,25 @@ export default function MyPage({ isLoggedIn, setIsLoggedIn }) {
           <StoreBox to="/myShop">
             {/* 프로필 이미지 */}
             <StoreImageBox>
-                <ProfileImage src={exampleProfile} alt="프로필 이미지" />
+                <ProfileImage src={profile} alt="프로필 이미지" />
             </StoreImageBox>
 
             {/* 텍스트 전체 감싸는 부분 */}
             <StoreContent>
                 {/* 왼쪽: 상점명 + 판매 횟수 */}
                 <StoreInfo>
-                <StoreName>오로라마켓</StoreName>
+                <StoreName>{shopName}</StoreName>
                 <SalesCount>
                     <SaleIcon src={shoppingBag} alt="쇼핑백" />
-                    상품판매 5회
+                    상품판매 {saleCount}회
                 </SalesCount>
                 </StoreInfo>
 
                 {/* 오른쪽: 별점 + 리뷰 (한 줄) */}
                 <RatingRow>
-                    <StarScore>3.5</StarScore>
+                    <StarScore>{rating}</StarScore>
                     <StarIcon src={starIcon} alt="별" />
-                    <ReviewCount>(4)</ReviewCount>
+                    <ReviewCount>({reviewCount})</ReviewCount>
                 </RatingRow>
             </StoreContent>
 

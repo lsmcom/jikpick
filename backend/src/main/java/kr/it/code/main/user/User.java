@@ -63,7 +63,23 @@ public class User {
     @Column(name = "USER_IMAGE")
     private String image;
 
-    // ✅ 사용자 평점 (선택사항)
+    // ✅ 사용자 평점
     @Column(name = "USER_RATING")
     private Float rating;
+
+    // 사용자 평점 수
+    @Column(name = "RATING_COUNT")
+    private Integer ratingCount;
+
+    // 판매 상품 수
+    @Column(name = "SALE_COUNT")
+    private Integer saleCount;
+
+    // 등록된 리뷰 수
+    @Column(name = "REVIEW_COUNT")
+    private Integer reviewCount;
+
+    // 사용자 설명글
+    @Column(name = "USER_INTRO")
+    private String intro;
 }
