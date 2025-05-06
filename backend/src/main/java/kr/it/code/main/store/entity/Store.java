@@ -1,6 +1,7 @@
 package kr.it.code.main.store.entity;
 
 import jakarta.persistence.*;
+import kr.it.code.main.region.entity.Region;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,9 +19,6 @@ public class Store {
     @Column(name = "STORE_NAME")
     private String storeName;
 
-    @Column(name = "REG_NO")
-    private Long regNo;
-
     @Column(name = "STORE_TELL")
     private String storeTell;
 
@@ -36,6 +34,10 @@ public class Store {
     @Column(name = "STORE_MANAGER")
     private String storeManager;
 
-    @Column(name = "STORE_TYPE")
-    private String storeType;
+//    @Column(name = "STORE_TYPE")
+//    private String storeType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reg_no")
+    private Region region;
 }

@@ -3,6 +3,8 @@ package kr.it.code.main.category.service;
 import kr.it.code.main.category.dto.CategoryDto;
 import kr.it.code.main.category.entity.Category;
 import kr.it.code.main.category.repository.CategoryRepository;
+import kr.it.code.main.item.dto.PopularSubCategoryDto;
+import kr.it.code.main.item.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,7 @@ import java.util.Map;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final ItemRepository itemRepository;
 
 
     public List<CategoryDto> getAllCategories(){
@@ -87,7 +90,13 @@ public class CategoryService {
             result.add(child.getCateNo());
             collectChildren(child.getCateNo(), result); // 자식의 자식도 추가
         }
+
     }
+
+    public List<PopularSubCategoryDto> getPopularSubCategories() {
+        return itemRepository.findTopSubCategoriesByWish();
+    }
+
 
 
 

@@ -1,6 +1,7 @@
 package kr.it.code.main.item.repository;
 
 import kr.it.code.main.item.dto.ItemLikeDto;
+import kr.it.code.main.item.dto.PopularSubCategoryDto;
 import kr.it.code.main.item.entity.Item;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -28,5 +29,15 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             "LEFT JOIN ProductLikes pl ON i.itemNo = pl.item.itemNo " +
             "GROUP BY i.itemNo ORDER BY COUNT(pl) DESC")
     List<ItemLikeDto> findItemsOrderByLikeCount();
+
+    @Query("SELECT new kr.it.code.main.item.dto.PopularSubCategoryDto(" +
+            "c.cateNo, c.cateName, SUM(i.itemWish)) " +
+            "FROM Item i " +
+            "JOIN i.category c " +
+            "WHERE c.cateLevel = 3 " +
+            "GROUP BY c.cateNo, c.cateName " +
+            "ORDER BY SUM(i.itemWish) DESC")
+    List<PopularSubCategoryDto> findTopSubCategoriesByWish();
+
 }
 
