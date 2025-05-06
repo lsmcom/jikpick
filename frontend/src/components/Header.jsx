@@ -715,8 +715,6 @@ export default function Header({ isLoggedIn, setIsLoggedIn }) {
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [showHideModal, setShowHideModal] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
- 
-  const [location, setLocation] = useState({ latitude: null, longitude: null })
   
   // 검색 키워드 상태관리
   const [searchQuery, setSearchQuery] = useState('');
@@ -802,9 +800,8 @@ useEffect(() => {
   }, []);
 
   // ✅ 1. 지역 상태 추가
-  const [selectedLocation, setSelectedLocation] = useState(() => {
-    return localStorage.getItem('selectedLocation') || '지역설정';
-  });
+  const [location, setLocation] = useState({ latitude: null, longitude: null })
+  const [selectedLocation, setSelectedLocation] = useState(localStorage.getItem('selectedLocation') || '지역설정');
 
   // ✅ 2. 리스트 클릭했을 때 지역 선택
   const handleLocationClick = (location) => {
@@ -893,8 +890,6 @@ useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(async (position) => {
         const { latitude, longitude } = position.coords;
-
-        // 상태에 위치 정보 저장
         setLocation({ latitude, longitude }); // latitude, longitude를 상태로 저장
       }, (error) => {
         alert('위치를 가져오는데 실패했습니다.');

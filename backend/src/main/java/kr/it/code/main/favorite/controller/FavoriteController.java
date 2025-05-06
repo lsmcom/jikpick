@@ -20,12 +20,4 @@ public class FavoriteController {
         List<FavoriteDto> list = favoriteService.getFavoritesByUser(userNo);
         return ResponseEntity.ok(list);
     }
-
-    @GetMapping("/check")
-    public ResponseEntity<Boolean> checkIfLiked(
-            @RequestParam Long itemNo,
-            @RequestParam Long userNo) {
-        boolean isLiked = favoriteService.isFavorite(itemNo, userNo);
-        return ResponseEntity.ok(isLiked);
-    }
 }

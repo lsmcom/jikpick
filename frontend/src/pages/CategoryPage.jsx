@@ -177,30 +177,28 @@ export default function CategoryPage() {
           <Location>경기도 고양시 일산동구</Location>
 
           <CategoryGrid>
-  {/* 전체보기 (대분류 제외) */}
-  {parentNo !== null && (
-    <CategoryBox onClick={() => handleCategoryClick(parentNo)}>
-      전체보기
-    </CategoryBox>
-  )}
+            {/* 전체보기 (대분류 제외) */}
+            {parentNo !== null && (
+              <CategoryBox onClick={() => handleCategoryClick(parentNo)}>
+                전체보기
+              </CategoryBox>
+            )}
 
-  {/* 형제 카테고리 목록 */}
-  {siblingCategories.map(cat => (
-    <CategoryBox
-      key={cat.cateNo}
-      onClick={() => handleCategoryClick(cat.cateNo)}
-      style={{
-        borderColor: cat.cateNo == categoryNo ? '#FB4A67' : '#ddd',
-        color: cat.cateNo == categoryNo ? '#FB4A67' : '#000',
-        fontWeight: cat.cateNo == categoryNo ? '700' : '500',
-      }}
-    >
-      {cat.cateName}
-    </CategoryBox>
-  ))}
-</CategoryGrid>
-
-
+            {/* 형제 카테고리 목록 */}
+            {siblingCategories.map(cat => (
+              <CategoryBox
+                key={cat.cateNo}
+                onClick={() => handleCategoryClick(cat.cateNo)}
+                style={{
+                  borderColor: cat.cateNo == categoryNo ? '#FB4A67' : '#ddd',
+                  color: cat.cateNo == categoryNo ? '#FB4A67' : '#000',
+                  fontWeight: cat.cateNo == categoryNo ? '700' : '500',
+                }}
+              >
+                {cat.cateName}
+              </CategoryBox>
+            ))}
+          </CategoryGrid>
           <SectionTitle>
             <span>{categoryName}</span>의 추천 상품
           </SectionTitle>

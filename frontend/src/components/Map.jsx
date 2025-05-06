@@ -51,13 +51,12 @@ const MapContainer = styled.div`
   height: 700px;
 `;
 
-export default function Map({ selectedAddress, roadAddressList }) {
+export default function Map({ selectedAddress, roadAddressList, selectedBranchIndex }) {
     const container = useRef(null);
     const mapRef = useRef(null);
     const [markers, setMarkers] = useState([]); // 모든 마커 저장
     const [searchToggle, setSearchToggle] = useState(false); // 지도 이동시 재검색 토글
     const addressList = roadAddressList;
-
 
     useEffect(() => {
         const fetchUserLocation = async () => {
@@ -131,26 +130,6 @@ export default function Map({ selectedAddress, roadAddressList }) {
         fetchUserLocation();
     }, []);
 
-    useEffect(() => {
-        if (!selectedAddress || !mapRef.current) return;
-
-        const map = mapRef.current;
-        const geocoder = new window.kakao.maps.services.Geocoder();
-
-        geocoder.addressSearch(selectedAddress, (result, status) => {
-            if (status === window.kakao.maps.services.Status.OK) {
-                const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
-                map.setCenter(coords);
-
-                // 마커 생성
-                const marker = new window.kakao.maps.Marker({
-                    position: coords,
-                });
-                marker.setMap(map);
-            }
-        });
-    }, [selectedAddress]);
-
     const handleSearchToggle = () => {
         setSearchToggle((prev) => !prev);
     };
@@ -185,6 +164,53 @@ export default function Map({ selectedAddress, roadAddressList }) {
             window.kakao.maps.event.removeListener(map, 'zoom_changed', updateVisibleMarkers);
         };
     }, [searchToggle, markers]);
+
+    // ✅ 필터링된 지점 주소로 마커 갱신
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => {
+        if (!window.kakao || !mapRef.current || !roadAddressList.length) return;
+      
+        const map = mapRef.current;
+        markers.forEach(marker => marker.setMap(null));
+        const newMarkers = [];
+      
+        const geocoder = new window.kakao.maps.services.Geocoder();
+        const bounds = new window.kakao.maps.LatLngBounds();
+        let completed = 0;
+      
+        roadAddressList.forEach((address, idx) => {
+          geocoder.addressSearch(address, (result, status) => {
+            if (status === window.kakao.maps.services.Status.OK) {
+              const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
+              const image = idx === selectedBranchIndex
+                ? new window.kakao.maps.MarkerImage(
+                    'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
+                    new window.kakao.maps.Size(36, 37)
+                    )
+                : new window.kakao.maps.MarkerImage(
+                    'https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2_hdpi.png',
+                    new window.kakao.maps.Size(24, 35)
+                    );
+      
+              const marker = new window.kakao.maps.Marker({
+                map,
+                position: coords,
+                image,
+              });
+      
+              newMarkers.push(marker);
+              bounds.extend(coords);
+            }
+      
+            completed++;
+            if (completed === roadAddressList.length && !bounds.isEmpty()) {
+              newMarkers.forEach(marker => marker.setMap(map));
+              map.setBounds(bounds);
+              setMarkers(newMarkers);
+            }
+          });
+        });
+      }, [roadAddressList, selectedBranchIndex]);
 
     return (
         <MapWrapper>
