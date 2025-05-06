@@ -64,7 +64,6 @@ spring:
         generate_statistics: false
         format_sql: true
         use_sql_comments: false
-        use_sql_comments: false
         cache:
           use_second_level_cache: false
           use_query_cache: false

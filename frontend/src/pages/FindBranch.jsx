@@ -5,6 +5,7 @@ import Map from '../components/Map';
 import Footer from '../components/Footer';
 import { RegionList } from '../assets/RegionList';
 import searchIcon from '../assets/icon/SearchIcon.svg';
+import axios from '../api/axios';
 
 const Wrapper = styled.div`
     display: flex;
@@ -186,93 +187,38 @@ const BranchInfo = styled.div`
 `;
 
 export default function FindBranch() {
-    const BranchList = [
-        {
-            id: 1,
-            name: "샘플점 1",
-            number: "02-123-1234",
-            hours: "10:00 - 22:00",
-            roadAddress: "서울특별시 강서구 양천로63길 8",
-            lotAddress: "서울특별시 강서구 염창동 241-11",
-        },
-        {
-            id: 2,
-            name: "샘플점 2",
-            number: "02-123-1234",
-            hours: "10:00 - 22:00",
-            roadAddress: "서울특별시 강서구 양천로63길 12",
-            lotAddress: "서울특별시 강서구 염창동 241-9 준명빌딩",
-        },
-        {
-            id: 3,
-            name: "샘플점 3",
-            number: "02-123-1234",
-            hours: "10:00 - 22:00",
-            roadAddress: "서울특별시 강남구 강남대로100길 10",
-            lotAddress: "서울특별시 강남구 역삼동 619-15",
-        },
-        {
-            id: 4,
-            name: "샘플점 4",
-            number: "02-123-1234",
-            hours: "10:00 - 22:00",
-            roadAddress: "서울특별시 강남구 강남대로100길 13",
-            lotAddress: "서울특별시 강남구 역삼동 619-5",
-        },
-        {
-            id: 5,
-            name: "샘플점 5",
-            number: "02-123-1234",
-            hours: "24시간",
-            roadAddress: "서울특별시 강남구 강남대로100길 13-5",
-            lotAddress: "서울특별시 강남구 역삼동 619-6",
-        },
-        {
-            id: 6,
-            name: "샘플점 6",
-            number: "02-123-1234",
-            hours: "24시간",
-            roadAddress: "서울특별시 강남구 강남대로100길 13-7",
-            lotAddress: "서울특별시 강남구 역삼동 619-7",
-        },
-        {
-            id: 7,
-            name: "샘플점 7",
-            number: "02-123-1234",
-            hours: "24시간",
-            roadAddress: "서울특별시 강서구 양천로63길 16",
-            lotAddress: "서울특별시 강서구 염창동 241-33",
-        },
-        {
-            id: 8,
-            name: "샘플점 8",
-            number: "02-123-1234",
-            hours: "24시간",
-            roadAddress: "서울특별시 강서구 양천로63길 27",
-            lotAddress: "서울특별시 강서구 염창동 240-27",
-        },
-    ];
 
     const [region, setRegion] = useState('');
     const [subRegion, setSubRegion] = useState('');
     const [subRegions, setSubRegions] = useState([]);
     const [search, setSearch] = useState('');
     const [hours, setHours] = useState('전체');
-    const [branchList, setBranchList] = useState(BranchList);
+    const [branchList, setBranchList] = useState([]);
     const [selectedAddress, setSelectedAddress] = useState(null);
+    const [roadAddressList, setRoadAddressList] = useState([]);
+    const [selectedBranchIndex, setSelectedBranchIndex] = useState(null);
 
-    const FilterBranch = () => {        
-        const filteredBranches = BranchList.filter((branch) => {
-            const matchesRegion = region ? branch.lotAddress.includes(region) : true;
-            const matchesSubRegion = subRegion ? branch.lotAddress.includes(subRegion) : true;
-            const matchesSearch = search.trim() ? branch.name.includes(search.trim()) : true;
-            const matchesHours = hours && hours !== '전체' ? branch.hours === hours : true;
-    
-            return matchesRegion && matchesSubRegion && matchesSearch && matchesHours;
-        });
-    
-        setBranchList(filteredBranches);
-    }
+    const FilterBranch = async () => {
+        try {
+          const res = await axios.get('/api/stores/filter', {
+            params: {
+              region,
+              subRegion,
+              name: search,
+              time: hours === '전체' ? '' : hours
+            }
+          });
+          setBranchList(res.data);
+      
+          // ✅ 도로명 주소 목록 추출해서 지도에 반영될 수 있도록
+          const addresses = res.data.map(branch => branch.storeAddress);
+          setSelectedBranchIndex(null);
+          setSelectedAddress(null);
+          setRoadAddressList(addresses);
+        } catch (err) {
+          console.error('지점 필터링 실패', err);
+        }
+      };
 
     useEffect(() => {
         // 선택된 지역에 따라 하위 지역 목록을 가져옴
@@ -280,9 +226,10 @@ export default function FindBranch() {
         setSubRegions(selectedRegion ? selectedRegion.subRegion : []);
     }, [region]);
 
-    const handleBranchClick = (roadAddress) => {
+    const handleBranchClick = (roadAddress, index) => {
         setSelectedAddress(roadAddress);
-    };
+        setSelectedBranchIndex(index); // 강조 마커 표시를 위한 인덱스 설정
+      };
 
     return (
         <Wrapper>
@@ -301,7 +248,7 @@ export default function FindBranch() {
                             <Select value={subRegion} onChange={(e) => setSubRegion(e.target.value)}>
                                 <option value="" disabled hidden={subRegion !== ''}>시/군/구</option>
                                 {subRegions.map((sub) => (
-                                    <option>{sub}</option>
+                                    <option key={sub} value={sub}>{sub}</option>
                                 ))}
                             </Select>
                             <SearchBar>
@@ -334,20 +281,24 @@ export default function FindBranch() {
                         <BranchWrapper>
                             <BranchCount>지점({branchList.length})</BranchCount>
                             <BranchContainer>
-                                {branchList.map((branch, key) => (
-                                    <BranchItem onClick={() => handleBranchClick(branch.roadAddress)} key={key}>
-                                        <BranchName>{branch.name}</BranchName>
-                                        <BranchInfo>{branch.number} | 영업시간: {branch.hours}</BranchInfo><br/>
-                                        <BranchInfo>도로명 {branch.roadAddress}</BranchInfo>
-                                        <BranchInfo>지번 {branch.lotAddress}</BranchInfo>
-                                    </BranchItem>
-                                ))}
+                            {branchList.map((branch, idx) => (
+                                <BranchItem
+                                    key={idx}
+                                    onClick={() => handleBranchClick(branch.storeAddress, idx)}
+                                >
+                                    <BranchName>{branch.storeName}</BranchName>
+                                    <BranchInfo>{branch.storeTell} | 영업시간: {branch.storeTime}</BranchInfo><br/>
+                                    <BranchInfo>도로명 {branch.storeAddress}</BranchInfo>
+                                    <BranchInfo>지번 {branch.lotAddress}</BranchInfo>
+                                </BranchItem>
+                            ))}
                             </BranchContainer>
                         </BranchWrapper>
                         <MapBox>
                             <Map
                                 selectedAddress={selectedAddress}
-                                roadAddressList={BranchList.map((branch) => branch.roadAddress)}
+                                roadAddressList={roadAddressList} 
+                                selectedBranchIndex={selectedBranchIndex}
                             />
                         </MapBox>
                     </ContentWrapper>

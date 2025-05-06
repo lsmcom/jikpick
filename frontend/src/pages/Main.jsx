@@ -7,7 +7,7 @@ import 'slick-carousel/slick/slick-theme.css';
 import { useNavigate } from 'react-router-dom';
 import { Link, useParams } from 'react-router-dom';
 
-import axios from 'axios';
+import axios from '../api/axios';
 
 
 import sneakersImg from '../assets/images/sneakers.jpg';
@@ -139,18 +139,16 @@ export default function Main() {
 
 
   useEffect(() => {
-    // 백엔드에서 인기 상품 데이터 가져오기
     axios.get('http://localhost:9090/api/items/popular')
-  .then((res) => {
-    console.log('응답 status:', res.status);
-    console.log('응답 데이터:', res.data);
-    setProductList(res.data);
-    setIsLoading(false);
-  })
-  .catch((err) => {
-    console.error('❌ 인기 상품 불러오기 실패:', err);
-    setIsLoading(false);
-  });
+      .then((res) => {
+        setProductList(res.data);
+      })
+      .catch((err) => {
+        console.error('❌ 인기 상품 불러오기 실패:', err);
+      })
+      .finally(() => {
+        setIsLoading(false); // ✅ 무조건 false 처리
+      });
   }, []);  // 컴포넌트가 처음 렌더링 될 때 한번만 호출
 
   useEffect(() => {
@@ -264,32 +262,39 @@ export default function Main() {
           ))}
         </CategoryBar>
 
-        {/* 데이터가 있을 때만 제목과 상품 그리드 출력 */}
-        {productList.length > 0 && (
-          <>
-            <SectionTitle>직픽인들의 픽!</SectionTitle>
-            <Grid>
-              {productList.slice(0, 12).map((itemLike) => {
-                const product = itemLike.item;
-  
-                return (
-                  <Card key={product.itemNo} onClick={() => handleCardClick(product.itemNo)}>
-                    <Thumbnail
-                      style={{
-                        backgroundImage: `url(http://localhost:9090/images/${product.itemImage})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                      }}
-                    />
-                    <Title>{product.itemName}</Title>
-                    <ItemInfo>
-                      <Price>{product.itemCost.toLocaleString()}원</Price>
-                    </ItemInfo>
-                  </Card>
-                );
-              })}
-            </Grid>
-          </>
+        <SectionTitle>직픽인들의 픽!</SectionTitle>
+        {Array.isArray(productList) && productList.length > 0 ? (
+          <Grid>
+            {productList.slice(0, 12).map((product) => (
+              <Link
+                to={`/items/${product.itemNo}`}
+                key={product.itemNo}
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
+                <Card>
+                  <Thumbnail
+                    style={{
+                      backgroundImage: product.itemImage
+                        ? `url(http://localhost:9090/images/${product.itemImage})`
+                        : 'none',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }}
+                  />
+                  <Title>{product.itemName}</Title>
+                  <ItemInfo>
+                    <Price>{product.itemCost.toLocaleString()}원</Price>
+                    <Like>
+                      <img src={heartIcon} alt="좋아요" style={{ width: '18px', height: '18px' }} />
+                      {product.itemWish}
+                    </Like>
+                  </ItemInfo>
+                </Card>
+              </Link>
+            ))}
+          </Grid>
+        ) : (
+          <p>상품이 없습니다</p>
         )}
       </Container>
       <Footer />

@@ -8,12 +8,13 @@ import lombok.Setter;
 @Setter
 public class FavoriteDto {
 
-    private Long itemNo;       // item.id
-    private String itemName;   // item.name
-    private String itemImage;  // item.image
-    private Integer itemWish;  // item.likes
-    private Integer itemCost;  // item.price
-    private String pickStatus; // item.status
+    private Long itemNo;
+    private String itemName;
+    private String itemImage;
+    private Integer itemWish;
+    private Integer itemCost;
+    private String pickStatus;
+    private String sellerNick;
 
     public static FavoriteDto fromEntity(Favorite fav) {
         var item = fav.getItem();
@@ -24,6 +25,7 @@ public class FavoriteDto {
         dto.setItemWish(item.getItemWish());
         dto.setItemCost(item.getItemCost());
         dto.setPickStatus(item.getPickStatus());
+        dto.setSellerNick(item.getUser().getNick());
         return dto;
     }
 }
