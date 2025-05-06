@@ -79,6 +79,8 @@ dependencies {
 
 	//폰트, 이미지
 	implementation 'org.webjars:font-awesome:6.5.2'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
 
 	//이미지 리사이즈 
 	implementation 'com.jhlabs:filters:2.0.235-1'

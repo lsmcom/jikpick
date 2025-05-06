@@ -18,7 +18,7 @@ public class Category {
     private String cateName;
 
 
-    @Column(name = "CATE_PARENT_NO")
+    @Column(name = "CATE_PARENT_NO", nullable = true)
     private Long cateParentNo;
 
     @Column(name = "CATE_LEVEL")

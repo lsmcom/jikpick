@@ -338,10 +338,13 @@ const LikeSection = styled.div`
       try {
         await axios.patch(`http://localhost:9090/api/sales/${saleNo}/toggle-hide`);
         // UI 갱신: 다시 불러오거나 상태만 변경
-        setItems(prev => prev.map(i =>
+        setItems(prev =>
+        prev.map(i =>
           i.saleNo === saleNo 
-          ? { ...i, pickStatus: i.pickStatus === '숨김' ? null : '숨김' } : i
-        ));
+          ? { ...i, status: i.status === '숨김' ? null : '숨김' } 
+          : i
+        )
+      );
       } catch (err) {
         console.error('숨김 실패:', err);
       }
@@ -352,6 +355,7 @@ const LikeSection = styled.div`
       try {
         await axios.delete(`http://localhost:9090/api/sales/${saleNo}`);
         setItems(prev => prev.filter(i => i.saleNo !== saleNo));
+        console.log("삭제완료")
       } catch (err) {
         console.error('삭제 실패:', err);
       }
@@ -380,13 +384,20 @@ const LikeSection = styled.div`
 
     // ❷ 유저 정보 기반 판매내역 불러오기
     useEffect(() => {
-      const user = JSON.parse(localStorage.getItem('user'));
+      const user = JSON.parse(sessionStorage.getItem('user'));
+      console.log('user 정보:', user);
+
+      console.log('user 정보:', user);
       if (user?.userNo) {
         axios.get(`http://localhost:9090/api/sales/by-user?userNo=${user.userNo}`)
           .then(res => setItems(res.data))
           .catch(err => console.error('판매내역 불러오기 실패:', err));
-    }
-      }, []);
+      } else {
+        console.warn('❗ user 정보 없음 - API 호출 안함');
+      }
+    }, []);
+    
+    
     
       useEffect(() => {
         const handleClickOutside = (e) => {
@@ -430,11 +441,13 @@ const LikeSection = styled.div`
               {items
                 .filter(item =>
                   selectedFilter === '판매중'
-                    ? item.pickStatus === '판매중'
+                    ? item.status === '판매중'
                     : selectedFilter === '거래완료'
-                    ? item.pickStatus === '거래완료'
-                    : item.pickStatus === '숨김'
+                    ? item.status === '거래완료'
+                    : item.status === '숨김'
                 )
+                
+                
                 .map(item => (
                 <ItemCard key={item.saleNo}>
                   <ItemImage src={item.itemImage} alt={item.itemName} />

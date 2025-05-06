@@ -13,13 +13,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class StoreService {
 
+
     private final StoreRepository storeRepository;
 
+    // 기존 메서드 덮어쓰기
     public List<StoreDto> getAllStores() {
-        return storeRepository.findAll().stream()
+        return storeRepository.findAllWithRegion().stream()
                 .map(StoreDto::fromEntity)
                 .collect(Collectors.toList());
     }
+
 
     public List<StoreDto> filterStores(String region, String subRegion, String name, String time) {
         List<Store> stores = storeRepository.filterStores(
