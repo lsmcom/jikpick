@@ -4,7 +4,9 @@ import Footer from '../components/Footer';
 import { useEffect, useRef, useState } from 'react';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
+
 import axios from '../api/axios';
 
 
@@ -37,8 +39,8 @@ const Container = styled.div`
 `;
 
 const CategoryBar = styled.div`
-  display: flex;
-  gap: 60px;
+   display: flex;
+  gap: 32px; // ✅ 간격 줄임
   overflow-x: auto;
   margin: 20px 0;
   padding-bottom: 8px;
@@ -57,7 +59,7 @@ const CategoryItem = styled.div`
   font-size: 20px;
   font-weight: bold;
   color: #444;
-  min-width: 60px;
+  min-width: 70px;
   flex-shrink: 0;
 `;
 
@@ -83,6 +85,7 @@ const Card = styled.div`
   font-size: 20px;
   font-family: 'Pretendard', sans-serif;
   margin-bottom: 20px;
+  cursor: pointer;
 `;
 
 const Thumbnail = styled.div`
@@ -106,6 +109,12 @@ const Title = styled.div`
   text-align: left;
   margin-top: 15px;
   margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;   // 최대 2줄
+  -webkit-box-orient: vertical;
+  word-break: break-word;
 `;
 
 const Price = styled.div`
@@ -124,19 +133,45 @@ const Like = styled.div`
 export default function Main() {
   //상품리스트 상태관리
   const [productList, setProductList] = useState([]);
-  
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+  const [popularCategories, setPopularCategories] = useState([]);
+
+
   useEffect(() => {
-    // 백엔드에서 인기 상품 데이터 가져오기
     axios.get('http://localhost:9090/api/items/popular')
-  .then((res) => {
-    console.log('응답 status:', res.status);
-    console.log('응답 데이터:', res.data);
-    setProductList(res.data);
-  })
-  .catch((err) => {
-    console.error('❌ 인기 상품 불러오기 실패:', err);
-  });
+      .then((res) => {
+        setProductList(res.data);
+      })
+      .catch((err) => {
+        console.error('❌ 인기 상품 불러오기 실패:', err);
+      })
+      .finally(() => {
+        setIsLoading(false); // ✅ 무조건 false 처리
+      });
   }, []);  // 컴포넌트가 처음 렌더링 될 때 한번만 호출
+
+  useEffect(() => {
+    axios.get('http://localhost:9090/api/categories/popular-sub')
+      .then((res) => {
+        console.log('🔥 인기 소분류 카테고리:', res.data);
+        setPopularCategories(res.data);
+      })
+      .catch((err) => {
+        console.error('❌ 인기 카테고리 불러오기 실패:', err);
+      });
+  }, []);
+
+  const categoryImages = {
+    '모자': sneakersImg,
+    '버킷': blouseImg,
+    '태블릿': sonyImg,
+    '벨트': lifeImg,
+    '책': bookImg,
+    '미용가전': beautyImg,
+    // 필요한 항목들 계속 추가
+  };
+  
   
   
   const scrollRef = useRef(null);
@@ -169,6 +204,10 @@ export default function Main() {
     scrollRef.current.scrollLeft = scrollLeft - walk;
   };
 
+  const handleCardClick = (itemNo) => {
+    navigate(`/items/${itemNo}`);
+  };
+
   // const categories = [
   //   { name: '스니커즈', icon: sneakersImg },
   //   { name: '골프', icon: golfImg },
@@ -184,45 +223,49 @@ export default function Main() {
   // ];
 
 
-  
+  // 👉 로딩 중엔 아무것도 렌더링하지 않음
+  if (isLoading) return null;
   
   
   return (
     <MainWrapper>
       <Container>
         <Banner />
-
-        {/* <CategoryBar
+        <CategoryBar
           ref={scrollRef}
           onMouseDown={onMouseDown}
           onMouseLeave={onMouseLeave}
           onMouseUp={onMouseUp}
           onMouseMove={onMouseMove}
         >
-          {categories.map((c) => (
-            <Link to={`/popular/${encodeURIComponent(c.name)}`} key={c.name} style={{ textDecoration: 'none', color: 'inherit' }}>
-            <CategoryItem>
+          {popularCategories.map((c) => (
+            <Link
+              key={c.cateNo}
+              to={`/category/${c.cateNo}`}
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
+              <CategoryItem>
               <img
-                src={c.icon}
-                alt={c.name}
+                src={categoryImages[c.cateName] || bookImg}
+                alt={c.cateName}
                 style={{
-                  width: '120px',
-                  height: '120px',
+                  width: '140px',            // ✅ 크기 증가
+                  height: '140px',           // ✅ 크기 증가
                   borderRadius: '10%',
                   marginBottom: '6px',
-                  objectFit: 'cover'
+                  objectFit: 'cover',
                 }}
-              />
-              {c.name}
-            </CategoryItem>
-          </Link>
+            />
+                {c.cateName}
+              </CategoryItem>
+            </Link>
           ))}
-        </CategoryBar> */}
+        </CategoryBar>
 
         <SectionTitle>직픽인들의 픽!</SectionTitle>
         {Array.isArray(productList) && productList.length > 0 ? (
           <Grid>
-            {productList.map((product) => (
+            {productList.slice(0, 12).map((product) => (
               <Link
                 to={`/items/${product.itemNo}`}
                 key={product.itemNo}
@@ -231,7 +274,9 @@ export default function Main() {
                 <Card>
                   <Thumbnail
                     style={{
-                      backgroundImage: `url(http://localhost:9090/images/${product.itemImage})`,
+                      backgroundImage: product.itemImage
+                        ? `url(http://localhost:9090/images/${product.itemImage})`
+                        : 'none',
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
                     }}
@@ -247,12 +292,18 @@ export default function Main() {
                 </Card>
               </Link>
             ))}
-          </Grid>   
-        ):(
+          </Grid>
+        ) : (
           <p>상품이 없습니다</p>
         )}
       </Container>
       <Footer />
     </MainWrapper>
   );
+  
 }
+
+
+
+
+ 

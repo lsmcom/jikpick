@@ -1,6 +1,7 @@
 package kr.it.code.main.item.repository;
 
 import kr.it.code.main.item.dto.ItemLikeDto;
+import kr.it.code.main.item.dto.PopularSubCategoryDto;
 import kr.it.code.main.item.entity.Item;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,6 +23,15 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     @EntityGraph(attributePaths = {"user", "category"})
     List<Item> findByCategoryCateNoIn(List<Long> cateNos);
+
+    @Query("SELECT new kr.it.code.main.item.dto.PopularSubCategoryDto(" +
+            "c.cateNo, c.cateName, SUM(i.itemWish)) " +
+            "FROM Item i " +
+            "JOIN i.category c " +
+            "WHERE c.cateLevel = 3 " +
+            "GROUP BY c.cateNo, c.cateName " +
+            "ORDER BY SUM(i.itemWish) DESC")
+    List<PopularSubCategoryDto> findTopSubCategoriesByWish();
 
     @EntityGraph(attributePaths = {"user", "category"})
     @Query("SELECT i FROM Item i ORDER BY i.itemWish DESC")
