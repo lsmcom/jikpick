@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import axios from '../api/axios';
 
 
 import sneakersImg from '../assets/images/sneakers.jpg';
@@ -221,40 +221,35 @@ export default function Main() {
 
         <SectionTitle>직픽인들의 픽!</SectionTitle>
         {Array.isArray(productList) && productList.length > 0 ? (
-       <Grid>
-       {productList.map((itemLike) => {
-         const product = itemLike.item;
-     
-         return (
-           <Link
-             to={`/product/${product.itemNo}`}
-             key={product.itemNo}
-             style={{ textDecoration: 'none', color: 'inherit' }}
-           >
-             <Card>
-               <Thumbnail
-                 style={{
-                  backgroundImage: `url(http://localhost:9090/images/${product.itemImage})`,
-                   backgroundSize: 'cover',
-                   backgroundPosition: 'center',
-                 }}
-               />
-               <Title>{product.itemName}</Title>
-               <ItemInfo>
-                 <Price>{product.itemCost.toLocaleString()}원</Price>
-                 <Like>
-                   <img src={heartIcon} alt="좋아요" style={{ width: '18px', height: '18px' }} />
-                   {itemLike.likeCount}
-                 </Like>
-               </ItemInfo>
-             </Card>
-           </Link>
-         );
-       })}
-     </Grid>
-     
-):(
-   <p>상품이 없습니다</p>
+          <Grid>
+            {productList.map((product) => (
+              <Link
+                to={`/items/${product.itemNo}`}
+                key={product.itemNo}
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
+                <Card>
+                  <Thumbnail
+                    style={{
+                      backgroundImage: `url(http://localhost:9090/images/${product.itemImage})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }}
+                  />
+                  <Title>{product.itemName}</Title>
+                  <ItemInfo>
+                    <Price>{product.itemCost.toLocaleString()}원</Price>
+                    <Like>
+                      <img src={heartIcon} alt="좋아요" style={{ width: '18px', height: '18px' }} />
+                      {product.itemWish}
+                    </Like>
+                  </ItemInfo>
+                </Card>
+              </Link>
+            ))}
+          </Grid>   
+        ):(
+          <p>상품이 없습니다</p>
         )}
       </Container>
       <Footer />
