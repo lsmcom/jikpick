@@ -1,6 +1,7 @@
 package kr.it.code.main.item.repository;
 
 import kr.it.code.main.item.dto.ItemLikeDto;
+import kr.it.code.main.item.dto.PopularSubCategoryDto;
 import kr.it.code.main.item.entity.Item;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,11 +24,18 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     @EntityGraph(attributePaths = {"user", "category"})
     List<Item> findByCategoryCateNoIn(List<Long> cateNos);
 
-    // 상품을 좋아요 수 기준으로 내림차순 정렬하여 가져오는 메소드
-    @Query("SELECT new kr.it.code.main.item.dto.ItemLikeDto(i, COUNT(pl)) FROM Item i " +
-            "LEFT JOIN ProductLikes pl ON i.itemNo = pl.item.itemNo " +
-            "GROUP BY i.itemNo ORDER BY COUNT(pl) DESC")
-    List<ItemLikeDto> findItemsOrderByLikeCount();
+    @Query("SELECT new kr.it.code.main.item.dto.PopularSubCategoryDto(" +
+            "c.cateNo, c.cateName, SUM(i.itemWish)) " +
+            "FROM Item i " +
+            "JOIN i.category c " +
+            "WHERE c.cateLevel = 3 " +
+            "GROUP BY c.cateNo, c.cateName " +
+            "ORDER BY SUM(i.itemWish) DESC")
+    List<PopularSubCategoryDto> findTopSubCategoriesByWish();
+
+    @EntityGraph(attributePaths = {"user", "category"})
+    @Query("SELECT i FROM Item i ORDER BY i.itemWish DESC")
+    List<Item> findAllOrderByItemWishDesc();
 
     // User별 판매한 상품 개수 조회
     @Query("SELECT COUNT(i) FROM Item i WHERE i.user.userNo = :userNo")
@@ -35,5 +43,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     // User별로 등록한 Item 조회
     List<Item> findByUserUserNo(Long userNo);  // User의 `userNo`로 아이템 조회
+
 }
 

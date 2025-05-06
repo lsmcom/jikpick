@@ -2,14 +2,13 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import Footer from '../components/Footer';
 import leftArrow from '../assets/icon/LeftArrow.svg'; // 뒤로가기 아이콘 임포트
-import iphone from '../assets/images/iphone.png'; // 아이폰 이미지 임포트
-import marketkurly from '../assets/images/marketkurly.png'; // 마켓컬리 이미지 임포트
-import profile1 from '../assets/images/stan.png'; // 프로필 이미지 임포트
 import heartIcon from '../assets/icon/HeartIcon.svg'; // 하트 아이콘 임포트
 import menuIcon from '../assets/icon/menudrop.svg'; // 하트 아이콘 임포트
-import { useNavigate } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
 import CancelModal from '../pages/Cancel';
+import axios from '../api/axios';
+import { useNavigate, useLocation } from 'react-router-dom';
+
 
 
 
@@ -51,7 +50,7 @@ const DropdownItem = styled.div`
   align-items: center;
   padding: 10px 16px;
   font-size: 16px;
-  color: ${({ danger }) => (danger ? '#FB4A67' : '#333')};
+  color: ${({ $danger }) => ($danger ? '#FB4A67' : '#333')};
   cursor: pointer;
   white-space: nowrap;
 
@@ -121,22 +120,23 @@ const HeartSection = styled.div`
 // 📦 필터링 버튼 스타일 (텍스트 + 밑줄)
 const FilterButton = styled.button`
   background: none;
-  color: ${({ active }) => (active ? '#000' : '#888')};
+  color: ${({ $active }) => ($active ? '#000' : '#888')};
   font-size: 24px;
   border: none;
   cursor: pointer;
-  font-weight: ${({ active }) => (active ? 'bold' : 'normal')};
-  border-bottom: ${({ active }) => (active ? '2px solid #000' : '2px solid transparent')};
+  font-weight: ${({ $active }) => ($active ? 'bold' : 'normal')};
+  border-bottom: ${({ $active }) => ($active ? '2px solid #000' : '2px solid transparent')};
   margin-top: 20px;
   width: auto;
-  min-width: 160px; // 버튼 크기를 최소화해서 길이를 통일
+  min-width: 160px;
   text-align: center;
-  
+
   &:hover {
     color: #000;
     border-bottom: 2px solid #000;
   }
 `;
+
 
 // 📦 숨김 버튼 스타일
 const HideButton = styled.button`
@@ -207,12 +207,15 @@ const FilterButtonContainer = styled.div`
   width: 100%;
 `;
 
+// 스타일 정의부
 const FilterLine = styled.div`
   border-bottom: 1px solid #e5e5e5;
   margin-top: 0;
   width: 100%;
-   margin-bottom: ${({ smallList }) => (smallList ? '400px' : '20px')};
-  `;
+  margin-bottom: ${({ $isHidden }) => ($isHidden ? '400px' : '20px')};
+
+`;
+
 
 const HiddenStateWrapper = styled.div`
   margin-bottom: 40px; /* 숨김 상태일 때 푸터와 상품 간 여백 추가 */
@@ -318,95 +321,72 @@ const LikeSection = styled.div`
     margin: 0;
   }
 `;
-
-
-
-// const dummyData = [
-//   {
-//     id: 1,
-//     name: '스타벅스 퀜처 텀블러',
-//     region: '인천광역시 연수구',
-//     seller: '오로라마켓',
-//     price: '63,000원',
-//     status: '거래완료',
-//     likes: 60,
-//     image: iphone,
-//   },
-//   {
-//     id: 2,
-//     name: '마켓컬리 카카오 선물하기',
-//     region: '서울특별시 종로구',
-//     seller: '마켓왕',
-//     price: '45,000원',
-//     status: '',
-//     likes: 25,
-//     image: marketkurly,
-//   },
-//   {
-//     id: 3,
-//     name: '아이폰16 프로',
-//     region: '경기도 성남시 분당구',
-//     seller: 'IT홀릭',
-//     price: '1,650,000원',
-//     status: '',
-//     likes: 21,
-//     image: profile1,
-//   },
-//   {
-//     id: 4,
-//     name: '미니골드 귀걸이',
-//     region: '서울특별시 서대문구',
-//     seller: '스포샵',
-//     price: '95,000원',
-//     status: '거래완료',
-//     likes: 30,
-//     image: iphone,
-//   },
-//   {
-//     id: 5,
-//     name: '이솝 룸스프레이',
-//     region: '경기도 고양시 일산동구',
-//     seller: '향기로운생활',
-//     price: '85,000원',
-//     status: '거래완료',
-//     likes: 10,
-//     image: marketkurly,
-//   },
-//   {
-//     id: 6,
-//     name: '고야드 쇼퍼백',
-//     region: '부산광역시 해운대구',
-//     seller: '게임마켓',
-//     price: '75,000원',
-//     status: '',
-//     likes: 8,
-//     image: profile1,
-//   },
-// ];
-const dummyData = [
-    { id:1, name:'스타벅스 퀜처 텀블러', region:'연수구', seller:'오로라마켓', price:'63,000원', status:'거래완료', likes:60, image:iphone },
-    { id:2, name:'카카오 선물하기',     region:'종로구', seller:'마켓왕',     price:'45,000원', status:'',         likes:25, image:marketkurly },
-    { id:3, name:'아이폰16 프로',       region:'분당구', seller:'IT홀릭',     price:'1,650,000원',status:'',    likes:21, image:profile1 },
-    // … 나머지 데이터
-  ];
   
   export default function ShopLike() {
-    const [selectedFilter, setSelectedFilter] = useState('판매중');
+    const [selectedFilter, setSelectedFilter] = useState(() => {
+      return localStorage.getItem('selectedFilter') || '판매중';
+    });
     const [openMenuFor, setOpenMenuFor] = useState(null);
+    const [showCancelModal, setShowCancelModal] = useState(false);
+    const [items, setItems] = useState([]);
+    const location = useLocation();
     const navigate = useNavigate();
-    const [items, setItems] = useState(dummyData);
-  
-    const hideItem = (id) => {
-        setItems(items.map(i =>
-          i.id === id
-            ? { ...i, status: i.status === '숨김' ? '' : '숨김' }
-            : i
+    const queryParams = new URLSearchParams(location.search);
+
+
+    const toggleHideItem = async (saleNo) => {
+      try {
+        await axios.patch(`http://localhost:9090/api/sales/${saleNo}/toggle-hide`);
+        // UI 갱신: 다시 불러오거나 상태만 변경
+        setItems(prev => prev.map(i =>
+          i.saleNo === saleNo 
+          ? { ...i, pickStatus: i.pickStatus === '숨김' ? null : '숨김' } : i
         ));
-        setOpenMenuFor(null);
-      };
-    const deleteItem = (id) => console.log('삭제:', id);
+      } catch (err) {
+        console.error('숨김 실패:', err);
+      }
+    };
+    
+    const deleteItem = async (saleNo) => {
+      if (!window.confirm('정말 삭제하시겠습니까?')) return;
+      try {
+        await axios.delete(`http://localhost:9090/api/sales/${saleNo}`);
+        setItems(prev => prev.filter(i => i.saleNo !== saleNo));
+      } catch (err) {
+        console.error('삭제 실패:', err);
+      }
+    };
+    
+      
     const reportItem = (id) => console.log('신고:', id);
     const menuRef = useRef(null);
+
+
+    //탭 클릭 시 로컬스토리지에도 저장
+    const handleFilterClick = (filter) => {
+      setSelectedFilter(filter);
+      navigate(`?tab=${filter}`);
+    };
+
+    useEffect(() => {
+      const tab = new URLSearchParams(location.search).get('tab');
+      if (tab) setSelectedFilter(tab);
+    }, [location.search]);
+
+    
+    
+    
+    
+
+    // ❷ 유저 정보 기반 판매내역 불러오기
+    useEffect(() => {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user?.userNo) {
+        axios.get(`http://localhost:9090/api/sales/by-user?userNo=${user.userNo}`)
+          .then(res => setItems(res.data))
+          .catch(err => console.error('판매내역 불러오기 실패:', err));
+    }
+      }, []);
     
       useEffect(() => {
         const handleClickOutside = (e) => {
@@ -418,7 +398,7 @@ const dummyData = [
         return () => document.removeEventListener('mousedown', handleClickOutside);
       }, []);
     
-    const [showCancelModal, setShowCancelModal] = useState(false);
+    
 
     return (
       <Wrapper>
@@ -439,79 +419,87 @@ const dummyData = [
             </TitleBox>
   
             <FilterButtonContainer>
-              <FilterButton active={selectedFilter==='판매중'}   onClick={()=>setSelectedFilter('판매중')}>판매중</FilterButton>
-              <FilterButton active={selectedFilter==='거래완료'} onClick={()=>setSelectedFilter('거래완료')}>거래완료</FilterButton>
-              <FilterButton active={selectedFilter==='숨김'}     onClick={()=>setSelectedFilter('숨김')}>숨김</FilterButton>
+            <FilterButton $active={selectedFilter==='판매중'}   onClick={() => handleFilterClick('판매중')}>판매중</FilterButton>
+            <FilterButton $active={selectedFilter==='거래완료'} onClick={() => handleFilterClick('거래완료')}>거래완료</FilterButton>
+            <FilterButton $active={selectedFilter==='숨김'}     onClick={() => handleFilterClick('숨김')}>숨김</FilterButton>
             </FilterButtonContainer>
   
-            <FilterLine isHidden={selectedFilter==='숨김'} />
+            <FilterLine $isHidden={selectedFilter === '숨김' && items.filter(item => item.pickStatus === '숨김').length === 0} />
   
             <ItemList>
-              {dummyData
-                .filter(item => selectedFilter==='판매중' ? !item.status : item.status===selectedFilter)
+              {items
+                .filter(item =>
+                  selectedFilter === '판매중'
+                    ? item.pickStatus === '판매중'
+                    : selectedFilter === '거래완료'
+                    ? item.pickStatus === '거래완료'
+                    : item.pickStatus === '숨김'
+                )
                 .map(item => (
-                <ItemCard key={item.id}>
-                  <ItemImage src={item.image} alt={item.name} />
+                <ItemCard key={item.saleNo}>
+                  <ItemImage src={item.itemImage} alt={item.itemName} />
                   <ItemInfo>
                     <InfoTop>
-                      <ItemName>{item.name}</ItemName>
-                      <Region>{item.region}</Region>
-                      <Seller>{item.seller}</Seller>
-                      <Price>{item.price}</Price>
+                    <ItemName>{item.itemName}</ItemName>
+                    <Region>{item.regionName}</Region>
+                    <Seller>{item.nick}</Seller>
+                    <Price>{item.itemCost.toLocaleString()}원</Price>
                     </InfoTop>
-                    {item.status && <StatusTag>{item.status}</StatusTag>}
+                    {item.pickStatus && <StatusTag>{item.pickStatus}</StatusTag>}
+
                   </ItemInfo>
   
                   <LikeSection>
-                    <div className="like-row">
-                      <img src={heartIcon} alt="하트" />
-                      <span>{item.likes}</span>
-                    </div>
+          <div className="like-row">
+            <img src={heartIcon} alt="하트" />
+            <span>{item.itemWishCount}</span>
+          </div>
 
-                    <MenuButton
-                      src={menuIcon}
-                      alt="메뉴"
-                      onClick={() => setOpenMenuFor(openMenuFor === item.id ? null : item.id)}
-                    />
+          <MenuButton
+            src={menuIcon}
+            alt="메뉴"
+            onClick={() => setOpenMenuFor(openMenuFor === item.saleNo ? null : item.saleNo)}
+          />
 
-                    {openMenuFor === item.id && (
-                      <DropdownWrapper ref={menuRef}>
-                        {selectedFilter === '숨김' ? (
-                          <>
-                            <DropdownItem>
-                              <div className="menu-text">숨김 해제</div>
-                            </DropdownItem>
-                            <DropdownItem danger>
-                              <div className="menu-text">삭제</div>
-                            </DropdownItem>
-                          </>
-                        ) : (
-                          <>
-                            <DropdownItem>
-                              <div className="menu-text">{item.status === '숨김' ? '숨김 해제' : '숨김'}</div>
-                            </DropdownItem>
-                            <DropdownItem danger>
-                              <div className="menu-text">삭제</div>
-                            </DropdownItem>
-                            <DropdownItem>
-                              <div className="menu-text">신고</div>
-                            </DropdownItem>
-                            {item.status === '거래완료' && (
-                              <DropdownItem onClick={() => setShowCancelModal(true)}>
-                              <div className="menu-text">거래취소</div>
-                            </DropdownItem>
-                            
-                            )}
-                          </>
-                        )}
-                      </DropdownWrapper>
-                    )}
-
-                                  
+          {openMenuFor === item.saleNo && (
+            <DropdownWrapper ref={menuRef}>
+              {selectedFilter === '숨김' ? (
+                <>
+                <DropdownItem onClick={() => toggleHideItem(item.saleNo)}>
+                  <div className="menu-text">
+                    {item.pickStatus === '숨김' ? '숨김 해제' : '숨김'}
+                  </div>
+                </DropdownItem>
 
 
-                  </LikeSection>
-                </ItemCard>
+                <DropdownItem $danger onClick={() => deleteItem(item.saleNo)}>
+                  <div className="menu-text">삭제</div>
+                </DropdownItem>
+
+                </>
+              ) : (
+                <>
+                  <DropdownItem onClick={() => toggleHideItem(item.saleNo)}>
+                    <div className="menu-text">{item.pickStatus === '숨김' ? '숨김 해제' : '숨김'}</div>
+                  </DropdownItem>
+                  <DropdownItem $danger onClick={() => deleteItem(item.saleNo)}>
+                    <div className="menu-text">삭제</div>
+                  </DropdownItem>
+                  <DropdownItem onClick={() => reportItem(item.saleNo)}>
+                    <div className="menu-text">신고</div>
+                  </DropdownItem>
+                  {item.pickStatus === '거래완료' && (
+                    <DropdownItem onClick={() => setShowCancelModal(true)}>
+                      <div className="menu-text">거래취소</div>
+                    </DropdownItem>
+                  )}
+                </>
+
+              )}
+            </DropdownWrapper>
+          )}
+        </LikeSection>
+         </ItemCard>
               ))}
             </ItemList>
           </Inner>
