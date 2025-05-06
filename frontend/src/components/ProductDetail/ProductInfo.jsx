@@ -132,7 +132,7 @@ export default function ProductInfo({
   }) {
 
     // 찜 상태와 찜 횟수 상태 관리
-    const [isWish, setIsWish] = useState(false);  // 찜 상태 (true/false)
+    const [isWish, setIsWish] = useState(false);
     const [itemWishCount, setItemWishCount] = useState(itemWish);  // 찜 횟수
 
     // 상품 상태에 따른 텍스트 매핑
@@ -154,62 +154,65 @@ export default function ProductInfo({
     };
 
     const handleWishToggle = () => {
-      const newIsWish = !isWish;
-      setIsWish(newIsWish);
-  
-      // 찜 상태 변경 요청 (보안 설정 없이)
       const userData = JSON.parse(sessionStorage.getItem('user'));
-      const userNo = userData?.userNo; // 또는 userId 기반으로 서버에서 userNo를 찾아올 수 있다면 그 방식
-
-      axios.post(`/api/items/${productId}/wish`, {
+      const userNo = userData?.userNo;
+    
+      if (!userNo) {
+        alert('로그인 후 사용해주세요.');
+        return;
+      }
+    
+      const newIsWish = !isWish;
+      setIsWish(newIsWish); // UI 먼저 반영
+    
+      const payload = {
         wish: newIsWish,
-        userNo: userNo
-      })
-        .then((response) => {
-          if (newIsWish) {
-            // 찜 추가: 찜 횟수 증가
-            setItemWishCount(itemWishCount + 1);
-          } else {
-            // 찜 해제: 찜 횟수 감소
-            setItemWishCount(itemWishCount - 1);
-          }
+        userNo: userNo,
+      };
+    
+      axios.post(`/api/items/${productId}/wish`, payload)
+        .then(() => {
+          setItemWishCount((prev) => prev + (newIsWish ? 1 : -1));
         })
         .catch((error) => {
-          console.error('찜 상태 변경 실패', error);
+          console.error("❌ 찜 상태 변경 실패:", error);
+          setIsWish(!newIsWish); // 실패시 롤백
         });
     };
 
-    const userNo = sessionStorage.getItem('userNo');
-
     useEffect(() => {
-      if (!userNo) return;
+      const userData = JSON.parse(sessionStorage.getItem('user'));
+      const userNo = userData?.userNo;
 
-      const fetchWishStatus = async () => {
-        try {
-          const res = await axios.get(`/api/favorites/check`, {
-            params: { itemNo: productId, userNo }
-          });
-          setIsWish(res.data);
-        } catch (error) {
-          console.error('찜 여부 불러오기 실패', error);
-        }
-      };
+      if (!userNo) {
+        setIsWish(false);
+        return;
+      }
 
-      fetchWishStatus();
-    }, [productId, userNo]);
+      axios.get(`/api/items/${productId}/wish/check`, {
+        params: { userNo }
+      })
+        .then((res) => {
+          setIsWish(res.data); // true or false
+        })
+        .catch((err) => {
+          console.error('찜 여부 확인 실패', err);
+          setIsWish(false); // 실패 시 안전하게 false 처리
+        });
+    }, [productId]);
 
     return (
       <InfoWrapper>
         <Title>{title}</Title>
         <Category>{category} ∙ {createdAt}</Category>
-        <Like onClick={handleWishToggle}>
-          <img 
-            src={isWish ? heartIcon : emptyHeartIcon} 
-            alt="좋아요" 
-            style={{ width: '18px', height: '18px' }} 
-          />
-          {itemWishCount}
-        </Like>
+          <Like onClick={handleWishToggle}>
+            <img 
+              src={isWish ? heartIcon : emptyHeartIcon} 
+              alt="좋아요" 
+              style={{ width: '18px', height: '18px' }} 
+            />
+            {itemWishCount}
+          </Like>
 
   
         <Price>{price.toLocaleString()}원</Price>

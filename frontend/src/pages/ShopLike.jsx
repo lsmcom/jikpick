@@ -3,12 +3,6 @@ import Footer from '../components/Footer';
 import leftArrow from '../assets/icon/LeftArrow.svg'
 import { useNavigate } from 'react-router-dom';
 import heartIcon from '../assets/icon/HeartIcon.svg'; 
-import iPhone from '../assets/images/IPhone.svg';
-import iPad from '../assets/images/IPad.svg';
-import airPodsMax from '../assets/images/AirPodsMax.svg';
-import miniGoldEarring from '../assets/images/MiniGoldEarring.svg';
-import spray from '../assets/images/Spray.svg';
-import shopperBag from '../assets/images/ShopperBag.svg';
 import axios from '../api/axios';
 import { useEffect, useState } from 'react';
 
@@ -67,6 +61,7 @@ const ItemCard = styled.div`
   border-bottom: 1px solid #eee;
   padding: 28px 0;
   position: relative;
+  cursor: pointer;
 `;
 
 const ItemImage = styled.img`
@@ -133,6 +128,7 @@ const LikeSection = styled.div`
   right: 50px;
   margin-top: 5px;
   text-align: center;
+  cursor: pointer;
 
   img {
     width: 20px;
@@ -141,7 +137,7 @@ const LikeSection = styled.div`
 
   span {
     display: block;
-    font-size: 16sspx;
+    font-size: 16px;
     margin-top: 4px;
     color: #333;
   }
@@ -151,12 +147,17 @@ export default function ShopLike() {
 
     const navigate = useNavigate();
     const [favorites, setFavorites] = useState([]);
+    const [hoveredItem, setHoveredItem] = useState(null);
+    const [isHoveringLike, setIsHoveringLike] = useState(false);
+
+    const userData = JSON.parse(sessionStorage.getItem('user'));
+    const userNo = userData?.userNo;
 
     useEffect(() => {
       const fetchFavorites = async () => {
         try {
           const res = await axios.get('/api/favorites/my', {
-            params: { userNo: 1 } // 🔄 로그인된 사용자 번호로 교체
+            params: { userNo }
           });
           setFavorites(res.data);
         } catch (error) {
@@ -165,41 +166,78 @@ export default function ShopLike() {
       };
   
       fetchFavorites();
-    }, []);
+    }, [userNo]);
+  
+    const handleUnwish = async (itemNo) => {
+      try {
+        await axios.post(`/api/items/${itemNo}/wish`, {
+          wish: false,
+          userNo,
+        });
+  
+        // 성공적으로 해제되면 목록에서 제거
+        setFavorites(prev => prev.filter(item => item.itemNo !== itemNo));
+      } catch (error) {
+        console.error('찜 해제 실패', error);
+      }
+    };
 
     return (
         <Wrapper>
             <Outer>
                 <Inner>
-                <TitleBox>
-                    <LeftArrowIcon 
-                        src={leftArrow} 
-                        alt="왼쪽 화살표" 
-                        onClick={() => navigate(-1)}
-                    />
-                    <Title>관심목록</Title>
-                </TitleBox>
+                  <TitleBox>
+                      <LeftArrowIcon 
+                          src={leftArrow} 
+                          alt="왼쪽 화살표" 
+                          onClick={() => navigate(-1)}
+                      />
+                      <Title>관심목록</Title>
+                  </TitleBox>
 
-                <ItemList>
-                  {favorites.map((item) => (
-                    <ItemCard key={item.itemNo}>
-                      <ItemImage src={item.itemImage} alt={item.itemName} />
-                      <ItemInfo>
-                        <InfoTop>
-                          <ItemName>{item.itemName}</ItemName>
-                          <Region>서울특별시 강남구</Region> {/* 지금은 더미 값, 추후 백엔드 추가 가능 */}
-                          <Seller>오로라마켓</Seller> {/* 지금은 더미 값, 추후 백엔드 추가 가능 */}
-                          <Price>{item.itemCost.toLocaleString()}원</Price>
-                        </InfoTop>
-                        {item.pickStatus && <StatusTag>{item.pickStatus}</StatusTag>}
-                      </ItemInfo>
-                      <LikeSection>
-                        <img src={heartIcon} alt="하트" />
-                        <span>{item.itemWish}</span>
-                      </LikeSection>
-                    </ItemCard>
-                  ))}
-                </ItemList>
+                  <ItemList>
+                    {favorites.map((item) => (
+                      <ItemCard 
+                        key={item.itemNo} 
+                        onClick={() => navigate(`/items/${item.itemNo}`)}
+                        onMouseEnter={() => setHoveredItem(item.itemNo)}
+                        onMouseLeave={() => {
+                          setHoveredItem(null);
+                          setIsHoveringLike(false);
+                        }}
+                        style={{
+                          backgroundColor:
+                            hoveredItem === item.itemNo && !isHoveringLike ? '#f9f9f9' : 'transparent',
+                        }}
+                      >
+                        <ItemImage src={`http://localhost:9090/images/${item.itemImage}`} alt="상품 이미지" />
+                        <ItemInfo>
+                          <InfoTop>
+                            <ItemName>{item.itemName}</ItemName>
+                            <Region>서울특별시 강남구</Region> {/* 지금은 더미 값, 추후 백엔드 추가 가능 */}
+                            <Seller>{item.sellerNick}</Seller>
+                            <Price>{item.itemCost.toLocaleString()}원</Price>
+                          </InfoTop>
+                          {item.pickStatus && item.pickStatus !== '판매중' && (
+                            <StatusTag>{item.pickStatus}</StatusTag>
+                          )}
+                        </ItemInfo>
+
+                        {/* ✅ 하트 영역 클릭 시 상세 이동 막기 */}
+                        <LikeSection
+                          onMouseEnter={() => setIsHoveringLike(true)}
+                          onMouseLeave={() => setIsHoveringLike(false)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleUnwish(item.itemNo);
+                          }}
+                        >
+                          <img src={heartIcon} alt="하트" />
+                          <span>{item.itemWish}</span>
+                        </LikeSection>
+                      </ItemCard>
+                    ))}
+                  </ItemList>
                 </Inner>
             </Outer>
             <Footer />
