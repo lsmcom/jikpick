@@ -1,7 +1,10 @@
 package kr.it.code.main.item.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -12,10 +15,11 @@ public class ItemRequestDto {
     private String itemName;
     private Integer itemCost;
     private String itemInfo;
-    private String itemImage;   // 이미지 연동 전: ""
     private String itemStatus;  // 'A' ~ 'E'
     private int pickOption;     // 0 또는 1
 
+    @JsonProperty("imagePaths")  // ✅ 반드시 추가
+    private List<String> imagePaths;
     // ✅ 직픽 지점 번호 필드 추가
     private Long storeNo;
 }

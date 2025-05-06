@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -60,12 +61,19 @@ public class ItemService {
             if (dto.getStoreNo() == null) {
                 throw new RuntimeException("Store ID cannot be null");
             }
-
             Item item = new Item();
+
+            // ✅ 올바른 코드 (리스트에서 첫 번째 이미지 사용)
+            if (dto.getImagePaths() != null && !dto.getImagePaths().isEmpty()) {
+                String joinedPaths = String.join(",", dto.getImagePaths());
+                item.setImagePathList(joinedPaths);
+            }
+
+
+
             item.setItemName(dto.getItemName());
             item.setItemCost(dto.getItemCost());
             item.setItemInfo(dto.getItemInfo());
-            item.setItemImage(dto.getItemImage());
             item.setItemStatus(dto.getItemStatus());
             item.setItemDate(LocalDate.now());
             item.setPickOption(dto.getPickOption() == 1);
@@ -119,6 +127,14 @@ public class ItemService {
 
         itemRepository.save(item);
     }
+    public void deleteImageFile(String fileName) {
+        String uploadDir = "C:/jikpick_uploads/";
+        File file = new File(uploadDir + fileName);
+        if (file.exists()) {
+            file.delete();
+        }
+    }
+
 
 
     // 상품 조회

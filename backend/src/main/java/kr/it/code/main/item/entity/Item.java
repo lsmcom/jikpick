@@ -44,8 +44,12 @@ public class Item {
     @Column(name = "ITEM_INFO")
     private String itemInfo;
 
-    @Column(name = "ITEM_IMAGE")
-    private String itemImage;
+    @Column(name = "IMAGE_PATH_LIST", length = 2000)
+    private String imagePathList; //Json문자열로 저장
+//
+//    @Column(name = "ITEM_IMAGE")
+//    private String itemImage; //대표이미지
+
 
     @Column(name = "ITEM_DATE")
     private LocalDate itemDate;
@@ -61,8 +65,4 @@ public class Item {
 
     @Column(name = "PICK_STATUS")
     private String pickStatus;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "STORE_NO")
-    private Store store;
 }

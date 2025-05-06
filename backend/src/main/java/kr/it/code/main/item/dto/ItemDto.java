@@ -4,6 +4,8 @@ import kr.it.code.main.item.entity.Item;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
 
 @Getter
 public class ItemDto {
@@ -11,7 +13,9 @@ public class ItemDto {
     private Long itemNo;
     private String itemName;
     private Integer itemCost;
-    private String itemImage;
+    private String itemImage; // 대표 이미지
+    private List<String> imagePathList; // 나머지 이미지들
+
     private Integer itemWish;
     private Long storeNo; // ✅ 추가
 
@@ -22,14 +26,16 @@ public class ItemDto {
 
     private String sellerNick;
     private String categoryName;
-
+    private List<String> imagePaths;
     public ItemDto(Item item) {
         this.itemNo = item.getItemNo();
         this.itemName = item.getItemName();
         this.itemCost = item.getItemCost();
-        this.itemImage = item.getItemImage() != null
-                ? item.getItemImage().replace("image/", "products/")
-                : null;
+
+        // ✅ 나머지 이미지들
+        this.imagePaths = item.getImagePathList() != null
+                ? Arrays.asList(item.getImagePathList().split(","))
+                : List.of();
         this.itemWish = item.getItemWish();
         this.storeNo = item.getStore() != null ? item.getStore().getStoreNo() : null; // ✅ 지점 정보가 있을 경우만
 

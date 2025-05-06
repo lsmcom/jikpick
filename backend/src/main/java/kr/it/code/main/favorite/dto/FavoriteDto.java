@@ -20,7 +20,7 @@ public class FavoriteDto {
         FavoriteDto dto = new FavoriteDto();
         dto.setItemNo(item.getItemNo());
         dto.setItemName(item.getItemName());
-        dto.setItemImage(item.getItemImage());
+        dto.setItemImage(item.getImagePathList());
         dto.setItemWish(item.getItemWish());
         dto.setItemCost(item.getItemCost());
         dto.setPickStatus(item.getPickStatus());

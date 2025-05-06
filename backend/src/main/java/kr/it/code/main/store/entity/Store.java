@@ -39,7 +39,6 @@ public class Store {
     @Column(name = "STORE_MANAGER")
     private String storeManager;
 
-    @Column(name = "STORE_TYPE")
-    private String storeType;
+
 }
 

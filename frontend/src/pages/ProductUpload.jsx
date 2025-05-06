@@ -1,11 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
-import styled from 'styled-components';
-import Footer from '../components/Footer';
-import cameraIcon from '../assets/icon/Camera.svg';
-import { useNavigate } from 'react-router-dom'; // 🔥 이미 되어 있을 수도 있음
-import axios from '../api/axios';
-import { useParams } from 'react-router-dom';
-
+import { useState, useRef, useEffect } from "react";
+import styled from "styled-components";
+import Footer from "../components/Footer";
+import cameraIcon from "../assets/icon/Camera.svg";
+import { useNavigate } from "react-router-dom"; // 🔥 이미 되어 있을 수도 있음
+import axios from "../api/axios";
+import { useParams } from "react-router-dom";
+import Modal from "react-modal";
 
 // dnd-kit import
 import {
@@ -14,14 +14,14 @@ import {
   useSensor,
   useSensors,
   PointerSensor,
-} from '@dnd-kit/core';
+} from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
   useSortable,
   verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 // 📦 전체 페이지 레이아웃 컨테이너
 const Wrapper = styled.div`
@@ -63,13 +63,44 @@ const SectionDivider = styled.div`
   border-bottom: 1px solid #e5e5e5;
   margin-top: 34px;
 `;
-
-// 🖼️ 이미지 업로드 섹션 wrapper
-const ImageSection = styled.div`
-  display: flex;
-  flex-wrap: wrap; // 여러 줄 정렬 가능
-  gap: 16px;
+const ImageSectionWrapper = styled.div`
+  position: relative;
   margin-top: 34px;
+`;
+
+const ImageSection = styled.div`
+  display: grid;
+  grid-template-columns: repeat(5, 180px);
+  gap: 16px;
+  margin-top: 30px;
+`;
+
+const UploadIconBox = styled.label`
+  position: absolute;
+  top: 0;
+  left: 0;
+`;
+
+// 모달 이미지 스타일
+const ModalImage = styled.img`
+  width: 80%;
+  max-width: 700px;
+  object-fit: contain;
+`;
+
+// 모달 닫기 버튼
+const ModalClose = styled.button`
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 24px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
 `;
 
 // 📷 이미지 업로드 박스 스타일 (카메라 아이콘 + 텍스트)
@@ -145,30 +176,6 @@ const DeleteButton = styled.button`
   z-index: 10; // 위에 떠 있게
 `;
 
-// Sortable Image 컴포넌트
-function SortableImage({ id, src, onDelete }) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <PreviewContainer ref={setNodeRef} style={style} {...attributes}>
-      <PreviewImage src={src} alt="preview" {...listeners}/>
-      <DeleteButton
-        onClick={(e) => {
-          e.stopPropagation(); // 드래그 이벤트 버블링 차단
-          onDelete(id);
-        }}
-      >
-        ×
-      </DeleteButton>
-    </PreviewContainer>
-  );
-}
-
 // 🧾 각 입력 항목 섹션을 감싸는 wrapper (ex. 상품명, 카테고리 등)
 const FieldBox = styled.div`
   // 항목별 레이아웃 정리 용도
@@ -209,7 +216,7 @@ const Input = styled.input`
   width: 670px;
   height: 50px;
   padding: 12px 16px;
-  font-family: 'pretendard';
+  font-family: "pretendard";
   font-size: 16px;
   border: 1px solid #ddd;
   border-radius: 20px;
@@ -217,7 +224,7 @@ const Input = styled.input`
 
   &:focus {
     outline: none;
-    border-color: #FB4A67; // 포커스 시 강조 색
+    border-color: #fb4a67; // 포커스 시 강조 색
   }
 `;
 
@@ -230,6 +237,43 @@ const CharCount = styled.span`
   flex-shrink: 0;
 `;
 
+// 📂 3단 카테고리 구조를 표현한 계층형 데이터
+const categories = [
+  {
+    name: "남성의류", // 대분류
+    children: [
+      {
+        name: "상의", // 중분류
+        children: [
+          "후드티/후드집업",
+          "맨투맨",
+          "니트/스웨터",
+          "셔츠",
+          "반팔 티셔츠",
+          "긴팔 티셔츠",
+          "민소매 티셔츠",
+        ], // 소분류
+      },
+      {
+        name: "아우터",
+        children: ["자켓", "코트", "패딩"],
+      },
+    ],
+  },
+  {
+    name: "여성의류",
+    children: [
+      {
+        name: "스커트",
+        children: ["미니", "미디", "롱"],
+      },
+      {
+        name: "블라우스",
+        children: ["셔츠형", "레이스형"],
+      },
+    ],
+  },
+];
 
 // 🧩 카테고리 드롭다운들이 나란히 들어가는 행(Row) 스타일
 const DropdownRow = styled.div`
@@ -239,36 +283,26 @@ const DropdownRow = styled.div`
 
 // 🔽 공통 드롭다운 Select 스타일 (1~3단 카테고리)
 const Select = styled.select`
-  appearance: none;
+  appearance: none; // 브라우저 기본 스타일 제거
   -webkit-appearance: none;
   -moz-appearance: none;
 
   width: 300px;
   height: 50px;
-  padding: 12px 40px 12px 16px;
+  padding: 12px 40px 12px 16px; // 오른쪽 공간은 아이콘 자리
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 15px;
-  position: relative;
-  z-index: 1000;  /* 드롭다운이 다른 요소 위에 표시되도록 설정 */
-  position: relative;
-  z-index: 1000;  /* 드롭다운이 다른 요소 위에 표시되도록 설정 */
 
-  background-image: url('/assets/icon/DropDown.svg'); /* 드롭다운 아이콘 */
-  background-image: url('/assets/icon/DropDown.svg'); /* 드롭다운 아이콘 */
+  background-image: url("/assets/icon/DropDown.svg"); // 드롭다운 아이콘
   background-repeat: no-repeat;
   background-position: right 18px center;
   background-size: 18px;
 
   &:focus {
     outline: none;
-    border-color: #FB4A67; /* 포커스 시 강조 */
-    border-color: #FB4A67; /* 포커스 시 강조 */
+    border-color: #fb4a67; // 포커스 시 강조
   }
-
-  pointer-events: auto;
-
-  pointer-events: auto;
 `;
 
 // 🏷️ 입력된 태그들을 보여주는 박스 전체
@@ -282,12 +316,12 @@ const TagBox = styled.div`
 
 // 🟣 개별 태그 박스 스타일
 const Tag = styled.div`
-  background-color: #FB4A67;
+  background-color: #fb4a67;
   color: white;
   padding: 6px 12px;
   border-radius: 20px; // 둥근 모양
   font-size: 16px;
-  font-family: 'pretendard';
+  font-family: "pretendard";
   display: flex;
   align-items: center;
   gap: 8px; // 텍스트와 X 버튼 사이 간격
@@ -315,7 +349,7 @@ const TagInputWrapper = styled.div`
 // 📝 태그 입력 input 필드
 const TagInput = styled.input`
   width: 670px;
-  font-family: 'pretendard';
+  font-family: "pretendard";
   height: 50px;
   padding: 12px 16px;
   font-size: 16px;
@@ -325,7 +359,7 @@ const TagInput = styled.input`
 
   &:focus {
     outline: none;
-    border-color: #FB4A67;
+    border-color: #fb4a67;
   }
 `;
 
@@ -345,7 +379,7 @@ const GuideBox = styled.ul`
   padding: 16px 20px;
   border-radius: 12px;
   border: 1px solid #eee;
-  width: 700px;
+  width: 680px;
   font-size: 14px;
   font-weight: 500;
   color: #666;
@@ -370,8 +404,9 @@ const ConditionBox = styled.div`
 
 // 🧾 상품 상태 옵션 전체 컨테이너 (라디오 버튼 역할을 하는 카드)
 const ConditionOption = styled.label`
-  border: 1px solid ${({ checked }) => (checked ? '#FB4A67' : '#ddd')}; // 선택되었을 때 테두리 강조
-  background-color: ${({ checked }) => (checked ? '#FFF0F3' : 'white')}; // 선택 시 배경색 변경
+  border: 1px solid ${({ checked }) => (checked ? "#FB4A67" : "#ddd")}; // 선택되었을 때 테두리 강조
+  background-color: ${({ checked }) =>
+    checked ? "#FFF0F3" : "white"}; // 선택 시 배경색 변경
   padding: 14px 18px;
   border-radius: 12px;
   cursor: pointer;
@@ -388,14 +423,15 @@ const ConditionOption = styled.label`
 // 🏷️ 상품 상태의 제목 (예: "사용감 적음")
 const ConditionTitle = styled.span`
   font-weight: 600;
-  font-family: 'pretendard';
+  font-family: "pretendard";
   margin-bottom: 4px;
-  color: ${({ checked }) => (checked ? '#FB4A67' : '#333')}; // 선택 시 핑크색 강조
+  color: ${({ checked }) =>
+    checked ? "#FB4A67" : "#333"}; // 선택 시 핑크색 강조
 `;
 
 // 💬 상품 상태의 설명 텍스트 (예: "눈에 띄는 흔적이나 얼룩이 약간 있음")
 const ConditionDesc = styled.span`
- font-family: 'pretendard';
+  font-family: "pretendard";
   font-size: 16px;
   color: #777;
   line-height: 1.4;
@@ -404,13 +440,12 @@ const ConditionDesc = styled.span`
 // 🖊️ 상품 설명 입력 영역을 감싸는 래퍼 (카운터 위치용)
 const TextAreaWrapper = styled.div`
   position: relative;
-  width: 100%;
-  max-width: 1020px;
+  width: 1200px;
 `;
 
 // 📝 상품 설명 입력 필드
 const TextArea = styled.textarea`
- font-family: 'pretendard';
+  font-family: "pretendard";
   width: 100%;
   height: 200px;
   padding: 16px;
@@ -431,7 +466,7 @@ const TextArea = styled.textarea`
 
   &:focus {
     outline: none;
-    border-color: #FB4A67; // 포커스 시 강조색
+    border-color: #fb4a67; // 포커스 시 강조색
   }
 `;
 
@@ -447,7 +482,7 @@ const TextCount = styled.span`
 // 💰 가격 입력창 전체 감싸는 래퍼 (placeholder, 원 텍스트 포함)
 const PriceInputWrapper = styled.div`
   position: relative;
-  font-family: 'pretendard';
+  font-family: "pretendard";
   width: 300px;
   height: 50px;
   margin-bottom: 12px;
@@ -455,17 +490,18 @@ const PriceInputWrapper = styled.div`
 
 // 💸 실제 가격 입력 input
 const PriceInput = styled.input.withConfig({
-  shouldForwardProp: (prop) => prop !== 'isFocused',
+  shouldForwardProp: (prop) => prop !== "isFocused",
 })`
   width: 100%;
   height: 100%;
   padding: 12px 36px 12px 16px; // 오른쪽 padding은 "원" 텍스트 공간 확보
   font-size: 16px;
-  font-family: 'pretendard';
+  font-family: "pretendard";
   border: 1px solid #ddd;
   border-radius: 20px;
   box-sizing: border-box;
-  text-align: ${({ isFocused }) => (isFocused ? 'right' : 'left')}; // 포커스 상태일 때 오른쪽 정렬
+  text-align: ${({ isFocused }) =>
+    isFocused ? "right" : "left"}; // 포커스 상태일 때 오른쪽 정렬
 
   &::placeholder {
     color: #aaa;
@@ -473,7 +509,7 @@ const PriceInput = styled.input.withConfig({
 
   &:focus {
     outline: none;
-    border-color: #FB4A67;
+    border-color: #fb4a67;
   }
 `;
 
@@ -500,7 +536,7 @@ const Won = styled.span`
 `;
 
 // 🔘 라디오 버튼을 실제로는 숨기고, 커스텀 UI로 대체하기 위해 사용됨
-const HiddenRadio = styled.input.attrs({ type: 'radio' })`
+const HiddenRadio = styled.input.attrs({ type: "radio" })`
   display: none;
 `;
 
@@ -512,7 +548,7 @@ const RoundCheckbox = styled.span`
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background-color: ${({ checked }) => (checked ? '#FB4A67' : '#fff')};
+  background-color: ${({ checked }) => (checked ? "#FB4A67" : "#fff")};
   border: 1.5px solid #ccc;
   margin-right: 8px;
   font-size: 16px;
@@ -523,7 +559,7 @@ const RoundCheckbox = styled.span`
 
   &::before {
     content: "✔"; // 체크 상태일 때만 보이게 설정
-    visibility: ${({ checked }) => (checked ? 'visible' : 'hidden')};
+    visibility: ${({ checked }) => (checked ? "visible" : "hidden")};
     color: white;
     display: block;
     width: 1em;
@@ -601,20 +637,20 @@ const BranchButtonGroup = styled.div`
 
 // 📌 각 지점을 나타내는 버튼 스타일 (선택 여부에 따라 스타일 변경됨)
 const BranchButton = styled.button.withConfig({
-  shouldForwardProp: (prop) => prop !== 'active', // ✅ active를 DOM에 넘기지 않음
+  shouldForwardProp: (prop) => prop !== "active", // ✅ active를 DOM에 넘기지 않음
 })`
   padding: 8px 16px;
   font-size: 14px;
   border-radius: 20px;
-  border: 1px solid ${({ active }) => (active ? '#FB4A67' : '#ccc')};
-  background-color: ${({ active }) => (active ? '#FB4A67' : '#fff')};
-  color: ${({ active }) => (active ? '#fff' : '#333')};
+  border: 1px solid ${({ active }) => (active ? "#FB4A67" : "#ccc")};
+  background-color: ${({ active }) => (active ? "#FB4A67" : "#fff")};
+  color: ${({ active }) => (active ? "#fff" : "#333")};
   cursor: pointer;
 
   &:hover {
-    border-color: #FB4A67;
-    color: ${({ active }) => (active ? '#fff' : '#FB4A67')};
-    background-color: ${({ active }) => (active ? '#FB4A67' : '#fff')};
+    border-color: #fb4a67;
+    color: ${({ active }) => (active ? "#fff" : "#FB4A67")};
+    background-color: ${({ active }) => (active ? "#FB4A67" : "#fff")};
   }
 `;
 
@@ -631,14 +667,14 @@ const RegionSelect = styled.select`
   border: 1px solid #ccc;
   border-radius: 10px;
 
-  background-image: url('/assets/icon/DropDown.svg');
+  background-image: url("/assets/icon/DropDown.svg");
   background-repeat: no-repeat;
   background-position: right 18px center;
   background-size: 18px;
 
   &:focus {
     outline: none;
-    border-color: #FB4A67;
+    border-color: #fb4a67;
   }
 `;
 
@@ -661,13 +697,13 @@ const TradeRow = styled.div`
 
 // 🔹 거래 유효시간 드롭다운 (예: 3일, 5일 등)
 const TradeDurationSelect = styled.select`
-  width: 300px; 
+  width: 300px;
   height: 44px;
   padding: 0 14px;
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 10px;
-  background: url('/assets/icon/DropDown.svg') no-repeat right 14px center;
+  background: url("/assets/icon/DropDown.svg") no-repeat right 14px center;
   background-size: 16px;
 
   appearance: none;
@@ -676,7 +712,7 @@ const TradeDurationSelect = styled.select`
 
   &:focus {
     outline: none;
-    border-color: #FB4A67;
+    border-color: #fb4a67;
   }
 `;
 
@@ -723,7 +759,7 @@ const SubmitButton = styled.button`
   width: 300px;
   height: 50px;
   border: none;
-  background-color: #FB4A67; // 브랜드 핑크색
+  background-color: #fb4a67; // 브랜드 핑크색
   border-radius: 12px;
   font-size: 18px;
   font-weight: 600;
@@ -736,41 +772,42 @@ const SubmitButton = styled.button`
 `;
 
 export default function ProductRegistration() {
-
   // 이미지 업로드 관련 상태
   const [images, setImages] = useState([]); // 업로드된 이미지 파일 목록 (미리보기 포함)
   const [uploadKey, setUploadKey] = useState(Date.now()); // 파일 input 리렌더링용 키 (같은 파일 재선택 허용)
   const inputRef = useRef(); // 파일 input 엘리먼트를 직접 제어할 때 사용 (예: ref.current.click())
-  
+  // 1. 대표 이미지 설정용 state 추가
+  const [thumbnailId, setThumbnailId] = useState(null);
+
   // 상품명
-  const [productName, setProductName] = useState(''); // 상품명 입력값 저장
+  const [productName, setProductName] = useState(""); // 상품명 입력값 저장
 
   // 태그 입력 관련
   const [tags, setTags] = useState([]); // 추가된 태그 목록
-  const [tagInput, setTagInput] = useState(''); // 입력 중인 태그 값
+  const [tagInput, setTagInput] = useState(""); // 입력 중인 태그 값
   const maxTags = 5; // 태그 최대 개수 제한
 
   // 상품 상태
-  const [condition, setCondition] = useState(''); // 상품 상태 선택값 (새 상품, 사용감 없음 등)
+  const [condition, setCondition] = useState(""); // 상품 상태 선택값 (새 상품, 사용감 없음 등)
 
   // 상품 설명
-  const [description, setDescription] = useState(''); // 상품 설명 textarea 값
+  const [description, setDescription] = useState(""); // 상품 설명 textarea 값
 
   // 가격 관련
-  const [price, setPrice] = useState(''); // 가격 입력값 (쉼표 포함 문자열)
+  const [price, setPrice] = useState(""); // 가격 입력값 (쉼표 포함 문자열)
   const [isFocused, setIsFocused] = useState(false); // 가격 입력창 포커스 상태 (placeholder, 정렬 등 조건용)
 
   // 가격 제안 여부
   const [priceOfferEnabled, setPriceOfferEnabled] = useState(false); // 가격 제안 받기 체크 여부
 
   // 직픽 거래 가능 여부
-  const [locationAvailable, setLocationAvailable] = useState(''); // 'yes' 또는 'no'
+  const [locationAvailable, setLocationAvailable] = useState(""); // 'yes' 또는 'no'
 
   // 거래 유효시간
-  const [tradeDuration, setTradeDuration] = useState('7일'); // 거래 유효 시간 선택값
+  const [tradeDuration, setTradeDuration] = useState("7일"); // 거래 유효 시간 선택값
 
   // 희망 지점 선택
-  const [selectedRegion, setSelectedRegion] = useState('강남'); // 선택된 지역 (강남, 홍대, 잠실 등)
+  const [selectedRegion, setSelectedRegion] = useState("강남"); // 선택된 지역 (강남, 홍대, 잠실 등)
   const [selectedBranches, setSelectedBranches] = useState([]); // 선택된 지점 이름들 (최대 3개)
 
   // 희망지점 선택 항목 시작
@@ -778,42 +815,42 @@ export default function ProductRegistration() {
     강남: {
       center: { lat: 37.498, lng: 127.027 },
       branches: [
-        { name: '강남역점', lat: 37.499, lng: 127.026 },
-        { name: '역삼점', lat: 37.500, lng: 127.036 },
-        { name: '논현점', lat: 37.511, lng: 127.021 },
-        { name: '신논현점', lat: 37.504, lng: 127.012 },
-        { name: '삼성점', lat: 37.514, lng: 127.057 },
-        { name: '선릉점', lat: 37.505, lng: 127.048 },
-        { name: '도곡점', lat: 37.481, lng: 127.045 },
+        { name: "강남역점", lat: 37.499, lng: 127.026 },
+        { name: "역삼점", lat: 37.5, lng: 127.036 },
+        { name: "논현점", lat: 37.511, lng: 127.021 },
+        { name: "신논현점", lat: 37.504, lng: 127.012 },
+        { name: "삼성점", lat: 37.514, lng: 127.057 },
+        { name: "선릉점", lat: 37.505, lng: 127.048 },
+        { name: "도곡점", lat: 37.481, lng: 127.045 },
       ],
     },
     홍대: {
       center: { lat: 37.556, lng: 126.923 },
       branches: [
-        { name: '홍대입구점', lat: 37.557, lng: 126.924 },
-        { name: '연남점', lat: 37.561, lng: 126.925 },
-        { name: '합정점', lat: 37.550, lng: 126.913 },
-        { name: '망원점', lat: 37.556, lng: 126.904 },
-        { name: '상수점', lat: 37.547, lng: 126.923 },
-        { name: '신촌점', lat: 37.556, lng: 126.937 },
+        { name: "홍대입구점", lat: 37.557, lng: 126.924 },
+        { name: "연남점", lat: 37.561, lng: 126.925 },
+        { name: "합정점", lat: 37.55, lng: 126.913 },
+        { name: "망원점", lat: 37.556, lng: 126.904 },
+        { name: "상수점", lat: 37.547, lng: 126.923 },
+        { name: "신촌점", lat: 37.556, lng: 126.937 },
       ],
     },
     잠실: {
       center: { lat: 37.513, lng: 127.102 },
       branches: [
-        { name: '잠실역점', lat: 37.513, lng: 127.100 },
-        { name: '석촌점', lat: 37.505, lng: 127.106 },
-        { name: '송파점', lat: 37.499, lng: 127.112 },
-        { name: '문정점', lat: 37.487, lng: 127.122 },
-        { name: '가락시장점', lat: 37.493, lng: 127.118 },
-        { name: '방이점', lat: 37.513, lng: 127.121 },
+        { name: "잠실역점", lat: 37.513, lng: 127.1 },
+        { name: "석촌점", lat: 37.505, lng: 127.106 },
+        { name: "송파점", lat: 37.499, lng: 127.112 },
+        { name: "문정점", lat: 37.487, lng: 127.122 },
+        { name: "가락시장점", lat: 37.493, lng: 127.118 },
+        { name: "방이점", lat: 37.513, lng: 127.121 },
       ],
     },
   };
   // 희망지점 선택 항목 끝
 
   //거래 유효기간 배열
-  const durationOptions = ['3일', '5일', '7일', '10일'];
+  const durationOptions = ["3일", "5일", "7일", "10일"];
 
   //사용자의 입력 방식 지정
   const sensors = useSensors(useSensor(PointerSensor));
@@ -821,6 +858,7 @@ export default function ProductRegistration() {
   //const plainPrice = price.replace(/,/g, ''); //서버 전송시 숫자만 추출하는 코드
 
   useEffect(() => {
+    console.log("업데이트된 이미지 리스트:", images);
     // ✅ 컴포넌트가 언마운트 될 때 실행 (cleanup)
     return () => {
       images.forEach((img) => {
@@ -829,64 +867,131 @@ export default function ProductRegistration() {
     };
   }, [images]);
 
-  //이미지 최대 10개 제한
+  // 2. 이미지 업로드할 때 첫 번째 이미지를 자동으로 대표 설정
   const handleImageChange = async (e) => {
     const selectedFiles = Array.from(e.target.files);
+    setImages((prev) => [...prev, ...newImages]);
+    setUploadKey(Date.now());
     if (images.length + selectedFiles.length > 10) {
-      alert('이미지는 최대 10장까지 업로드할 수 있습니다.');
+      alert("이미지는 최대 10장까지 업로드할 수 있습니다.");
       return;
     }
-  
+
     const newImages = [];
-  
     for (const file of selectedFiles) {
       try {
         const formData = new FormData();
-        formData.append("file", file);
-  
-        const res = await axios.post("http://localhost:9090/api/upload", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-  
-        const uploadedUrl = res.data.url; // 예: /files/uploads/uuid.jpg
-  
+        formData.append('imageFiles', file); // ✅ 여기 이름 반드시 imageFiles!
+        
+
+        const res = await axios.post(
+          "http://localhost:9090/api/items/upload-image",
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
+        // 여기를 반드시 찍자!
+        console.log("업로드 응답값:", res.data);  // 👈 👈 👈
+        const uploadedUrl = `http://localhost:9090${res.data}`;
+
+        const previewUrl = URL.createObjectURL(file);
+
         newImages.push({
-          id: uploadedUrl,   // ✅ 여기에 서버 URL 저장
-          file,              // 원본 파일 저장 (원하면 삭제할 수도 있음)
+          id: uploadedUrl,
+          preview: previewUrl,
+          file,
         });
       } catch (err) {
         console.error("업로드 실패:", err);
       }
     }
-  
-    setImages((prev) => [...prev, ...newImages]);
+
+    const updatedImages = [...images, ...newImages];
+    setImages(updatedImages);
+
+    // ✅ 대표 이미지 설정 (처음 업로드 시 자동 설정)
+    if (!thumbnailId && updatedImages.length > 0) {
+      setThumbnailId(updatedImages[0].id);
+    }
     setUploadKey(Date.now());
   };
-  
 
+  // 3. 대표 이미지 수동 설정 함수 추가
+  const setAsThumbnail = (id) => {
+    setThumbnailId(id);
+  };
+  // Sortable Image 컴포넌트
+
+  // 4. 이미지 프리뷰에 대표이미지 표시 및 설정 버튼 추가
+  function SortableImage({
+    id,
+    src,
+    onDelete,
+    onClick,
+    index, // 🔥 index 추가
+  }) {
+    const { attributes, listeners, setNodeRef, transform, transition } =
+      useSortable({ id });
+    const style = { transform: CSS.Transform.toString(transform), transition };
+  
+    return (
+      <PreviewContainer
+        ref={setNodeRef}
+        style={style}
+        {...attributes}
+        onClick={() => onClick(src)}
+      >
+        <PreviewImage src={src} alt="preview" {...listeners} />
+        <DeleteButton
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(id);
+          }}
+        >
+          ×
+        </DeleteButton>
+  
+        {/* ✅ index가 0일 때만 “대표 이미지” 표시 */}
+        {index === 0 && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: 4,
+              left: 1,
+              fontSize: "12px",
+              padding: "4px 8px",
+              background: "#FB4A67",
+              color: "#fff",
+              borderRadius: "7px",
+            }}
+          >
+            대표 이미지 ✔
+          </div>
+        )}
+      </PreviewContainer>
+    );
+  }
+  
   // 🔄 이미지 삭제 함수 (삭제할 이미지의 브라우저 메모리도 해제함)
   const handleDelete = async (id) => {
     const deletedImage = images.find((img) => img.id === id);
-  
     if (deletedImage) {
-      URL.revokeObjectURL(deletedImage.id); // 브라우저 메모리 해제
+      URL.revokeObjectURL(deletedImage.preview); // ← preview URL 해제
     }
-  
+
     try {
       // ✅ 서버에 이미지 삭제 요청 (id는 실제 파일명 또는 서버 경로여야 함)
-      await axios.delete('http://localhost:9090/api/upload', {
-        params: { path: id.split('/').pop() } // 마지막 파일명만 추출
+      await axios.delete("http://localhost:9090/api/items/delete-image", {
+        params: { path: id.split("/").pop() }, // uuid_파일명.jpg 형태
       });
     } catch (error) {
-      console.warn('서버에서 이미지 삭제 실패:', error);
+      console.warn("서버에서 이미지 삭제 실패:", error);
     }
-  
+
     setImages((prev) => prev.filter((img) => img.id !== id));
     setTimeout(() => setUploadKey(Date.now()), 0);
   };
-  
 
   //이미지 드래그로 위치 변경 가능
   const handleDragEnd = (event) => {
@@ -897,7 +1002,21 @@ export default function ProductRegistration() {
       setImages((prev) => arrayMove(prev, oldIndex, newIndex));
     }
   };
-  
+
+  // ProductRegistration 함수 내 state 추가
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalImage, setModalImage] = useState(null);
+
+  // 모달 열고 닫는 함수
+  const openImageModal = (src) => {
+    setModalImage(src);
+    setIsModalOpen(true);
+  };
+  const closeImageModal = () => {
+    setIsModalOpen(false);
+    setModalImage(null);
+  };
+
   //상품명 글자수 40개 제한
   const handleProductNameChange = (e) => {
     const value = e.target.value;
@@ -908,10 +1027,10 @@ export default function ProductRegistration() {
 
   //태그 생성
   const handleAddTag = (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
+    if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       const newTag = tagInput.trim();
-  
+
       if (
         newTag &&
         newTag.length <= 9 &&
@@ -920,8 +1039,8 @@ export default function ProductRegistration() {
       ) {
         setTags([...tags, newTag]);
       }
-  
-      setTagInput('');
+
+      setTagInput("");
     }
   };
 
@@ -957,496 +1076,621 @@ export default function ProductRegistration() {
 
   //3km이하 지점만 필터링해서 저장
   const filteredBranches = branches.filter((branch) => {
-    const distance = getDistance(center.lat, center.lng, branch.lat, branch.lng);
+    const distance = getDistance(
+      center.lat,
+      center.lng,
+      branch.lat,
+      branch.lng
+    );
     return distance <= 3;
   });
 
-  const plainPrice = price.replace(/,/g, '');
+  const plainPrice = price.replace(/,/g, "");
 
-   // 카테고리 관련 상태
-   const [mainCategories, setMainCategories] = useState([]);
-   const [subCategories, setSubCategories] = useState([]);
-   const [subSubCategories, setSubSubCategories] = useState([]);
-   
-   const [selectedMain, setSelectedMain] = useState(null);
-   const [selectedSub, setSelectedSub] = useState(null);
-   const [selectedThird, setSelectedThird] = useState(null);
- 
-   const navigate = useNavigate();
- 
-   useEffect(() => {
-     axios.get('/api/categories/children', { params: { parentNo: null } })
-       .then(res => setMainCategories(res.data))
-       .catch(console.error);
-   }, []);
- 
-   useEffect(() => {
-     if (!selectedMain) return setSubCategories([]);
-     axios.get('/api/categories/children', { params: { parentNo: selectedMain.cateNo } })
-       .then(res => setSubCategories(res.data))
-       .catch(console.error);
-   }, [selectedMain]);
- 
-   useEffect(() => {
-     if (!selectedSub) return setSubSubCategories([]);
-     axios.get('/api/categories/children', { params: { parentNo: selectedSub.cateNo } })
-       .then(res => setSubSubCategories(res.data))
-       .catch(console.error);
-   }, [selectedSub]);
- 
-   const handleCategoryClick = (cateNo) => {
-     navigate(`/category/${cateNo}`);
-   };
- 
-   const handleMainCategoryChange = (e) => {
+  // 카테고리 관련 상태
+  const [mainCategories, setMainCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
+  const [subSubCategories, setSubSubCategories] = useState([]);
+
+  const [selectedMain, setSelectedMain] = useState(null);
+  const [selectedSub, setSelectedSub] = useState(null);
+  const [selectedThird, setSelectedThird] = useState(null);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    axios
+      .get("/api/categories/children", { params: { parentNo: null } })
+      .then((res) => setMainCategories(res.data))
+      .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    if (!selectedMain) return setSubCategories([]);
+    axios
+      .get("/api/categories/children", {
+        params: { parentNo: selectedMain.cateNo },
+      })
+      .then((res) => setSubCategories(res.data))
+      .catch(console.error);
+  }, [selectedMain]);
+
+  useEffect(() => {
+    if (!selectedSub) return setSubSubCategories([]);
+    axios
+      .get("/api/categories/children", {
+        params: { parentNo: selectedSub.cateNo },
+      })
+      .then((res) => setSubSubCategories(res.data))
+      .catch(console.error);
+  }, [selectedSub]);
+
+  const handleCategoryClick = (cateNo) => {
+    navigate(`/category/${cateNo}`);
+  };
+
+  const handleMainCategoryChange = (e) => {
     const selectedCateNo = e.target.value;
-  
+
     if (selectedCateNo === "") {
       setSelectedMain(null);
       setSelectedSub(null);
       setSelectedThird(null);
       return;
     }
-  
-    const selectedCategory = mainCategories.find((cat) => cat.cateNo === parseInt(selectedCateNo, 10));
+
+    const selectedCategory = mainCategories.find(
+      (cat) => cat.cateNo === parseInt(selectedCateNo, 10)
+    );
     if (selectedCategory) {
       setSelectedMain(selectedCategory);
       setSelectedSub(null); // 중분류 초기화
       setSelectedThird(null); // 소분류 초기화
     } else {
-      console.error('Category not found!');
+      console.error("Category not found!");
     }
   };
-  
+
   const handleSubCategoryChange = (e) => {
     const selectedCateNo = e.target.value;
-    const selectedCategory = subCategories.find((cat) => cat.cateNo === parseInt(selectedCateNo, 10));
+    const selectedCategory = subCategories.find(
+      (cat) => cat.cateNo === parseInt(selectedCateNo, 10)
+    );
     setSelectedSub(selectedCategory); // selectedSub를 객체로 설정
     setSelectedThird(null); // 소분류 초기화
   };
-  
+
   const handleThirdCategoryChange = (e) => {
     const selectedCateNo = e.target.value;
-    const selectedCategory = subSubCategories.find((cat) => cat.cateNo === parseInt(selectedCateNo, 10));
+    const selectedCategory = subSubCategories.find(
+      (cat) => cat.cateNo === parseInt(selectedCateNo, 10)
+    );
     setSelectedThird(selectedCategory); // selectedThird를 객체로 설정
   };
-  
+
+  const userInfo = JSON.parse(localStorage.getItem("user")); // 또는 sessionStorage
+  console.log("로그인 정보:", userInfo); // 👈 userNo가 뜨는지 확인
+  const userNo = userInfo?.userNo;
 
   const handleSubmit = async () => {
     const categoryNo = selectedThird?.cateNo || selectedSub?.cateNo || selectedMain?.cateNo;
+    if (!categoryNo) return alert("카테고리를 선택해 주세요.");
+    if (images.length === 0) return alert("이미지를 최소 1장 업로드해 주세요.");
+  
+    const storeNo = 1;
+    const formData = new FormData();
 
-    if (!categoryNo) {
-      alert("카테고리를 선택해 주세요.");
-      return;
-    }
-
-    const storeNo = 1;  // 지점 번호 설정
-
-    if (!storeNo) {
-      alert("지점을 선택해 주세요.");
-      return;
-    }
-
+  
+    // 이미지 파일 추가
+    images.forEach(img => {
+      formData.append("imageFiles", img.file); // ✅ 'file'은 File 객체여야 함
+    });
+  
+    const itemDto = {
+      userNo: userNo,
+      categoryNo,
+      itemName: productName,
+      itemCost: parseInt(plainPrice),
+      itemInfo: description,
+      itemStatus: mapConditionToCode(condition),
+      pickOption: locationAvailable === "yes" ? 1 : 0,
+      storeNo,
+    };
+  
+    formData.append(
+      "itemRequestDto",
+      new Blob([JSON.stringify(itemDto)], { type: "application/json" })
+    );
+  
     try {
-      const response = await axios.post('http://localhost:9090/api/items', {
-        userNo: 1,  // 사용자 번호
-        categoryNo: categoryNo,  // 선택된 카테고리 번호
-        itemName: productName,
-        itemCost: parseInt(plainPrice),
-        itemInfo: description,
-        itemImage: "", // 이미지 미구현 시 빈 문자열
-        itemStatus: mapConditionToCode(condition),
-        pickOption: locationAvailable === 'yes' ? 1 : 0,
-        storeNo: storeNo,
+      const res = await axios.post("http://localhost:9090/api/items", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
-      console.log('등록 성공:', response.data);
-      alert('상품이 등록되었습니다!');
-    } catch (error) {
-      console.error('등록 실패:', error);
-      alert('등록 중 오류가 발생했습니다.');
-    }
-  };
-
-
   
-
-  const mapConditionToCode = (label) => {
-    switch (label) {
-      case '새 상품': return 'A';
-      case '사용감 없음': return 'B';
-      case '사용감 적음': return 'C';
-      case '사용감 많음': return 'D';
-      case '고장/파손 상품': return 'E';
-      default: return 'Z';
+      alert("상품이 등록되었습니다!");
+    } catch (err) {
+      console.error("등록 실패:", err);
+      alert("등록 중 오류가 발생했습니다.");
     }
   };
   
-  return (
-    <Wrapper>
-      <Outer>
-        <Inner>
-          <TitleBox>
-            <Title>상품등록</Title>
-          </TitleBox>
-          {/* 이미지 추가 구현 */}
-          <ImageSection>
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={images.map((img) => img.id)} strategy={verticalListSortingStrategy}>
-                {images.map((img) => (
-                  <SortableImage key={img.id} id={img.id} src={`http://localhost:9090${img.id}`} onDelete={handleDelete} />
-                ))}
-              </SortableContext>
-            </DndContext>
 
-            {images.length < 10 && (
-              <ImageUploadBox htmlFor="imageUpload">
-                <CameraIcon src={cameraIcon} alt="camera" />
-                <span>+</span>
-                <span>이미지 업로드 (선택)</span>
-                <UploadCount>{images.length} / 10</UploadCount>
-              </ImageUploadBox>
-            )}
-          </ImageSection>
-          {/* 화면에는 안보이지만 이미제 세션 클릭시 파일 선택 창 열림 */}
-          <HiddenInput
-            key={uploadKey}
-            type="file"
-            id="imageUpload"
-            multiple
-            accept="image/*"
-            onChange={handleImageChange}
-            ref={inputRef}
+
+
+const mapConditionToCode = (label) => {
+  switch (label) {
+    case "새 상품":
+      return "A";
+    case "사용감 없음":
+      return "B";
+    case "사용감 적음":
+      return "C";
+    case "사용감 많음":
+      return "D";
+    case "고장/파손 상품":
+      return "E";
+    default:
+      return "Z";
+  }
+};
+
+return (
+  <Wrapper>
+    <Outer>
+      <Inner>
+        <TitleBox>
+          <Title>상품등록</Title>
+        </TitleBox>
+        {/* 이미지 추가 구현 */}
+        <ImageSection>
+          {images.length < 10 && (
+            <ImageUploadBox htmlFor="imageUpload">
+              <CameraIcon src={cameraIcon} alt="camera" />
+              <span>+</span>
+              <span>이미지 업로드 (선택)</span>
+              <UploadCount>{images.length} / 10</UploadCount>
+            </ImageUploadBox>
+          )}
+          <DndContext
+            sensors={useSensors(useSensor(PointerSensor))}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+
+            <SortableContext
+              items={images.map((img) => img.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {images.map((img, index) => (
+                <SortableImage
+                  key={img.id}
+                  id={img.id}
+                  src={img.preview}
+                  onDelete={handleDelete}
+                  onClick={openImageModal}
+                  index={index}
+                />
+              ))}
+            </SortableContext>
+
+          </DndContext>
+        </ImageSection>
+
+        {/* 화면에는 안보이지만 이미제 세션 클릭시 파일 선택 창 열림 */}
+        <HiddenInput
+          key={uploadKey}
+          type="file"
+          id="imageUpload"
+          multiple
+          accept="image/*"
+          onChange={handleImageChange}
+          ref={inputRef}
+        />
+        <SectionDivider />
+
+        {/* 이미지 모달 */}
+        <Modal
+          isOpen={isModalOpen}
+          onRequestClose={closeImageModal}
+          style={{
+            content: {
+              background: "rgba(0,0,0,0.9)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 0,
+              border: "none",
+              overflow: "hidden",
+            },
+            overlay: {
+              backgroundColor: "rgba(0,0,0,0.8)",
+            },
+          }}
+          ariaHideApp={false}
+        >
+          <ModalImage
+            src={
+              modalImage?.startsWith("blob")
+                ? modalImage
+                : `http://localhost:9090${modalImage}`
+            }
+            alt="modal-view"
           />
+          <ModalClose onClick={closeImageModal}>×</ModalClose>
+        </Modal>
 
-          <SectionDivider />
+        <FieldBox>
+          {/* 상품명 항목 끝 */}
+          <SectionTitle>상품명</SectionTitle>
+          {/* 상품명 입력 칸 */}
+          <InputWrapper>
+            <Input
+              type="text"
+              value={productName}
+              onChange={handleProductNameChange}
+              placeholder="상품명을 입력해주세요"
+            />
+            {/* 입력된 글자수 와 입력가능 수 카운팅 */}
+            <CharCount>{productName.length} / 40</CharCount>
+          </InputWrapper>
+          {/* 상품명 항목 끝 */}
+          <SectionTitle>카테고리</SectionTitle>
+          <DropdownRow>
+            {/* 1차: 대분류 */}
+            <Select
+              value={selectedMain?.cateNo || ""}
+              onChange={(e) => {
+                const selected = mainCategories.find(
+                  (cat) => cat.cateNo === Number(e.target.value)
+                );
+                setSelectedMain(selected || null);
+                setSelectedSub(null);
+                setSelectedThird(null);
+              }}
+            >
+              <option value="">대분류 선택</option>
+              {mainCategories.map((cat) => (
+                <option key={cat.cateNo} value={cat.cateNo}>
+                  {cat.cateName}
+                </option>
+              ))}
+            </Select>
 
-          <FieldBox>
-            {/* 상품명 항목 끝 */}
-            <SectionTitle>상품명</SectionTitle>
-            {/* 상품명 입력 칸 */}
-            <InputWrapper>
-                <Input
-                    type="text"
-                    value={productName}
-                    onChange={handleProductNameChange}
-                    placeholder="상품명을 입력해주세요"
+            {/* 2차: 중분류 (항상 표시되지만 선택 전까지 비활성화) */}
+            <Select
+              value={selectedSub?.cateNo || ""}
+              onChange={(e) => {
+                const selected = subCategories.find(
+                  (sub) => sub.cateNo === Number(e.target.value)
+                );
+                setSelectedSub(selected || null);
+                setSelectedThird(null);
+              }}
+              disabled={!selectedMain}
+            >
+              <option value="">중분류 선택</option>
+              {subCategories.map((sub) => (
+                <option key={sub.cateNo} value={sub.cateNo}>
+                  {sub.cateName}
+                </option>
+              ))}
+            </Select>
+
+            {/* 3차: 소분류 (항상 표시되지만 선택 전까지 비활성화) */}
+            <Select
+              value={selectedThird?.cateNo || ""}
+              onChange={(e) => {
+                const selected = subSubCategories.find(
+                  (third) => third.cateNo === Number(e.target.value)
+                );
+                setSelectedThird(selected || null);
+              }}
+              disabled={!selectedSub}
+            >
+              <option value="">소분류 선택</option>
+              {subSubCategories.map((subSub) => (
+                <option key={subSub.cateNo} value={subSub.cateNo}>
+                  {subSub.cateName}
+                </option>
+              ))}
+            </Select>
+          </DropdownRow>
+
+          {/* 태그 항목 시작 */}
+          <SectionTitleRow>
+            <SectionTitle>태그</SectionTitle>
+            <OptionalText>(선택)</OptionalText>
+          </SectionTitleRow>
+          {/* 입력된 태그를 보여주고 태그 삭제도 가능 */}
+          <TagBox>
+            {tags.map((tag) => (
+              <Tag key={tag}>
+                #{tag}
+                <RemoveButton onClick={() => handleRemoveTag(tag)}>
+                  ×
+                </RemoveButton>
+              </Tag>
+            ))}
+          </TagBox>
+
+          <TagInputWrapper>
+            {/* 태그 입력창(최대갯수 초과시 입력 불가) */}
+            <TagInput
+              type="text"
+              placeholder="태그 입력 후 Enter 또는 Space"
+              value={tagInput}
+              onChange={handleTagInputChange}
+              onKeyDown={handleAddTag}
+              disabled={tags.length >= maxTags}
+            />
+            {/* 입력된 태그와 최대 입력갯수 카운팅 */}
+            <TagCount>
+              {tags.length} / {maxTags}
+            </TagCount>
+          </TagInputWrapper>
+
+          <GuideBox>
+            <GuideText>
+              태그는 띄어쓰기로 구분되며 최대 9자까지 입력할 수 있어요.
+            </GuideText>
+            <GuideText>내 상품을 다양한 태그로 표현해 보세요.</GuideText>
+            <GuideText>사람들이 내 상품을 더 잘 찾을 수 있어요.</GuideText>
+            <GuideText>
+              상품과 관련 없는 태그를 입력할 경우, 판매에 제재를 받을 수 있어요.
+            </GuideText>
+          </GuideBox>
+          {/* 태그 항목 끝 */}
+
+          {/* 상품 상태 항목 시작 */}
+          <SectionTitle>상품 상태</SectionTitle>
+          <ConditionBox>
+            {[
+              { title: "새 상품", desc: "사용하지 않은 새 상품" },
+              {
+                title: "사용감 없음",
+                desc: "사용은 했지만 눈에 띄는 흔적이나 얼룩이 없음",
+              },
+              {
+                title: "사용감 적음",
+                desc: "눈에 띄는 흔적이나 얼룩이 약간 있음",
+              },
+              {
+                title: "사용감 많음",
+                desc: "눈에 띄는 흔적이나 얼룩이 많이 있음",
+              },
+              {
+                title: "고장/파손 상품",
+                desc: "기능 이상이나 외관 손상 등으로 수리/수선 필요",
+              },
+            ].map((opt) => (
+              // 각 항목을 map으로 돌려서 항목별 라디오 버튼 생성하고 선택된 항목 강조
+              <ConditionOption
+                key={opt.title}
+                checked={condition === opt.title}
+              >
+                <input
+                  type="radio"
+                  name="condition"
+                  value={opt.title}
+                  checked={condition === opt.title}
+                  onChange={() => setCondition(opt.title)}
                 />
-                {/* 입력된 글자수 와 입력가능 수 카운팅 */}
-                <CharCount>{productName.length} / 40</CharCount>
-            </InputWrapper>
-            {/* 상품명 항목 끝 */}
-            <SectionTitle>카테고리</SectionTitle>
-              <DropdownRow>
-                {/* 1차: 대분류 */}
-                <Select value={selectedMain?.cateNo || ''} onChange={(e) => {
-                  const selected = mainCategories.find(cat => cat.cateNo === Number(e.target.value));
-                  setSelectedMain(selected || null);
-                  setSelectedSub(null);
-                  setSelectedThird(null);
-                }}>
-                  <option value="">대분류 선택</option>
-                  {mainCategories.map(cat => (
-                    <option key={cat.cateNo} value={cat.cateNo}>{cat.cateName}</option>
-                  ))}
-                </Select>
+                <ConditionTitle checked={condition === opt.title}>
+                  {opt.title}
+                </ConditionTitle>
+                <ConditionDesc>{opt.desc}</ConditionDesc>
+              </ConditionOption>
+            ))}
+          </ConditionBox>
+          {/* 상품 상태 항목 끝 */}
 
-                {/* 2차: 중분류 (항상 표시되지만 선택 전까지 비활성화) */}
-                <Select
-                  value={selectedSub?.cateNo || ''}
-                  onChange={(e) => {
-                    const selected = subCategories.find(sub => sub.cateNo === Number(e.target.value));
-                    setSelectedSub(selected || null);
-                    setSelectedThird(null);
-                  }}
-                  disabled={!selectedMain}
-                >
-                  <option value="">중분류 선택</option>
-                  {subCategories.map(sub => (
-                    <option key={sub.cateNo} value={sub.cateNo}>{sub.cateName}</option>
-                  ))}
-                </Select>
-
-                {/* 3차: 소분류 (항상 표시되지만 선택 전까지 비활성화) */}
-                <Select
-                  value={selectedThird?.cateNo || ''}
-                  onChange={(e) => {
-                    const selected = subSubCategories.find(third => third.cateNo === Number(e.target.value));
-                    setSelectedThird(selected || null);
-                  }}
-                  disabled={!selectedSub}
-                >
-                  <option value="">소분류 선택</option>
-                  {subSubCategories.map(subSub => (
-                    <option key={subSub.cateNo} value={subSub.cateNo}>{subSub.cateName}</option>
-                  ))}
-                </Select>
-              </DropdownRow>
-
-
-            {/* 태그 항목 시작 */}
-            <SectionTitleRow>
-                <SectionTitle>태그</SectionTitle>
-                <OptionalText>(선택)</OptionalText>
-            </SectionTitleRow>
-            {/* 입력된 태그를 보여주고 태그 삭제도 가능 */}
-            <TagBox>
-                {tags.map((tag) => (
-                    <Tag key={tag}>
-                        #{tag}
-                        <RemoveButton onClick={() => handleRemoveTag(tag)}>×</RemoveButton>
-                    </Tag>
-                ))}
-            </TagBox>
-
-            <TagInputWrapper>
-                {/* 태그 입력창(최대갯수 초과시 입력 불가) */}
-                <TagInput
-                    type="text"
-                    placeholder="태그 입력 후 Enter 또는 Space"
-                    value={tagInput}
-                    onChange={handleTagInputChange}
-                    onKeyDown={handleAddTag}
-                    disabled={tags.length >= maxTags}
-                />
-                {/* 입력된 태그와 최대 입력갯수 카운팅 */}
-                <TagCount>{tags.length} / {maxTags}</TagCount>
-            </TagInputWrapper>
-
-            <GuideBox>
-                <GuideText>태그는 띄어쓰기로 구분되며 최대 9자까지 입력할 수 있어요.</GuideText>
-                <GuideText>내 상품을 다양한 태그로 표현해 보세요.</GuideText>
-                <GuideText>사람들이 내 상품을 더 잘 찾을 수 있어요.</GuideText>
-                <GuideText>상품과 관련 없는 태그를 입력할 경우, 판매에 제재를 받을 수 있어요.</GuideText>
-            </GuideBox>
-            {/* 태그 항목 끝 */}
-
-            {/* 상품 상태 항목 시작 */}
-            <SectionTitle>상품 상태</SectionTitle>
-            <ConditionBox>
-                {
-                    [
-                        { title: '새 상품', desc: '사용하지 않은 새 상품' },
-                        { title: '사용감 없음', desc: '사용은 했지만 눈에 띄는 흔적이나 얼룩이 없음' },
-                        { title: '사용감 적음', desc: '눈에 띄는 흔적이나 얼룩이 약간 있음' },
-                        { title: '사용감 많음', desc: '눈에 띄는 흔적이나 얼룩이 많이 있음' },
-                        { title: '고장/파손 상품', desc: '기능 이상이나 외관 손상 등으로 수리/수선 필요' },
-                    ].map((opt) => (
-                      // 각 항목을 map으로 돌려서 항목별 라디오 버튼 생성하고 선택된 항목 강조
-                        <ConditionOption key={opt.title} checked={condition === opt.title}>
-                            <input
-                                type="radio"
-                                name="condition"
-                                value={opt.title}
-                                checked={condition === opt.title}
-                                onChange={() => setCondition(opt.title)}
-                            />
-                            <ConditionTitle checked={condition === opt.title}>{opt.title}</ConditionTitle>
-                            <ConditionDesc>{opt.desc}</ConditionDesc>
-                        </ConditionOption>
-                    ))
-                }
-            </ConditionBox>
-            {/* 상품 상태 항목 끝 */}
-
-            {/* 상품 설명 항목 시작 */}
-            <SectionTitle>상품 설명</SectionTitle>
-            <TextAreaWrapper>
-                <TextArea
-                    placeholder={`브랜드, 모델명, 구매 시기, 하자 유무 등 상품 설명을 최대한 자세히 적어주세요.
+          {/* 상품 설명 항목 시작 */}
+          <SectionTitle>상품 설명</SectionTitle>
+          <TextAreaWrapper>
+            <TextArea
+              placeholder={`브랜드, 모델명, 구매 시기, 하자 유무 등 상품 설명을 최대한 자세히 적어주세요.
                     전화번호, SNS 계정 등 개인정보 입력은 제한될 수 있어요.
                     안전하고 건전한 거래 환경을 위해 과학기술정보통신부, 한국인터넷진흥원과 직픽(주)이 함께합니다.`}
-                    value={description}
-                    // 글자 수 2000개 제한
-                    onChange={(e) => {
-                        if (e.target.value.length <= 2000) {
-                        setDescription(e.target.value);
-                        }
-                    }}
-                />
-                {/* 글자 수 카운팅 */}
-                <TextCount>{description.length} / 2000</TextCount>
-            </TextAreaWrapper>
+              value={description}
+              // 글자 수 2000개 제한
+              onChange={(e) => {
+                if (e.target.value.length <= 2000) {
+                  setDescription(e.target.value);
+                }
+              }}
+            />
+            {/* 글자 수 카운팅 */}
+            <TextCount>{description.length} / 2000</TextCount>
+          </TextAreaWrapper>
 
-            <SectionDivider />
-            {/* 상품 설명 항목 끝 */}
+          <SectionDivider />
+          {/* 상품 설명 항목 끝 */}
 
-            {/* 가격 항목 시작 */}
-            <SectionTitle>가격</SectionTitle>
-            <PriceInputWrapper>
-                {/* 입력창에 focus가 없고 값도 없다면 표시문구 보여줌 */}
-                {!isFocused && price === '' && (
-                    <PlaceholderText>가격을 입력하세요</PlaceholderText>
-                )}
-                <PriceInput
-                    type="text"
-                    value={price}
-                    isFocused={isFocused}
-                    placeholder="" // 실제 placeholder는 비워둠
-                    onFocus={() => setIsFocused(true)}
-                    onBlur={() => setIsFocused(false)}
-                    onChange={(e) => {
-                    const raw = e.target.value.replace(/[^0-9]/g, ''); //숫자 이외의 문제 제거
-                    const formatted = raw.replace(/\B(?=(\d{3})+(?!\d))/g, ','); //쉼표 자동 생성
-                    setPrice(formatted);
-                    }}
-                />
-                <Won>원</Won>
-            </PriceInputWrapper>
-            {/* 가격 항목 끝 */}
+          {/* 가격 항목 시작 */}
+          <SectionTitle>가격</SectionTitle>
+          <PriceInputWrapper>
+            {/* 입력창에 focus가 없고 값도 없다면 표시문구 보여줌 */}
+            {!isFocused && price === "" && (
+              <PlaceholderText>가격을 입력하세요</PlaceholderText>
+            )}
+            <PriceInput
+              type="text"
+              value={price}
+              isFocused={isFocused}
+              placeholder="" // 실제 placeholder는 비워둠
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              onChange={(e) => {
+                const raw = e.target.value.replace(/[^0-9]/g, ""); //숫자 이외의 문제 제거
+                const formatted = raw.replace(/\B(?=(\d{3})+(?!\d))/g, ","); //쉼표 자동 생성
+                setPrice(formatted);
+              }}
+            />
+            <Won>원</Won>
+          </PriceInputWrapper>
+          {/* 가격 항목 끝 */}
 
-             {/* 가격제안 체크박스 시작 */}
-             <OneLineOption htmlFor="priceOffer">
-                <HiddenCheckbox
-                type="checkbox"
-                id="priceOffer"
-                checked={priceOfferEnabled}
-                onChange={(e) => setPriceOfferEnabled(e.target.checked)}
-                />
-                <RoundCheckbox checked={priceOfferEnabled} />
-                가격 제안 받기
+          {/* 가격제안 체크박스 시작 */}
+          <OneLineOption htmlFor="priceOffer">
+            <HiddenCheckbox
+              type="checkbox"
+              id="priceOffer"
+              checked={priceOfferEnabled}
+              onChange={(e) => setPriceOfferEnabled(e.target.checked)}
+            />
+            <RoundCheckbox checked={priceOfferEnabled} />
+            가격 제안 받기
+          </OneLineOption>
+          {/* 가격제안 체크박스 끝 */}
+
+          {/* 직픽거래 항목 시작 */}
+          <SectionTitleRow>
+            <SectionTitle>직픽거래</SectionTitle>
+            <OptionalText>(직접픽업)</OptionalText>
+          </SectionTitleRow>
+          <OneLineOptions>
+            {/* 가능 라디오 버튼 생성 */}
+            <OneLineOption htmlFor="locationYes">
+              <HiddenRadio
+                type="radio"
+                id="locationYes"
+                name="location"
+                value="yes"
+                checked={locationAvailable === "yes"}
+                onChange={(e) => setLocationAvailable(e.target.value)}
+              />
+              <RoundCheckbox checked={locationAvailable === "yes"} />
+              가능
             </OneLineOption>
-            {/* 가격제안 체크박스 끝 */}
+            {/* 불가 라디오 버튼 생성 */}
+            <OneLineOption htmlFor="locationNo">
+              <HiddenRadio
+                type="radio"
+                id="locationNo"
+                name="location"
+                value="no"
+                checked={locationAvailable === "no"}
+                onChange={(e) => setLocationAvailable(e.target.value)}
+              />
+              <RoundCheckbox checked={locationAvailable === "no"} />
+              불가
+            </OneLineOption>
+          </OneLineOptions>
 
-            {/* 직픽거래 항목 시작 */}
-            <SectionTitleRow>
-                <SectionTitle>직픽거래</SectionTitle>
-                <OptionalText>(직접픽업)</OptionalText>
-            </SectionTitleRow>
-            <OneLineOptions>
-              {/* 가능 라디오 버튼 생성 */}
-              <OneLineOption htmlFor="locationYes">
-                  <HiddenRadio
-                      type="radio"
-                      id="locationYes"
-                      name="location"
-                      value="yes"
-                      checked={locationAvailable === 'yes'}
-                      onChange={(e) => setLocationAvailable(e.target.value)}
-                  />
-                  <RoundCheckbox checked={locationAvailable === 'yes'} />
-                  가능
-              </OneLineOption>
-              {/* 불가 라디오 버튼 생성 */}
-              <OneLineOption htmlFor="locationNo">
-                  <HiddenRadio
-                      type="radio"
-                      id="locationNo"
-                      name="location"
-                      value="no"
-                      checked={locationAvailable === 'no'}
-                      onChange={(e) => setLocationAvailable(e.target.value)}
-                  />
-                  <RoundCheckbox checked={locationAvailable === 'no'} />
-                  불가
-              </OneLineOption>
-            </OneLineOptions>
+          {/* 직픽거래 가능일 경우 */}
+          {locationAvailable === "yes" && (
+            <>
+              <TradeAreaBox>
+                {/* 희망지점 선택 항목 시작 */}
+                <BranchRow>
+                  <BranchLabel>
+                    희망지점 선택 <BranchSubText>(최대 3개)</BranchSubText>
+                  </BranchLabel>
+                  {/* 지역 선택 드롭다운 */}
+                  <RegionSelect
+                    value={selectedRegion}
+                    onChange={(e) => {
+                      setSelectedRegion(e.target.value); //지역 상태 변경
+                      setSelectedBranches([]); //지역 변경 시 지점 선택 초기화
+                    }}
+                  >
+                    {/* 지역 옵션 생성 */}
+                    {Object.keys(branchData).map((region) => (
+                      <option key={region} value={region}>
+                        {region}
+                      </option>
+                    ))}
+                  </RegionSelect>
+                  {/* 지점 버튼 */}
+                  <BranchButtonGroup>
+                    {/* 선택된 지역으로부터 3km반경 내 지점만 버튼 생성 */}
+                    {filteredBranches.map((branch) => {
+                      // 선택한 지점이 이미 선택된 지점에 포함되었는지 체크
+                      const isSelected = selectedBranches.includes(branch.name);
+                      return (
+                        <BranchButton
+                          key={branch.name}
+                          active={isSelected}
+                          onClick={() => {
+                            // 이미 선택됬다면 제거
+                            if (isSelected) {
+                              setSelectedBranches((prev) =>
+                                prev.filter((name) => name !== branch.name)
+                              );
+                            } else {
+                              // 미선택이라면 추가(단 최대 3개)
+                              if (selectedBranches.length < 3) {
+                                setSelectedBranches((prev) => [
+                                  ...prev,
+                                  branch.name,
+                                ]);
+                              } else {
+                                alert("최대 3개까지 선택할 수 있습니다.");
+                              }
+                            }
+                          }}
+                        >
+                          {/* 버튼별 지점 이름 */}
+                          {branch.name}
+                        </BranchButton>
+                      );
+                    })}
+                  </BranchButtonGroup>
+                  {/* 현재 선택된 지점과 선택 가능한 갯수 카운트 */}
+                  <BranchCountText>
+                    선택된 지점: {selectedBranches.length} / 3
+                  </BranchCountText>
+                </BranchRow>
+                {/* 희망지점 선택 항목 끝 */}
 
-            {/* 직픽거래 가능일 경우 */}
-            {locationAvailable === 'yes' && (
-              <>
-                <TradeAreaBox>
-                  {/* 희망지점 선택 항목 시작 */}
-                    <BranchRow>
-                      <BranchLabel>
-                        희망지점 선택 <BranchSubText>(최대 3개)</BranchSubText>
-                      </BranchLabel>
-                      {/* 지역 선택 드롭다운 */}
-                      <RegionSelect
-                        value={selectedRegion}
-                        onChange={(e) => {
-                          setSelectedRegion(e.target.value); //지역 상태 변경
-                          setSelectedBranches([]); //지역 변경 시 지점 선택 초기화
-                        }}
-                      > 
-                      {/* 지역 옵션 생성 */}
-                        {Object.keys(branchData).map((region) => (
-                          <option key={region} value={region}>
-                            {region}
-                          </option>
-                        ))}
-                      </RegionSelect>
-                      {/* 지점 버튼 */}
-                      <BranchButtonGroup>
-                        {/* 선택된 지역으로부터 3km반경 내 지점만 버튼 생성 */}
-                        {filteredBranches.map((branch) => {
-                          // 선택한 지점이 이미 선택된 지점에 포함되었는지 체크
-                          const isSelected = selectedBranches.includes(branch.name);
-                          return (
-                            <BranchButton
-                              key={branch.name}
-                              active={isSelected}
-                              onClick={() => {
-                                // 이미 선택됬다면 제거
-                                if (isSelected) {
-                                  setSelectedBranches(prev =>
-                                    prev.filter(name => name !== branch.name)
-                                  );
-                                } else { // 미선택이라면 추가(단 최대 3개)
-                                  if (selectedBranches.length < 3) {
-                                    setSelectedBranches(prev => [...prev, branch.name]);
-                                  } else {
-                                    alert('최대 3개까지 선택할 수 있습니다.');
-                                  }
-                                }
-                              }}
-                            >
-                              {/* 버튼별 지점 이름 */}
-                              {branch.name} 
-                            </BranchButton>
-                          );
-                        })}
-                      </BranchButtonGroup>
-                      {/* 현재 선택된 지점과 선택 가능한 갯수 카운트 */}
-                      <BranchCountText>선택된 지점: {selectedBranches.length} / 3</BranchCountText>
-                    </BranchRow>
-                  {/* 희망지점 선택 항목 끝 */}
-
-                  {/* 거래 유효시간 항목 시작 */}
-                    <TradeRow>
-                      <LabelText>거래 유효시간</LabelText>
-                      {/* 거래 유효시간 드롭다운 */}
-                      <TradeDurationSelect
-                              value={tradeDuration}
-                              onChange={(e) => setTradeDuration(e.target.value)}
-                          >
-                          {durationOptions.map((d) => (
-                              <option key={d} value={d}>{d}</option>
-                          ))}
-                      </TradeDurationSelect>
-                    </TradeRow>
-                  {/* 거래 유효시간 항목 끝 */}
-                </TradeAreaBox>
-                {/* 직픽거래 안내사항 */}
-                <TradeInfo>
+                {/* 거래 유효시간 항목 시작 */}
+                <TradeRow>
+                  <LabelText>거래 유효시간</LabelText>
+                  {/* 거래 유효시간 드롭다운 */}
+                  <TradeDurationSelect
+                    value={tradeDuration}
+                    onChange={(e) => setTradeDuration(e.target.value)}
+                  >
+                    {durationOptions.map((d) => (
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
+                    ))}
+                  </TradeDurationSelect>
+                </TradeRow>
+                {/* 거래 유효시간 항목 끝 */}
+              </TradeAreaBox>
+              {/* 직픽거래 안내사항 */}
+              <TradeInfo>
                 <li>판매자가 선택한 지점에서 직픽 거래를 진행합니다.</li>
                 <li>거래 유효시간 이내 구매자가 거래 요청을 할 수 있습니다.</li>
-                </TradeInfo>
-              </>
-            )}
-            {/* 직픽거래 항목 끝 */}
+              </TradeInfo>
+            </>
+          )}
+          {/* 직픽거래 항목 끝 */}
 
-            {/* 최종 마무리 버튼 시작 */}
-            <ButtonContainer>
-            <SaveButton onClick={() => {
-              if (window.confirm('현재 내용을 임시 저장 하시겠습니까?')) {
-                alert('저장되었습니다.');
-                // 여기서 원하면 나중에 저장 로직 추가 가능
-              }
-            }}>
+          {/* 최종 마무리 버튼 시작 */}
+          <ButtonContainer>
+            <SaveButton
+              onClick={() => {
+                if (window.confirm("현재 내용을 임시 저장 하시겠습니까?")) {
+                  alert("저장되었습니다.");
+                  // 여기서 원하면 나중에 저장 로직 추가 가능
+                }
+              }}
+            >
               임시저장
             </SaveButton>
 
-        <SubmitButton onClick={handleSubmit}>등록하기</SubmitButton>
-
-        <SubmitButton onClick={handleSubmit}>등록하기</SubmitButton>
-
-
-                        </ButtonContainer>
-            {/* 최종 마무리 버튼 끝 */}
-          </FieldBox>
-        </Inner>
-      </Outer>
-      <Footer />
-    </Wrapper>
-  );
-  }
+            <SubmitButton onClick={handleSubmit}>등록하기</SubmitButton>
+          </ButtonContainer>
+          {/* 최종 마무리 버튼 끝 */}
+        </FieldBox>
+      </Inner>
+    </Outer>
+    <Footer />
+  </Wrapper>
+);
+}
