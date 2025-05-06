@@ -5,7 +5,6 @@ import kr.it.code.main.store.entity.Store;
 import kr.it.code.main.store.service.StoreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,14 +19,6 @@ public class StoreController {
 
     private final StoreService storeService;
 
-    @GetMapping
-    public ResponseEntity<List<Store>> getAllStores() {
-        return ResponseEntity.ok(storeService.getAllStores());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Store> getStore(@PathVariable Long id) {
-        return ResponseEntity.ok(storeService.getStoreById(id));
     // 지점 가져오기
     @GetMapping
     public ResponseEntity<List<StoreDto>> getAllStores() {

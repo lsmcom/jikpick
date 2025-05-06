@@ -17,7 +17,8 @@ public class ItemDto {
     private List<String> imagePathList; // 나머지 이미지들
 
     private Integer itemWish;
-    private Long storeNo; // ✅ 추가
+    private Long storeNo;
+    private Integer pickPeriod;
 
     // ✅ 상세 페이지용 필드 추가
     private String itemInfo;

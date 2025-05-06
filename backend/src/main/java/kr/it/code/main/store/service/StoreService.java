@@ -13,20 +13,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class StoreService {
 
+
     private final StoreRepository storeRepository;
 
-    public List<Store> getAllStores() {
-        return storeRepository.findAll();
-    }
-
-    public Store getStoreById(Long storeNo) {
-        return storeRepository.findById(storeNo)
-                .orElseThrow(() -> new IllegalArgumentException("지점 정보를 찾을 수 없습니다."));
+    // 기존 메서드 덮어쓰기
     public List<StoreDto> getAllStores() {
-        return storeRepository.findAll().stream()
+        return storeRepository.findAllWithRegion().stream()
                 .map(StoreDto::fromEntity)
                 .collect(Collectors.toList());
     }
+
 
     public List<StoreDto> filterStores(String region, String subRegion, String name, String time) {
         List<Store> stores = storeRepository.filterStores(

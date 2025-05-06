@@ -21,5 +21,9 @@ public class ItemRequestDto {
     @JsonProperty("imagePaths")  // ✅ 반드시 추가
     private List<String> imagePaths;
     // ✅ 직픽 지점 번호 필드 추가
-    private Long storeNo;
+    private List<Long> storeNos;
+
+    public void setStoreNos(List<Long> storeNos) {
+        this.storeNos = storeNos;
+    }
 }

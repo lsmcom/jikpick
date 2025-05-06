@@ -803,51 +803,11 @@ export default function ProductRegistration() {
   // 직픽 거래 가능 여부
   const [locationAvailable, setLocationAvailable] = useState(""); // 'yes' 또는 'no'
 
-  // 거래 유효시간
-  const [tradeDuration, setTradeDuration] = useState("7일"); // 거래 유효 시간 선택값
-
   // 희망 지점 선택
   const [selectedRegion, setSelectedRegion] = useState("강남"); // 선택된 지역 (강남, 홍대, 잠실 등)
   const [selectedBranches, setSelectedBranches] = useState([]); // 선택된 지점 이름들 (최대 3개)
 
-  // 희망지점 선택 항목 시작
-  const branchData = {
-    강남: {
-      center: { lat: 37.498, lng: 127.027 },
-      branches: [
-        { name: "강남역점", lat: 37.499, lng: 127.026 },
-        { name: "역삼점", lat: 37.5, lng: 127.036 },
-        { name: "논현점", lat: 37.511, lng: 127.021 },
-        { name: "신논현점", lat: 37.504, lng: 127.012 },
-        { name: "삼성점", lat: 37.514, lng: 127.057 },
-        { name: "선릉점", lat: 37.505, lng: 127.048 },
-        { name: "도곡점", lat: 37.481, lng: 127.045 },
-      ],
-    },
-    홍대: {
-      center: { lat: 37.556, lng: 126.923 },
-      branches: [
-        { name: "홍대입구점", lat: 37.557, lng: 126.924 },
-        { name: "연남점", lat: 37.561, lng: 126.925 },
-        { name: "합정점", lat: 37.55, lng: 126.913 },
-        { name: "망원점", lat: 37.556, lng: 126.904 },
-        { name: "상수점", lat: 37.547, lng: 126.923 },
-        { name: "신촌점", lat: 37.556, lng: 126.937 },
-      ],
-    },
-    잠실: {
-      center: { lat: 37.513, lng: 127.102 },
-      branches: [
-        { name: "잠실역점", lat: 37.513, lng: 127.1 },
-        { name: "석촌점", lat: 37.505, lng: 127.106 },
-        { name: "송파점", lat: 37.499, lng: 127.112 },
-        { name: "문정점", lat: 37.487, lng: 127.122 },
-        { name: "가락시장점", lat: 37.493, lng: 127.118 },
-        { name: "방이점", lat: 37.513, lng: 127.121 },
-      ],
-    },
-  };
-  // 희망지점 선택 항목 끝
+
 
   //거래 유효기간 배열
   const durationOptions = ["3일", "5일", "7일", "10일"];
@@ -1071,20 +1031,6 @@ export default function ProductRegistration() {
     return R * c;
   }
 
-  //선택된 지역과 브랜치 각각 변수로 꺼내기(구조분해할당)
-  const { center, branches } = branchData[selectedRegion];
-
-  //3km이하 지점만 필터링해서 저장
-  const filteredBranches = branches.filter((branch) => {
-    const distance = getDistance(
-      center.lat,
-      center.lng,
-      branch.lat,
-      branch.lng
-    );
-    return distance <= 3;
-  });
-
   const plainPrice = price.replace(/,/g, "");
 
   // 카테고리 관련 상태
@@ -1171,30 +1117,111 @@ export default function ProductRegistration() {
   const userInfo = JSON.parse(localStorage.getItem("user")); // 또는 sessionStorage
   console.log("로그인 정보:", userInfo); // 👈 userNo가 뜨는지 확인
   const userNo = userInfo?.userNo;
+  //지점점
+  const [allStores, setAllStores] = useState([]);
+
+  
+  useEffect(() => {
+    axios.get('/api/stores')
+      .then((res) => {
+        console.log("✅ 받은 지점 데이터:", res.data);
+        setAllStores(res.data); // 이 배열의 각 store에 regNo가 반드시 있어야 함!
+      })
+      .catch((err) => console.error("지점 목록 불러오기 실패", err));
+  }, []);
+  
+
+      // 추가: 지역명 → 지역번호 매핑 객체
+      const regionMap = {
+        마포구:13,
+        서대문구:14,
+        서초구:15,
+        // 필요시 다른 지역도 추가
+      };
+
+  
+
+
+    // ✅ 선택된 지역번호 (regionMap을 통해 계산)
+    const selectedRegionNo = regionMap[selectedRegion] || null;
+
+    // ✅ 해당 지역에 속하는 지점만 필터링
+    const filteredStores = selectedRegionNo
+    ? allStores.filter((store) => Number(store.regNo) === Number(selectedRegionNo))
+    : [];
+
+// 🔍 콘솔 디버깅용 로그
+console.log("🟡 선택된 지역:", selectedRegion);         // 예: "마포구"
+console.log("🟡 selectedRegionNo:", regionMap[selectedRegion]); // 예: 13
+console.log("🟡 allStores:", allStores);                 // 지점 전체 목록 (배열)
+console.log("🟡 filteredStores:", filteredStores);       // 선택된 지역의 지점들
+// 로그 찍기
+console.log("🔍 selectedRegionNo:", selectedRegionNo, typeof selectedRegionNo);
+
+allStores.slice(0, 5).forEach((s, i) => {
+  console.log(`▶ store[${i}].storeName: ${s.storeName}, regNo: ${s.regNo} (${typeof s.regNo})`);
+});
+
+    // ✅ 선택된 지점 이름 → storeNo 변환
+    const selectedStoreNos = allStores
+      .filter((store) => selectedBranches.includes(store.storeName))
+      .map((store) => store.storeNo);
+        //유효기간
+        const [tradeDuration, setTradeDuration] = useState('');
+
 
   const handleSubmit = async () => {
+    const userInfo = JSON.parse(localStorage.getItem("user"));
+    const userNo = userInfo?.userNo;
+    console.log("userNo:", userNo);
+    if (!userNo) return alert("로그인 정보가 없습니다.");
+  
+  // 예외 처리 1: 지점 1개 이상 선택
+  if (selectedBranches.length === 0) {
+    alert("희망 지점을 1개 이상 선택해주세요.");
+    return;
+  }
+
+  // 예외 처리 2: 거래 유효기간 미선택
+  if (!tradeDuration) {
+    alert("거래 유효시간을 선택해주세요.");
+    return;
+  }
+
+  // 예외 처리 3: 가격이 0원이거나 공백 (숫자 변환 불가한 경우도 포함)
+  const parsedCost = parseInt(price.replace(/,/g, ""));
+  if (!parsedCost || parsedCost <= 0) {
+    alert("유효한 가격을 입력해주세요.");
+    return;
+  }
+
+  // 지점 이름 → storeNo 변환
+  const selectedStoreNos = allStores
+    .filter((store) => selectedBranches.includes(store.storeName))
+    .map((store) => store.storeNo);
     const categoryNo = selectedThird?.cateNo || selectedSub?.cateNo || selectedMain?.cateNo;
     if (!categoryNo) return alert("카테고리를 선택해 주세요.");
     if (images.length === 0) return alert("이미지를 최소 1장 업로드해 주세요.");
-  
-    const storeNo = 1;
-    const formData = new FormData();
 
-  
-    // 이미지 파일 추가
+    const formData = new FormData();
+    //지점점
+    // 이미지 추가
     images.forEach(img => {
-      formData.append("imageFiles", img.file); // ✅ 'file'은 File 객체여야 함
+      if (img.file instanceof File) {
+        formData.append("imageFiles", img.file);
+      }
     });
   
     const itemDto = {
-      userNo: userNo,
+      userNo,
       categoryNo,
       itemName: productName,
       itemCost: parseInt(plainPrice),
       itemInfo: description,
       itemStatus: mapConditionToCode(condition),
       pickOption: locationAvailable === "yes" ? 1 : 0,
-      storeNo,
+      storeNos: selectedStoreNos,  
+      pickPeriod: tradeDuration,
     };
   
     formData.append(
@@ -1210,14 +1237,13 @@ export default function ProductRegistration() {
       });
   
       alert("상품이 등록되었습니다!");
+      navigate("/"); // 메인으로 이동 (또는 적절한 경로)
     } catch (err) {
-      console.error("등록 실패:", err);
+      console.error("등록 실패:", err.response?.data || err);
       alert("등록 중 오류가 발생했습니다.");
     }
   };
   
-
-
 
 const mapConditionToCode = (label) => {
   switch (label) {
@@ -1597,46 +1623,40 @@ return (
                     }}
                   >
                     {/* 지역 옵션 생성 */}
-                    {Object.keys(branchData).map((region) => (
-                      <option key={region} value={region}>
-                        {region}
-                      </option>
+                    {Object.keys(regionMap).map((region) => (
+                      <option key={region} value={region}>{region}</option>
                     ))}
+
                   </RegionSelect>
                   {/* 지점 버튼 */}
                   <BranchButtonGroup>
                     {/* 선택된 지역으로부터 3km반경 내 지점만 버튼 생성 */}
-                    {filteredBranches.map((branch) => {
-                      // 선택한 지점이 이미 선택된 지점에 포함되었는지 체크
-                      const isSelected = selectedBranches.includes(branch.name);
-                      return (
-                        <BranchButton
-                          key={branch.name}
-                          active={isSelected}
-                          onClick={() => {
-                            // 이미 선택됬다면 제거
-                            if (isSelected) {
-                              setSelectedBranches((prev) =>
-                                prev.filter((name) => name !== branch.name)
-                              );
+                    {filteredStores.map((store) => {
+                    const isSelected = selectedBranches.includes(store.storeName);
+                    return (
+                      <BranchButton
+                        key={store.storeNo}
+                        active={isSelected}
+                        onClick={() => {
+                          if (isSelected) {
+                            setSelectedBranches((prev) =>
+                              prev.filter((name) => name !== store.storeName)
+                            );
+                          } else {
+                            if (selectedBranches.length < 3) {
+                              setSelectedBranches((prev) => [...prev, store.storeName]);
                             } else {
-                              // 미선택이라면 추가(단 최대 3개)
-                              if (selectedBranches.length < 3) {
-                                setSelectedBranches((prev) => [
-                                  ...prev,
-                                  branch.name,
-                                ]);
-                              } else {
-                                alert("최대 3개까지 선택할 수 있습니다.");
-                              }
+                              alert("최대 3개까지 선택할 수 있습니다.");
                             }
-                          }}
-                        >
-                          {/* 버튼별 지점 이름 */}
-                          {branch.name}
-                        </BranchButton>
-                      );
-                    })}
+                          }
+                        }}
+                      >
+                        {store.storeName}
+                      </BranchButton>
+                    );
+                  })}
+
+                                
                   </BranchButtonGroup>
                   {/* 현재 선택된 지점과 선택 가능한 갯수 카운트 */}
                   <BranchCountText>
@@ -1646,20 +1666,23 @@ return (
                 {/* 희망지점 선택 항목 끝 */}
 
                 {/* 거래 유효시간 항목 시작 */}
+               {/* 거래 유효시간 항목 시작 */}
                 <TradeRow>
                   <LabelText>거래 유효시간</LabelText>
                   {/* 거래 유효시간 드롭다운 */}
                   <TradeDurationSelect
-                    value={tradeDuration}
-                    onChange={(e) => setTradeDuration(e.target.value)}
-                  >
-                    {durationOptions.map((d) => (
-                      <option key={d} value={d}>
-                        {d}
-                      </option>
-                    ))}
-                  </TradeDurationSelect>
+                  value={tradeDuration}
+                  onChange={(e) => setTradeDuration(Number(e.target.value))} // 문자열 → 숫자
+                >
+                  <option value="">선택하세요</option>
+                  <option value={3}>3일</option>
+                  <option value={5}>5일</option>
+                  <option value={7}>7일</option>
+                </TradeDurationSelect>
+
                 </TradeRow>
+                {/* 거래 유효시간 항목 끝 */}
+
                 {/* 거래 유효시간 항목 끝 */}
               </TradeAreaBox>
               {/* 직픽거래 안내사항 */}

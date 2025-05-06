@@ -26,7 +26,6 @@ public class ItemController {
 
     private final ItemService itemService;
     private final FavoriteService favoriteService;
-
     private final String uploadDir = "C:/jikpick_uploads/";
 
     //이미지업로드
@@ -57,52 +56,6 @@ public class ItemController {
         return ResponseEntity.ok("등록 완료");
     }
 
-    // 📦 단일 카테고리 상품 조회
-    @GetMapping
-    public ResponseEntity<List<ItemDto>> getItemsByCategory(@RequestParam Long categoryNo) {
-        return ResponseEntity.ok(itemService.getItemsByCategory(categoryNo));
-    }
-
-    // ✅ 하위 포함 전체 상품 조회
-    @GetMapping("/in-category-tree")
-    public ResponseEntity<List<ItemDto>> getItemsInCategoryTree(@RequestParam Long categoryNo) {
-        return ResponseEntity.ok(itemService.getItemsInCategoryAndSubCategories(categoryNo));
-    }
-
-
-
-    // 찜 추가/해제
-    @PostMapping("/{itemNo}/wish")
-    public ResponseEntity<Void> toggleWish(@PathVariable Long itemNo, @RequestBody Map<String, Object> requestBody) {
-        boolean isWish = (Boolean) requestBody.get("wish");
-        Long userNo = Long.parseLong(requestBody.get("userNo").toString());
-
-        try {
-            Item item = itemService.getItemById(itemNo);
-            if (item == null) {
-                return ResponseEntity.notFound().build();
-            }
-
-            itemService.toggleWish(itemNo, isWish, userNo);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-    }
-
-    // 인기순 상품 리스트
-    @GetMapping("/popular")
-    public ResponseEntity<List<ItemLikeDto>> getPopularItems() {
-        return ResponseEntity.ok(itemService.findItemListOrderByLikeCount());
-    }
-
-    // 상품 상세 조회
-    @GetMapping("/{itemNo}")
-    public ResponseEntity<ItemDto> getItemDetail(@PathVariable Long itemNo) {
-        ItemDto item = itemService.getItemDetail(itemNo);
-        return ResponseEntity.ok(item);
-    }
-
     @PostMapping("/upload-image")
     public ResponseEntity<String> uploadImage(@RequestParam("imageFiles") MultipartFile file) {
         try {
@@ -120,22 +73,24 @@ public class ItemController {
 
 
 
-    // ✅ 이미지 삭제 엔드포인트
-    @DeleteMapping("/delete-image")
-    public ResponseEntity<String> deleteImage(@RequestParam String path) {
-        try {
-            Path filePath = Paths.get("C:/jikpick_uploads/" + path);
-            File file = filePath.toFile();
+    // 📦 기존: 단일 카테고리 번호로 상품 조회
+    @GetMapping
+    public ResponseEntity<List<ItemDto>> getItemsByCategory(@RequestParam Long categoryNo) {
+        return ResponseEntity.ok(itemService.getItemsByCategory(categoryNo));
+    }
 
-            if (file.exists()) {
-                file.delete();
-                return ResponseEntity.ok("삭제 완료");
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("파일이 존재하지 않습니다");
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("파일 삭제 실패");
-        }
+    // ✅ 신규: 대분류 선택 시 하위 카테고리 포함 전체 상품 조회
+    @GetMapping("/in-category-tree")
+    public ResponseEntity<List<ItemDto>> getItemsInCategoryTree(@RequestParam Long categoryNo) {
+        return ResponseEntity.ok(itemService.getItemsInCategoryAndSubCategories(categoryNo));
+    }
+
+    // 상품 상세 조회
+    @GetMapping("/{itemNo}")
+    public ResponseEntity<ItemDto> getItemDetail(@PathVariable Long itemNo) {
+        ItemDto item = itemService.getItemDetail(itemNo);
+        return ResponseEntity.ok(item);
+    }
     // 찜 추가/해제
     @PostMapping("/{itemNo}/wish")
     public ResponseEntity<Void> toggleWish(@PathVariable Long itemNo, @RequestBody Map<String, Object> requestBody) {
@@ -174,7 +129,4 @@ public class ItemController {
         boolean isWished = favoriteService.isFavorite(itemNo, userNo);
         return ResponseEntity.ok(isWished);
     }
-
-
-
 }

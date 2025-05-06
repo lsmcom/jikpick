@@ -23,8 +23,9 @@ public class Store {
     private String storeName;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reg_no")
+    @JoinColumn(name = "REG_NO")
     private Region region;
+
 
     @Column(name = "STORE_TELL")
     private String storeTell;

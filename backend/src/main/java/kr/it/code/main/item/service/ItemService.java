@@ -1,5 +1,6 @@
 package kr.it.code.main.item.service;
 
+import kr.it.code.main.category.repository.CategoryRepository;
 import kr.it.code.main.category.service.CategoryService;
 import kr.it.code.main.favorite.service.FavoriteService;
 import kr.it.code.main.item.dto.ItemDto;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import kr.it.code.main.category.entity.Category;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -48,16 +50,18 @@ public class ItemService {
     // 신규 상품 등록
     public void registerItem(ItemRequestDto dto) {
         try {
-            logger.info("상품 등록 요청 받음: itemName={}, itemCost={}, itemInfo={}, categoryNo={}, storeNo={}",
-                    dto.getItemName(), dto.getItemCost(), dto.getItemInfo(), dto.getCategoryNo(), dto.getStoreNo());
+            logger.info("상품 등록 요청 받음: itemName={}, itemCost={}, itemInfo={}, categoryNo={}, storeNos={}",
+                    dto.getItemName(), dto.getItemCost(), dto.getItemInfo(), dto.getCategoryNo(), dto.getStoreNos());
 
             if (dto.getCategoryNo() == null) {
                 throw new IllegalArgumentException("카테고리가 선택되지 않았습니다.");
             }
 
-            if (dto.getStoreNo() == null) {
-                throw new RuntimeException("Store ID cannot be null");
+            if (dto.getStoreNos() == null || dto.getStoreNos().isEmpty()) {
+                throw new RuntimeException("희망 지점을 1개 이상 선택해야 합니다.");
             }
+
+
             Item item = new Item();
 
             // ✅ 올바른 코드 (리스트에서 첫 번째 이미지 사용)
@@ -81,8 +85,9 @@ public class ItemService {
                     .orElseThrow(() -> new RuntimeException("사용자 없음"));
             Category category = categoryRepository.findById(dto.getCategoryNo())
                     .orElseThrow(() -> new RuntimeException("카테고리 없음"));
-            Store store = storeRepository.findById(dto.getStoreNo())
+            Store store = storeRepository.findById(dto.getStoreNos().get(0))
                     .orElseThrow(() -> new RuntimeException("지점 없음"));
+            item.setStore(store);
 
             item.setUser(user);
             item.setCategory(category);
@@ -105,10 +110,10 @@ public class ItemService {
     }
 
     // 좋아요 수 기준으로 상품 목록을 가져오는 메소드
-    public List<ItemLikeDto> findItemListOrderByLikeCount() {
-        return itemRepository.findItemsOrderByLikeCount();
+    public List<ItemDto> getPopularItems() {
+        List<Item> items = itemRepository.findAllOrderByItemWishDesc();
+        return items.stream().map(ItemDto::new).toList();
     }
-
     // 찜 추가/해제
     @Transactional
     public void toggleWish(Long itemNo, boolean isWish, Long userNo) {
@@ -131,11 +136,10 @@ public class ItemService {
             file.delete();
         }
     }
-
-
-    // 좋아요 수 기준으로 상품 목록을 가져오는 메소드
-    public List<ItemDto> getPopularItems() {
-        List<Item> items = itemRepository.findAllOrderByItemWishDesc();
-        return items.stream().map(ItemDto::new).toList();
+    // 상품 직접 조회 (찜 기능에서 사용)
+    public Item getItemById(Long itemNo) {
+        return itemRepository.findByItemNo(itemNo).orElse(null);
     }
+
+
 }

@@ -49,6 +49,14 @@ public class Item {
 //
 //    @Column(name = "ITEM_IMAGE")
 //    private String itemImage; //대표이미지
+public String getFirstImagePath() {
+    if (imagePathList == null || imagePathList.isEmpty()) return null;
+    return imagePathList.split(",")[0]; // 첫 번째 이미지 경로 반환
+}
+
+    @Column(name = "PICK_PERIOD")
+    private Integer pickPeriod;  // ✅ 유효기간 저장
+
 
 
     @Column(name = "ITEM_DATE")
