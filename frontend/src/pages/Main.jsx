@@ -137,6 +137,16 @@ export default function Main() {
   const navigate = useNavigate();
   const [popularCategories, setPopularCategories] = useState([]);
 
+  const isLoggedIn = sessionStorage.getItem('user');
+
+  const handleProtectedNavigate = (path) => {
+    if (!isLoggedIn) {
+      alert('로그인 후 이용 가능합니다.');
+      navigate('/login');
+      return;
+    }
+    navigate(path);
+  };
 
   useEffect(() => {
     axios.get('http://localhost:9090/api/items/popular')
@@ -239,48 +249,43 @@ export default function Main() {
           onMouseMove={onMouseMove}
         >
           {popularCategories.map((c) => (
-            <Link
+            <div
               key={c.cateNo}
-              to={`/category/${c.cateNo}`}
+              onClick={() => handleProtectedNavigate(`/category/${c.cateNo}`)}
               style={{ textDecoration: 'none', color: 'inherit' }}
             >
               <CategoryItem>
-              <img
-                src={categoryImages[c.cateName] || bookImg}
-                alt={c.cateName}
-                style={{
-                  width: '140px',            // ✅ 크기 증가
-                  height: '140px',           // ✅ 크기 증가
-                  borderRadius: '10%',
-                  marginBottom: '6px',
-                  objectFit: 'cover',
-                }}
-            />
+                <img
+                  src={categoryImages[c.cateName] || bookImg}
+                  alt={c.cateName}
+                  style={{
+                    width: '140px',
+                    height: '140px',
+                    borderRadius: '10%',
+                    marginBottom: '6px',
+                    objectFit: 'cover',
+                  }}
+                />
                 {c.cateName}
               </CategoryItem>
-            </Link>
+            </div>
           ))}
         </CategoryBar>
 
         <SectionTitle>직픽인들의 픽!</SectionTitle>
         {Array.isArray(productList) && productList.length > 0 ? (
           <Grid>
-            {productList.slice(0, 12).map((product) => (
-              <Link
-                to={`/items/${product.itemNo}`}
-                key={product.itemNo}
-                style={{ textDecoration: 'none', color: 'inherit' }}
-              >
-                <Card>
-                  <Thumbnail
-                    style={{
-                      backgroundImage: product.itemImage
-                        ? `url(http://localhost:9090/images/${product.itemImage})`
-                        : 'none',
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                    }}
-                  />
+            {productList.filter(product => product.pickStatus !== '거래완료').slice(0, 12).map((product) => (
+              <Card onClick={() => handleProtectedNavigate(`/items/${product.itemNo}`)}>
+                <Thumbnail
+                  style={{
+                    backgroundImage: product.itemImage
+                      ? `url(http://localhost:9090/images/${product.itemImage})`
+                      : 'none',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }}
+                />
                   <Title>{product.itemName}</Title>
                   <ItemInfo>
                     <Price>{product.itemCost.toLocaleString()}원</Price>
@@ -290,7 +295,6 @@ export default function Main() {
                     </Like>
                   </ItemInfo>
                 </Card>
-              </Link>
             ))}
           </Grid>
         ) : (

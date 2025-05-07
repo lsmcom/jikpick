@@ -204,7 +204,7 @@ export default function CategoryPage() {
           </SectionTitle>
 
           <Grid>
-            {items.map(item => (
+            {items.filter(item => item.pickStatus !== '거래완료').map(item => (
               <Card key={item.itemNo} onClick={() => handleCardClick(item.itemNo)}>
                 <Thumbnail
                   style={{

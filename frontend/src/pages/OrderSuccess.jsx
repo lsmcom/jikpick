@@ -2,6 +2,8 @@ import styled from 'styled-components';
 import Footer from '../components/Footer';
 import { useNavigate } from 'react-router-dom';
 import frameIcon from '../assets/icon/CheckCircleFill.svg';
+import axios from '../api/axios';
+import { useEffect, useState } from 'react';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -66,7 +68,22 @@ const ConfirmButton = styled.button`
 `;
 
 export default function OrderSuccess() {
+  const [order, setOrder] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const userNo = sessionStorage.getItem('userNo');
+    if (!userNo) return;
+
+    axios.get(`/api/orders/latest?userNo=${userNo}`)
+      .then(res => {
+        console.log("📦 주문 응답:", res.data);
+        setOrder(res.data);
+      })
+      .catch(err => {
+        console.error('주문 정보 불러오기 실패', err);
+      });
+  }, []);
 
   return (
     <Wrapper>
@@ -74,9 +91,11 @@ export default function OrderSuccess() {
         <CheckCircle>
           <Icon src={frameIcon} alt="완료 아이콘" />
         </CheckCircle>
-        <AmountText>80,000원 결제가 완료되었습니다</AmountText>
+        <AmountText>
+          {order ? `${order.itemCost.toLocaleString()}원 결제가 완료되었습니다` : '결제 완료'}
+        </AmountText>
         <PlaceText>
-          ‘경기도 고양시 일산동구점’ 에서 해당 상품을 직접 픽업해주세요!
+          {order ? `‘${order.storeName}’ 에서 해당 상품을 직접 픽업해주세요!` : ''}
         </PlaceText>
         <Guide>
           픽업 거래가 완료될 때까지 판매자에게 돈이 전달되지 않으니 걱정마세요

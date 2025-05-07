@@ -22,6 +22,7 @@ public class ItemDto {
     private LocalDate itemDate;
     private String sellerNick;
     private String categoryName;
+    private String pickStatus;
 
     public ItemDto(Item item) {
         this.itemNo = item.getItemNo();
@@ -39,6 +40,11 @@ public class ItemDto {
         this.itemDate = item.getItemDate();
         this.sellerNick = item.getUser().getNick();
         this.categoryName = item.getCategory().getCateName();
+        this.pickStatus = item.getPickStatus();
+    }
+
+    public String getPickStatus() {
+        return pickStatus;
     }
 
 }

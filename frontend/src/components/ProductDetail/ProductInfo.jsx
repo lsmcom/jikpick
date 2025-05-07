@@ -119,6 +119,11 @@ const Button = styled(NavLink)`
   }
 `;
 
+const DisabledButton = styled(Button)`
+  pointer-events: none;
+  opacity: 0.4;
+  cursor: default;
+`;
 
 export default function ProductInfo({ 
   title,
@@ -128,7 +133,8 @@ export default function ProductInfo({
   createdAt,
   itemWish,
   itemStatus,
-  productId
+  productId,
+  pickStatus
   }) {
 
     // 찜 상태와 찜 횟수 상태 관리
@@ -231,9 +237,18 @@ export default function ProductInfo({
         </SellerInfo>
   
         <Buttons>
-        <Button to="#" className="black">직픽톡</Button>
-        <Button to="/order" className="pink">구매하기</Button>
-      </Buttons>
+          {pickStatus === '거래완료' ? (
+            <>
+              <DisabledButton as="div" className="black">직픽톡</DisabledButton>
+              <DisabledButton as="div" className="pink">구매하기</DisabledButton>
+            </>
+          ) : (
+            <>
+              <Button to="#" className="black">직픽톡</Button>
+              <Button to={`/order/${productId}`} className="pink">구매하기</Button>
+            </>
+          )}
+        </Buttons>
 
       </InfoWrapper>
     );
