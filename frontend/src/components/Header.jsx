@@ -866,7 +866,16 @@ useEffect(() => {
       setShowStatusModal(false); // 모달 닫기
       setSelectedAlert(null); // 알림 정보 초기화
     };
-  
+
+
+  // r검색기능
+const handleSearch = () => {
+  const trimmed = searchQuery.trim();
+  if (trimmed) {
+    navigate(`/search?query=${encodeURIComponent(trimmed)}`);
+  }
+};
+
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -1092,8 +1101,16 @@ useEffect(() => {
             <Logo>JIKPICK</Logo>
           </LogoLink>
           <SearchBar>
-            <SearchInput placeholder="상품명, 지점명으로 검색" />
-            <SearchIcon src={search} />
+            <SearchInput
+              placeholder="상품명, 지점명으로 검색"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSearch();
+              }}
+            />
+            <SearchIcon src={search} onClick={handleSearch} />
+
           </SearchBar>
         </LeftContainer>
 

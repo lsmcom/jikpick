@@ -26,6 +26,7 @@ import java.io.File;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static kr.it.code.main.item.entity.QItem.item;
 import static kr.it.code.main.user.QUser.user;
@@ -175,4 +176,16 @@ public class ItemService {
     public Item getItemById(Long itemNo) {
         return itemRepository.findByItemNo(itemNo).orElse(null);
     }
+
+    //검색
+    @Transactional
+    public List<ItemDto> searchByKeyword(String keyword) {
+        System.out.println("🔍 검색 키워드: " + keyword);
+        List<Item> items = itemRepository.searchByKeyword(keyword);
+        return items.stream()
+                .map(ItemDto::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+
 }
