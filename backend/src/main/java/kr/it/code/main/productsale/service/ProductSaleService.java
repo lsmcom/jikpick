@@ -72,7 +72,18 @@ public class ProductSaleService {
     }
 
 
+    @Transactional
+    public void reportSale(Long saleNo, String reason) {
+        ProductSale sale = productSaleRepository.findById(saleNo)
+                .orElseThrow(() -> new IllegalArgumentException("해당 판매글을 찾을 수 없습니다."));
 
+        sale.setStatus("신고숨김"); // 신고숨김 처리
+        productSaleRepository.save(sale);
+
+        // 로그 출력만: 실제 저장은 안 함
+        System.out.println("신고된 판매글: " + saleNo + ", 사유: " + reason);
+
+    }
 }
 
 
