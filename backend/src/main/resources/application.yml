@@ -8,6 +8,12 @@ spring:
   main:
     allow-bean-definition-overriding: true
 
+    http:
+      encoding:
+        charset: UTF-8
+        enabled: true
+        force: true
+
   jwt:
     secret: vmfhaltmskdlstkfkdgodyroqkfwkdbalroqkfwkdbalaaaaaaaaaaaaaaaabbbbb
 

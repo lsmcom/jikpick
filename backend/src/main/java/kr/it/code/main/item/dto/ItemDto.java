@@ -1,11 +1,14 @@
 package kr.it.code.main.item.dto;
 
 import kr.it.code.main.item.entity.Item;
+import kr.it.code.main.store.entity.Store;
 import lombok.Getter;
 
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 public class ItemDto {
@@ -17,7 +20,8 @@ public class ItemDto {
     private List<String> imagePathList; // 나머지 이미지들
 
     private Integer itemWish;
-    private Long storeNo;
+    private Long storeNo; // 여기서 첫 번째 storeNo를 가져오는 것으로 수정
+
     private Integer pickPeriod;
 
     // ✅ 상세 페이지용 필드 추가
@@ -28,6 +32,7 @@ public class ItemDto {
     private String sellerNick;
     private String categoryName;
     private List<String> imagePaths;
+
     public ItemDto(Item item) {
         this.itemNo = item.getItemNo();
         this.itemName = item.getItemName();
@@ -38,8 +43,10 @@ public class ItemDto {
                 ? Arrays.asList(item.getImagePathList().split(","))
                 : List.of();
         this.itemWish = item.getItemWish();
-        this.storeNo = item.getStore() != null ? item.getStore().getStoreNo() : null; // ✅ 지점 정보가 있을 경우만
 
+        // ✅ 첫 번째 지점의 storeNo만 사용 (여러 개일 수 있음)
+        this.storeNo = item.getStores() != null && !item.getStores().isEmpty() ?
+                item.getStores().iterator().next().getStoreNo() : null; // 첫 번째 storeNo만 가져옴
 
         // ✅ 추가 필드 값 주입
         this.itemInfo = item.getItemInfo();
@@ -49,5 +56,4 @@ public class ItemDto {
         this.sellerNick = item.getUser().getNick();
         this.categoryName = item.getCategory().getCateName();
     }
-
 }
