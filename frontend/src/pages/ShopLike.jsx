@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import heartIcon from '../assets/icon/HeartIcon.svg'; 
 import axios from '../api/axios';
 import { useEffect, useState } from 'react';
+import soldOut from '../assets/images/Soldout.svg';
 
 // 📦 전체 페이지 레이아웃 컨테이너
 const Wrapper = styled.div`
@@ -64,12 +65,20 @@ const ItemCard = styled.div`
   cursor: pointer;
 `;
 
+const ItemImageWrapper = styled.div`
+  position: relative;
+  width: 190px;
+  height: 190px;
+  margin-right: 25px;
+`;
+
 const ItemImage = styled.img`
   width: 190px;
   height: 190px;
   object-fit: cover;
   border-radius: 10px;
   margin-right: 25px;
+  position: relative;
 `;
 
 const ItemInfo = styled.div`
@@ -143,6 +152,29 @@ const LikeSection = styled.div`
   }
 `;
 
+const SoldOutOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 190px;
+  height: 190px;
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  pointer-events: none;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.9;
+    border-radius: 10px;
+  }
+`;
+
 export default function ShopLike() {
 
     const navigate = useNavigate();
@@ -210,7 +242,14 @@ export default function ShopLike() {
                             hoveredItem === item.itemNo && !isHoveringLike ? '#f9f9f9' : 'transparent',
                         }}
                       >
-                        <ItemImage src={`http://localhost:9090/images/${item.itemImage}`} alt="상품 이미지" />
+                        <ItemImageWrapper>
+                          <ItemImage src={`http://localhost:9090/images/${item.itemImage}`} alt="상품 이미지" />
+                          {item.pickStatus === '거래완료' && (
+                            <SoldOutOverlay>
+                              <img src={soldOut} alt="판매완료" />
+                            </SoldOutOverlay>
+                          )}
+                        </ItemImageWrapper>
                         <ItemInfo>
                           <InfoTop>
                             <ItemName>{item.itemName}</ItemName>

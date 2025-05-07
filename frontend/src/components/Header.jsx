@@ -695,6 +695,19 @@ cursor: pointer;
   background-color: #f9f9f9;
 }
 `;
+
+const SpanLink = styled.span`
+  cursor: pointer;
+  color: #000000;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    color: #FB4A67;
+    font-weight: bold;
+  }
+`;
+
 export default function Header({ isLoggedIn, setIsLoggedIn }) {
   const navigate = useNavigate();
 
@@ -942,11 +955,19 @@ useEffect(() => {
     }
   }, [location]);
 
+  const handleProtectedRoute = (path) => {
+    if (!isLoggedIn) {
+      alert('로그인 후 이용해주세요.');
+      navigate('/login');
+    } else {
+      navigate(path);
+    }
+  };
 
   return (
     <HeaderWrapper>
     <HeadContainer>
-    <><TopBar>
+    <TopBar>
       {isLoggedIn ? (
         <>
           <NavLink to="#" onClick={handleLogout}>로그아웃</NavLink>
@@ -1076,19 +1097,21 @@ useEffect(() => {
           </SearchBar>
         </LeftContainer>
 
-        <MiddleRight>
-          <NavLink to="/upload">판매하기</NavLink>
-          <NavLink to="/myPage">프로필</NavLink>
-          <NavLink to="/chat">직픽톡</NavLink>
-        </MiddleRight>
-      </MiddleBar><BottomBar>
-        <MenuWrapper
-          onMouseEnter={() => setShowCategory(true)}
-          onMouseLeave={() => setShowCategory(false)}
-        >
-          <MenuIcon src={menu} />
-          {showCategory && <CategoryDropdown />}
-        </MenuWrapper>
+          <MiddleRight>
+            <SpanLink onClick={() => handleProtectedRoute('/upload')}>판매하기</SpanLink>
+            <SpanLink onClick={() => handleProtectedRoute('/myPage')}>프로필</SpanLink>
+            <SpanLink onClick={() => handleProtectedRoute('/chat')}>직픽톡</SpanLink>
+          </MiddleRight>
+        </MiddleBar>
+
+        <BottomBar>
+          <MenuWrapper
+            onMouseEnter={() => setShowCategory(true)}
+            onMouseLeave={() => setShowCategory(false)}
+          >
+            <MenuIcon src={menu} />
+            {showCategory && <CategoryDropdown />}
+          </MenuWrapper>
 
           <LocationSetting onClick={() => setShowModal(true)}>
             <LocationIcon src={ping} />
@@ -1161,8 +1184,10 @@ useEffect(() => {
           </ModalBackground>
         )}
 
-        <NavLink to="/findBranch">직픽지점 조회</NavLink>
-      </BottomBar></>
+          <SpanLink onClick={() => handleProtectedRoute('/findBranch')}>
+            직픽지점 조회
+          </SpanLink>
+        </BottomBar>
       </HeadContainer>
     </HeaderWrapper>
   );

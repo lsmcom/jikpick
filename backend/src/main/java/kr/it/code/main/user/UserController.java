@@ -216,4 +216,17 @@ public class UserController {
         boolean matches = new BCryptPasswordEncoder().matches(inputPw, user.getPassword());
         return ResponseEntity.ok(matches);
     }
+
+    // 결제수단 저장 API
+    @PostMapping("/{userNo}/payment-default")
+    public ResponseEntity<Void> saveDefaultPayment(
+            @PathVariable Long userNo,
+            @RequestBody Map<String, String> payload
+    ) {
+        String paymentType = payload.get("paymentType");
+        String paymentDetail = payload.get("paymentDetail");
+
+        userService.saveDefaultPayment(userNo, paymentType, paymentDetail);
+        return ResponseEntity.ok().build();
+    }
 }

@@ -7,6 +7,7 @@ import ReviewList from '../components/ProductDetail/ReviewList';
 import shoes from '../assets/images/shoes.jpg';
 import profileImg from '../assets/images/profile1.jpg';
 import ReviewTab from '../components/ProductDetail/ReviewTab';
+import soldOut from '../assets/images/Soldout.svg';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import axios from '../api/axios'; 
@@ -28,13 +29,38 @@ const ProductTop = styled.div`
 
 `;
 
+const ImageWrapper = styled.div`
+  position: relative;
+  width: 400px;
+  height: 400px; 
+  border-radius: 8px;
+  overflow: hidden;
+`;
+
 const ProductImage = styled.img`
   width: 400px;
   height: 400px;
   object-fit: cover;
-  border-radius: 0px;
-  margin-left: 0px;
-  
+`;
+
+const SoldOutOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255,255,255,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+`;
+
+const SoldOutImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.9;
 `;
 
 export default function ProductDetail() {
@@ -61,8 +87,14 @@ export default function ProductDetail() {
     <Container>
       {/* 상단: 이미지 + 상품정보 */}
       <ProductTop>
+      <ImageWrapper>
         <ProductImage src={`http://localhost:9090/images/${product.itemImage}`} alt="상품 이미지" />
-        {/* <ProductImage src={shoes} alt="상품 이미지" /> */}
+          {product.pickStatus === '거래완료' && (
+            <SoldOutOverlay>
+              <SoldOutImage src={soldOut} alt="판매완료" />
+            </SoldOutOverlay>
+          )}
+        </ImageWrapper>
         <ProductInfo
           title={product.itemName}
           category={product.categoryName}
@@ -72,6 +104,7 @@ export default function ProductDetail() {
           itemWish={product.itemWish}
           itemStatus={product.itemStatus}
           productId={product.itemNo}
+          pickStatus={product.pickStatus}
         />
       </ProductTop>
 
