@@ -8,6 +8,8 @@ import kr.it.code.main.item.dto.ItemRequestDto;
 import kr.it.code.main.item.dto.ItemLikeDto;
 import kr.it.code.main.item.entity.Item;
 import kr.it.code.main.item.repository.ItemRepository;
+import kr.it.code.main.productsale.entity.ProductSale;
+import kr.it.code.main.productsale.repository.ProductSaleRepository;
 import kr.it.code.main.store.entity.Store;
 import kr.it.code.main.store.repository.StoreRepository;
 import kr.it.code.main.user.User;
@@ -18,15 +20,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import kr.it.code.main.category.entity.Category;
-
+import kr.it.code.main.productsale.repository.ProductSaleRepository;
+import kr.it.code.main.productsale.entity.ProductSale;
 import java.io.File;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 
+import static kr.it.code.main.item.entity.QItem.item;
+import static kr.it.code.main.user.QUser.user;
+
 @Service
 @RequiredArgsConstructor
 public class ItemService {
+    private final ProductSaleRepository productSaleRepository;
     private static final Logger logger = LoggerFactory.getLogger(ItemService.class);
     private final ItemRepository itemRepository;
     private final CategoryService categoryService;
@@ -34,6 +41,8 @@ public class ItemService {
     private final CategoryRepository categoryRepository;
     private final StoreRepository storeRepository;
     private final FavoriteService favoriteService;
+
+
 
     @Transactional //// 단일 카테고리 상품 조회
     public List<ItemDto> getItemsByCategory(Long categoryNo) {
@@ -50,6 +59,11 @@ public class ItemService {
 
     // 신규 상품 등록
     public void registerItem(ItemRequestDto dto) {
+        Item item = new Item();  // 바깥으로 뺌
+        User user;
+        Category category;
+        Store mainStore;
+
         try {
             logger.info("상품 등록 요청 받음: itemName={}, itemCost={}, itemInfo={}, categoryNo={}, storeNos={}",
                     dto.getItemName(), dto.getItemCost(), dto.getItemInfo(), dto.getCategoryNo(), dto.getStoreNos());
@@ -62,15 +76,13 @@ public class ItemService {
                 throw new RuntimeException("희망 지점을 1개 이상 선택해야 합니다.");
             }
 
-            Item item = new Item();
-
-            // 이미지 경로 처리
+            // 이미지 경로
             if (dto.getImagePaths() != null && !dto.getImagePaths().isEmpty()) {
                 String joinedPaths = String.join(",", dto.getImagePaths());
                 item.setImagePathList(joinedPaths);
             }
 
-            // 상품 기본 정보 설정
+            // 기본 정보
             item.setItemName(dto.getItemName());
             item.setItemCost(dto.getItemCost());
             item.setItemInfo(dto.getItemInfo());
@@ -80,26 +92,20 @@ public class ItemService {
             item.setItemWish(0);
             item.setPickStatus("예약중");
 
-            // 사용자와 카테고리 조회
-            User user = userRepository.findById(dto.getUserNo())
+            // 사용자 및 카테고리
+            user = userRepository.findById(dto.getUserNo())
                     .orElseThrow(() -> new RuntimeException("사용자 없음"));
-            Category category = categoryRepository.findById(dto.getCategoryNo())
+            category = categoryRepository.findById(dto.getCategoryNo())
                     .orElseThrow(() -> new RuntimeException("카테고리 없음"));
 
-            // 여러 Store를 가져오기
+            // 지점
             List<Store> stores = storeRepository.findAllById(dto.getStoreNos());
-            if (stores.isEmpty()) {
-                throw new RuntimeException("지점이 하나도 존재하지 않습니다.");
-            }
-            // 대표 지점 하나 지정 (예: 첫 번째)
-            Store mainStore = stores.get(0);
-            item.setStore(mainStore); // 🔥 이걸 반드시 추가!
+            if (stores.isEmpty()) throw new RuntimeException("지점이 하나도 존재하지 않습니다.");
+            mainStore = stores.get(0);
+            item.setStore(mainStore);
+            item.setStores(new HashSet<>(stores));
 
-
-            // 여러 지점 연결 (Set 대신 List 사용 가능)
-            item.setStores(new HashSet<>(stores));  // 다대다 관계에서 여러 지점을 추가
-
-            // 상품 정보 저장
+            // 유저 & 카테고리 연동
             item.setUser(user);
             item.setCategory(category);
 
@@ -110,7 +116,22 @@ public class ItemService {
             logger.error("상품 등록 중 오류 발생", e);
             throw e;
         }
+
+        // ✅ 여기서 ProductSale 연동 (try 밖에서 쓸 수 있게 변수 선언 위치를 바꿈)
+        ProductSale sale = new ProductSale();
+        sale.setSaleNo(item.getItemNo());
+        sale.setItem(item);
+        sale.setUser(user);
+        sale.setStore(mainStore);
+        sale.setCateNo(category.getCateNo());
+        sale.setSaleDate(LocalDate.now());
+        sale.setUserId(user.getUserId());
+        sale.setStatus("판매중");
+
+        productSaleRepository.save(sale);
+        logger.info("판매 목록에도 저장 완료: saleNo={}", sale.getSaleNo());
     }
+
 
     @Transactional// 상품 상세 조회
     public ItemDto getItemDetail(Long itemNo) {
