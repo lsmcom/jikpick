@@ -500,17 +500,21 @@ const LikeSection = styled.div`
           <MenuButton
             src={menuIcon}
             alt="메뉴"
-            onClick={() => setOpenMenuFor(openMenuFor === item.saleNo ? null : item.saleNo)}
+            onClick={(e) => {
+              e.stopPropagation(); // ✅ 이게 핵심!
+              setOpenMenuFor(openMenuFor === item.saleNo ? null : item.saleNo);
+            }}
           />
 
           {openMenuFor === item.saleNo && (
             <DropdownWrapper ref={menuRef}>
             {selectedFilter === '숨김' ? (
               <>
-                <DropdownItem onClick={() => {
-                  toggleHideItem(item.saleNo);
-                  setOpenMenuFor(null); // ✅ 드롭다운 닫기
-                }}>
+                <DropdownItem onClick={(e) => {
+                 e.stopPropagation(); // ✅ 클릭 전파 막기
+                 toggleHideItem(item.saleNo);
+                 setOpenMenuFor(null);
+               }}>
                   <div className="menu-text">
                     {item.status === '숨김' ? '숨김 해제' : '숨김'}
                   </div>
