@@ -17,5 +17,6 @@ public class MysaleDto {
     private int itemWishCount;   // 좋아요 수
     private String saleDate;     // 거래일 (yyyy-MM-dd 문자열)
     private String pickStatus;  // ← 거래 상태 (예: "판매중", "거래완료" 등)
+    private String status;
 
 }
