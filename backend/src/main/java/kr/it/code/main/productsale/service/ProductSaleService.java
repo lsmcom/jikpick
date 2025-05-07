@@ -55,7 +55,7 @@ public class ProductSaleService {
                             .itemWishCount(item.getItemWish())
                             .saleDate(sale.getSaleDate().toString())
                             .pickStatus(item.getPickStatus())
-
+                            .status(sale.getStatus())
                             .build();
                 })
                 .collect(Collectors.toList());
