@@ -128,7 +128,8 @@ public class ItemService {
     // 찜 추가/해제
     @Transactional
     public void toggleWish(Long itemNo, boolean isWish, Long userNo) {
-        Item item = itemRepository.findById(itemNo).orElseThrow();
+        Item item = itemRepository.findByItemNo(itemNo)
+                .orElseThrow(() -> new RuntimeException("해당 상품(" + itemNo + ")은 존재하지 않습니다."));
 
         if (isWish) {
             favoriteService.addFavorite(item, userNo);
