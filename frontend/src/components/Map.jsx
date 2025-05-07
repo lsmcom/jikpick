@@ -61,36 +61,42 @@ export default function Map({ selectedAddress, roadAddressList, selectedBranchIn
     useEffect(() => {
         const fetchUserLocation = async () => {
             try {
-                const memberId = JSON.parse(localStorage.getItem('user')).id;
-                // 백엔드에서 위도, 경도 요청
-                const response = await axios.get('/api/location/get', {
-                    params: { 
-                        memberId: memberId
-                    },
-                });
-                const data = response.data;
-      
-                if (data) {
-                    const userLat = data.latitude;
-                    const userLng = data.longitude;
-      
-                    window.kakao.maps.load(() => {
-                        const map = new window.kakao.maps.Map(container.current, {
-                            center: new window.kakao.maps.LatLng(userLat, userLng),
-                            level: 5,
-                        });
-                        mapRef.current = map;
-                        // 나머지 기존 로직 (마커 표시 등)
-                    });
-                } else {
-                    console.log('사용자 위치 없음. 기본 서울 좌표 사용');
-                    createDefaultMap();
-                }
-            } catch (error) {
-                console.error('사용자 위치 가져오기 실패:', error);
+              const userString = localStorage.getItem('user');
+              if (!userString) {
+                console.warn('로그인 정보 없음 → 기본 좌표로 초기화');
                 createDefaultMap();
+                return;
+              }
+          
+              const memberId = JSON.parse(userString).id;
+          
+              const response = await axios.get('/api/location/get', {
+                params: { memberId },
+              });
+          
+              const data = response.data;
+          
+              if (data) {
+                const userLat = data.latitude;
+                const userLng = data.longitude;
+          
+                window.kakao.maps.load(() => {
+                  const map = new window.kakao.maps.Map(container.current, {
+                    center: new window.kakao.maps.LatLng(userLat, userLng),
+                    level: 5,
+                  });
+                  mapRef.current = map;
+                });
+              } else {
+                console.log('사용자 위치 없음. 기본 서울 좌표 사용');
+                createDefaultMap();
+              }
+            } catch (error) {
+              console.error('사용자 위치 가져오기 실패:', error);
+              createDefaultMap();
             }
-        }
+          };
+          
         
         const createDefaultMap = () => {
             window.kakao.maps.load(() => {

@@ -21,6 +21,7 @@ import kr.it.code.main.category.entity.Category;
 
 import java.io.File;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -34,13 +35,13 @@ public class ItemService {
     private final StoreRepository storeRepository;
     private final FavoriteService favoriteService;
 
-    // 단일 카테고리 상품 조회
+    @Transactional //// 단일 카테고리 상품 조회
     public List<ItemDto> getItemsByCategory(Long categoryNo) {
         List<Item> items = itemRepository.findByCategory_CateNo(categoryNo);
         return items.stream().map(ItemDto::new).toList();
     }
 
-    // 대분류 포함 하위 모든 카테고리 상품 조회
+    @Transactional // 대분류 포함 하위 모든 카테고리 상품 조회
     public List<ItemDto> getItemsInCategoryAndSubCategories(Long parentCategoryId) {
         List<Long> cateNos = categoryService.getAllChildCategoryIds(parentCategoryId);
         List<Item> items = itemRepository.findByCategoryCateNoIn(cateNos);
@@ -61,17 +62,15 @@ public class ItemService {
                 throw new RuntimeException("희망 지점을 1개 이상 선택해야 합니다.");
             }
 
-
             Item item = new Item();
 
-            // ✅ 올바른 코드 (리스트에서 첫 번째 이미지 사용)
+            // 이미지 경로 처리
             if (dto.getImagePaths() != null && !dto.getImagePaths().isEmpty()) {
                 String joinedPaths = String.join(",", dto.getImagePaths());
                 item.setImagePathList(joinedPaths);
             }
 
-
-
+            // 상품 기본 정보 설정
             item.setItemName(dto.getItemName());
             item.setItemCost(dto.getItemCost());
             item.setItemInfo(dto.getItemInfo());
@@ -81,17 +80,28 @@ public class ItemService {
             item.setItemWish(0);
             item.setPickStatus("예약중");
 
+            // 사용자와 카테고리 조회
             User user = userRepository.findById(dto.getUserNo())
                     .orElseThrow(() -> new RuntimeException("사용자 없음"));
             Category category = categoryRepository.findById(dto.getCategoryNo())
                     .orElseThrow(() -> new RuntimeException("카테고리 없음"));
-            Store store = storeRepository.findById(dto.getStoreNos().get(0))
-                    .orElseThrow(() -> new RuntimeException("지점 없음"));
-            item.setStore(store);
 
+            // 여러 Store를 가져오기
+            List<Store> stores = storeRepository.findAllById(dto.getStoreNos());
+            if (stores.isEmpty()) {
+                throw new RuntimeException("지점이 하나도 존재하지 않습니다.");
+            }
+            // 대표 지점 하나 지정 (예: 첫 번째)
+            Store mainStore = stores.get(0);
+            item.setStore(mainStore); // 🔥 이걸 반드시 추가!
+
+
+            // 여러 지점 연결 (Set 대신 List 사용 가능)
+            item.setStores(new HashSet<>(stores));  // 다대다 관계에서 여러 지점을 추가
+
+            // 상품 정보 저장
             item.setUser(user);
             item.setCategory(category);
-            item.setStore(store);
 
             itemRepository.save(item);
             logger.info("상품 등록 완료: itemNo={}", item.getItemNo());
@@ -102,18 +112,19 @@ public class ItemService {
         }
     }
 
-    // 상품 상세 조회
+    @Transactional// 상품 상세 조회
     public ItemDto getItemDetail(Long itemNo) {
         Item item = itemRepository.findByItemNo(itemNo)
                 .orElseThrow(() -> new RuntimeException("해당 상품이 존재하지 않습니다."));
         return new ItemDto(item);
     }
 
-    // 좋아요 수 기준으로 상품 목록을 가져오는 메소드
+    @Transactional// 좋아요 수 기준으로 상품 목록을 가져오는 메소드
     public List<ItemDto> getPopularItems() {
-        List<Item> items = itemRepository.findAllOrderByItemWishDesc();
+        List<Item> items = itemRepository.findAllByOrderByItemWishDesc();
         return items.stream().map(ItemDto::new).toList();
     }
+
     // 찜 추가/해제
     @Transactional
     public void toggleWish(Long itemNo, boolean isWish, Long userNo) {
@@ -129,6 +140,7 @@ public class ItemService {
 
         itemRepository.save(item);
     }
+
     public void deleteImageFile(String fileName) {
         String uploadDir = "C:/jikpick_uploads/";
         File file = new File(uploadDir + fileName);
@@ -136,10 +148,9 @@ public class ItemService {
             file.delete();
         }
     }
+
     // 상품 직접 조회 (찜 기능에서 사용)
     public Item getItemById(Long itemNo) {
         return itemRepository.findByItemNo(itemNo).orElse(null);
     }
-
-
 }

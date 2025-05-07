@@ -4,11 +4,13 @@ import kr.it.code.main.favorite.dto.FavoriteDto;
 import kr.it.code.main.favorite.entity.Favorite;
 import kr.it.code.main.favorite.repository.FavoriteRepository;
 import kr.it.code.main.item.entity.Item;
+import kr.it.code.main.store.entity.Store; // Store 클래스 임포트 추가
 import kr.it.code.main.user.User;
 import kr.it.code.main.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,14 +45,17 @@ public class FavoriteService {
         favorite.setUser(user);
         favorite.setUserId(user.getUserId());
 
-        // ✅ 필수 연관관계 주입
-        if (item.getStore() == null) {
+        // ✅ 여러 지점 정보 확인
+        Set<Store> stores = item.getStores(); // 여러 Store 객체를 받아옴
+        if (stores == null || stores.isEmpty()) {
             throw new RuntimeException("해당 상품은 지점 정보가 없습니다.");
         }
-        favorite.setStore(item.getStore());
-        favorite.setCategory(item.getCategory());
 
-        favoriteRepository.save(favorite);
+        // 여러 지점 정보를 Favorite에 추가
+        for (Store store : stores) {
+            favorite.setStore(store); // 지점마다 설정
+            favoriteRepository.save(favorite); // 각각 저장
+        }
     }
 
     // 찜 해제
