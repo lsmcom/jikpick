@@ -1227,7 +1227,7 @@ const normalize = (str) =>
 
 
 const handleSubmit = async () => {
-  const userInfo = JSON.parse(localStorage.getItem("user"));
+  const userInfo = JSON.parse(sessionStorage.getItem("user"));
   const userNo = userInfo?.userNo;
   console.log("userNo:", userNo);
 
