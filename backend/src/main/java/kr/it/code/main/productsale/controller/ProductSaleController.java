@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/sales")
@@ -37,6 +38,18 @@ public class ProductSaleController {
         productSaleService.deleteSale(saleNo);
         return ResponseEntity.ok().build();
     }
+
+    //신고 기능
+    @PostMapping("/{saleNo}/report")
+    public ResponseEntity<Void> reportSale(
+            @PathVariable Long saleNo,
+            @RequestBody Map<String, String> body
+    ) {
+        String reason = body.get("reason"); // 신고 사유
+        productSaleService.reportSale(saleNo, reason); // 서비스 호출
+        return ResponseEntity.ok().build();
+    }
+
 
 
 
