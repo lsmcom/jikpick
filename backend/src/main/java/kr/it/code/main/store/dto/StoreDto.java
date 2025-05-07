@@ -14,7 +14,7 @@ public class StoreDto {
     private String storeTime;
     private String storeAddress;  // 도로명 주소
     private String lotAddress;    // 지번 주소
-
+    private Long regNo;
     // 필요시 추가: 지역번호, 상품위치, 담당자명 등도 가능
     // private Long regNo;
     // private String itemLocation;
@@ -29,6 +29,14 @@ public class StoreDto {
         dto.setStoreTime(store.getStoreTime());
         dto.setStoreAddress(store.getStoreAddress());
         dto.setLotAddress(store.getLotAddress());
+        System.out.println("🟡 StoreName: " + store.getStoreName());
+        System.out.println("🟠 store.getRegion(): " + store.getRegion());
+        if (store.getRegion() != null) {
+            dto.setRegNo(store.getRegion().getRegNo());
+        } else {
+            dto.setRegNo(null);
+        }
+
         return dto;
     }
 }

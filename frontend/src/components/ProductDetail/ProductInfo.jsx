@@ -175,6 +175,8 @@ export default function ProductInfo({
         wish: newIsWish,
         userNo: userNo,
       };
+
+      console.log("찜 요청 itemNo:", productId);
     
       axios.post(`/api/items/${productId}/wish`, payload)
         .then(() => {

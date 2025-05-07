@@ -1,29 +1,33 @@
-
 server:
   port: 9090
   stored:
-    file :
-      path : C:\\files\\uploads\\
+    file:
+      path: C:\\files\\uploads\\
 
 spring:
   main:
-    allow-bean-definition-overriding: true  #config 수정 가능모드
+    allow-bean-definition-overriding: true
+
+    http:
+      encoding:
+        charset: UTF-8
+        enabled: true
+        force: true
+
   jwt:
     secret: vmfhaltmskdlstkfkdgodyroqkfwkdbalroqkfwkdbalaaaaaaaaaaaaaaaabbbbb
+
   web:
     resources:
-      static-locations: classpath:/static/uploads/images/
+      static-locations: file:///C:/jikpick_uploads/
 
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
-        
+      max-file-size: 20MB
+      max-request-size: 200MB
 
-  #Database 설정
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-#    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
     url: jdbc:mariadb://jikpick.cniogu4geuvu.ap-northeast-2.rds.amazonaws.com:3306/jikpick?useUnicode=true&characterEncoding=utf8mb4
     username: testdb
     password: 123456789
@@ -34,10 +38,10 @@ spring:
       minimum-idle: 1
       idle-timeout: 5000
       data-source-properties:
-        cachePrepStmts: true #캐쉬 설정 on
-        prepStmtCacheSize: 250 #statement 할당 수
-        prepStmtCacheSqlLimit: 2048 #sql문서 최대 길이
-        useServerPrepStmts: true #최신버전 지원설정
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
 
   mail:
     host: smtp.gmail.com
@@ -58,7 +62,7 @@ spring:
     open-in-view: false
     show-sql: true
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     properties:
       hibernate:
         generate_statistics: false
@@ -69,19 +73,15 @@ spring:
           use_query_cache: false
           region.factory_class: org.hibernate.cache.ehcache.EhCacheRegionFactory
 
-
-  #thymeleaf 설정 > jstl 대용품
   thymeleaf:
     cache: false
     check-template-location: true
     encoding: utf-8
     servlet:
       content-type: text/html
-    prefix: file:src/main/resources/templates/  #개발버전, 배포버전은 다르게 써야함.
-#		prefix: classpath:templates/
+    prefix: file:src/main/resources/templates/
     suffix: .html
 
-  #코드 수정 시 자동으로 컴파일 & 적용
   devtools:
     livereload:
       enabled: true
@@ -91,13 +91,10 @@ spring:
     restart:
       enabled: true
 
-#mybatis 세팅
 mybatis:
   config-location: classpath:config/mybatis-config.xml
   mapper-locations: classpath:mapper/**/*.xml
 
-
-#로그 설정
 logging:
   level:
     org:
@@ -110,6 +107,5 @@ logging:
         sql: INFO
         type: OFF
 
-# 카카오맵 api 활용을 위한 key 설정
 kakao:
   rest-api-key: "KakaoAK <REST_API_KEY>"

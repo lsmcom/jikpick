@@ -332,26 +332,35 @@ const LikeSection = styled.div`
     const location = useLocation();
     const navigate = useNavigate();
     const queryParams = new URLSearchParams(location.search);
-
+    const [hoveredItem, setHoveredItem] = useState(null);
+    const [isHoveringLike, setIsHoveringLike] = useState(false);
 
     const toggleHideItem = async (saleNo) => {
       try {
         await axios.patch(`http://localhost:9090/api/sales/${saleNo}/toggle-hide`);
-        // UI 갱신: 다시 불러오거나 상태만 변경
-        setItems(prev => prev.map(i =>
-          i.saleNo === saleNo 
-          ? { ...i, pickStatus: i.pickStatus === '숨김' ? null : '숨김' } : i
-        ));
+    
+        setItems(prev =>
+          prev.map(i =>
+            i.saleNo === saleNo
+              ? {
+                  ...i,
+                  status: i.status === '숨김' ? '판매중' : '숨김'  // ✅ 상태 복구
+                }
+              : i
+          )
+        );
       } catch (err) {
         console.error('숨김 실패:', err);
       }
     };
+    
     
     const deleteItem = async (saleNo) => {
       if (!window.confirm('정말 삭제하시겠습니까?')) return;
       try {
         await axios.delete(`http://localhost:9090/api/sales/${saleNo}`);
         setItems(prev => prev.filter(i => i.saleNo !== saleNo));
+        console.log("삭제완료")
       } catch (err) {
         console.error('삭제 실패:', err);
       }
@@ -380,13 +389,25 @@ const LikeSection = styled.div`
 
     // ❷ 유저 정보 기반 판매내역 불러오기
     useEffect(() => {
-      const user = JSON.parse(localStorage.getItem('user'));
+      const user = JSON.parse(sessionStorage.getItem('user'));
+      console.log('user 정보:', user);
       if (user?.userNo) {
         axios.get(`http://localhost:9090/api/sales/by-user?userNo=${user.userNo}`)
-          .then(res => setItems(res.data))
-          .catch(err => console.error('판매내역 불러오기 실패:', err));
-    }
-      }, []);
+          .then(res => {
+            setItems(res.data);
+            console.log("호출완료");
+            console.log(res.data);
+          })
+          .catch(err => {
+            console.error('판매내역 불러오기 실패:', err);
+          });
+      } else {
+        console.warn('❗ user 정보 없음 - API 호출 안함');
+      }
+    }, []);
+    
+    
+    
     
       useEffect(() => {
         const handleClickOutside = (e) => {
@@ -424,19 +445,40 @@ const LikeSection = styled.div`
             <FilterButton $active={selectedFilter==='숨김'}     onClick={() => handleFilterClick('숨김')}>숨김</FilterButton>
             </FilterButtonContainer>
   
-            <FilterLine $isHidden={selectedFilter === '숨김' && items.filter(item => item.pickStatus === '숨김').length === 0} />
+            <FilterLine
+              $isHidden={
+                selectedFilter === '숨김' &&
+                items.filter(item => item.status === '숨김').length === 0
+              }
+            />
+
   
             <ItemList>
               {items
                 .filter(item =>
                   selectedFilter === '판매중'
-                    ? item.pickStatus === '판매중'
+                    ? item.status === '판매중' || item.status === '예약중' // ✅ 판매중 + 예약중 포함
                     : selectedFilter === '거래완료'
-                    ? item.pickStatus === '거래완료'
-                    : item.pickStatus === '숨김'
+                    ? item.status === '거래완료'
+                    : item.status === '숨김'
                 )
+                
+                
+                
                 .map(item => (
-                <ItemCard key={item.saleNo}>
+                <ItemCard 
+                key={item.saleNo}
+                onClick={() => navigate(`/items/${item.itemNo}`)}
+                        onMouseEnter={() => setHoveredItem(item.itemNo)}
+                        onMouseLeave={() => {
+                          setHoveredItem(null);
+                          setIsHoveringLike(false);
+                        }}
+                        style={{
+                          backgroundColor:
+                            hoveredItem === item.itemNo && !isHoveringLike ? '#f9f9f9' : 'transparent',
+                        }}
+                >
                   <ItemImage src={item.itemImage} alt={item.itemName} />
                   <ItemInfo>
                     <InfoTop>
@@ -458,45 +500,70 @@ const LikeSection = styled.div`
           <MenuButton
             src={menuIcon}
             alt="메뉴"
-            onClick={() => setOpenMenuFor(openMenuFor === item.saleNo ? null : item.saleNo)}
+            onClick={(e) => {
+              e.stopPropagation(); // ✅ 이게 핵심!
+              setOpenMenuFor(openMenuFor === item.saleNo ? null : item.saleNo);
+            }}
           />
 
           {openMenuFor === item.saleNo && (
             <DropdownWrapper ref={menuRef}>
-              {selectedFilter === '숨김' ? (
-                <>
-                <DropdownItem onClick={() => toggleHideItem(item.saleNo)}>
+            {selectedFilter === '숨김' ? (
+              <>
+                <DropdownItem onClick={(e) => {
+                 e.stopPropagation(); // ✅ 클릭 전파 막기
+                 toggleHideItem(item.saleNo);
+                 setOpenMenuFor(null);
+               }}>
                   <div className="menu-text">
-                    {item.pickStatus === '숨김' ? '숨김 해제' : '숨김'}
+                    {item.status === '숨김' ? '숨김 해제' : '숨김'}
                   </div>
                 </DropdownItem>
-
-
-                <DropdownItem $danger onClick={() => deleteItem(item.saleNo)}>
+          
+                <DropdownItem $danger onClick={() => {
+                  deleteItem(item.saleNo);
+                  setOpenMenuFor(null); // ✅ 드롭다운 닫기
+                }}>
                   <div className="menu-text">삭제</div>
                 </DropdownItem>
-
-                </>
-              ) : (
-                <>
-                  <DropdownItem onClick={() => toggleHideItem(item.saleNo)}>
-                    <div className="menu-text">{item.pickStatus === '숨김' ? '숨김 해제' : '숨김'}</div>
+              </>
+            ) : (
+              <>
+                <DropdownItem onClick={() => {
+                  toggleHideItem(item.saleNo);
+                  setOpenMenuFor(null); // ✅ 드롭다운 닫기
+                }}>
+                  <div className="menu-text">
+                    {item.status === '숨김' ? '숨김 해제' : '숨김'}
+                  </div>
+                </DropdownItem>
+          
+                <DropdownItem $danger onClick={() => {
+                  deleteItem(item.saleNo);
+                  setOpenMenuFor(null); // ✅ 드롭다운 닫기
+                }}>
+                  <div className="menu-text">삭제</div>
+                </DropdownItem>
+          
+                <DropdownItem onClick={() => {
+                  reportItem(item.saleNo);
+                  setOpenMenuFor(null); // ✅ 드롭다운 닫기
+                }}>
+                  <div className="menu-text">신고</div>
+                </DropdownItem>
+          
+                {item.status === '거래완료' && (
+                  <DropdownItem onClick={() => {
+                    setShowCancelModal(true);
+                    setOpenMenuFor(null); // ✅ 드롭다운 닫기
+                  }}>
+                    <div className="menu-text">거래취소</div>
                   </DropdownItem>
-                  <DropdownItem $danger onClick={() => deleteItem(item.saleNo)}>
-                    <div className="menu-text">삭제</div>
-                  </DropdownItem>
-                  <DropdownItem onClick={() => reportItem(item.saleNo)}>
-                    <div className="menu-text">신고</div>
-                  </DropdownItem>
-                  {item.pickStatus === '거래완료' && (
-                    <DropdownItem onClick={() => setShowCancelModal(true)}>
-                      <div className="menu-text">거래취소</div>
-                    </DropdownItem>
-                  )}
-                </>
-
-              )}
-            </DropdownWrapper>
+                )}
+              </>
+            )}
+          </DropdownWrapper>
+          
           )}
         </LikeSection>
          </ItemCard>

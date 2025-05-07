@@ -13,6 +13,8 @@ import ReviewModal from '../components/ReviewModal';
 import CategoryDropdown from './CategoryDropdown';
 import axios from '../api/axios'; 
 
+
+
 const HeaderWrapper = styled.header`
   font-family: 'Pretendard', sans-serif;
   width: 100%;
@@ -714,6 +716,8 @@ export default function Header({ isLoggedIn, setIsLoggedIn }) {
   //알림 모달 상태 관리
   const alertRef = useRef(null);
   const [showAlert, setShowAlert] = useState(false);
+  const [showStatusModal, setShowStatusModal] = useState(false); // 기존 showStatusModal 사용
+  const [selectedAlert, setSelectedAlert] = useState(null); // 클릭된 알림 정보 상태
 
   //지역설정 모달 상태 관리
   const [showModal, setShowModal] = useState(false);
@@ -723,7 +727,6 @@ export default function Header({ isLoggedIn, setIsLoggedIn }) {
   const [openMenuId, setOpenMenuId] = useState(null);
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [showHideModal, setShowHideModal] = useState(false);
-  const [showStatusModal, setShowStatusModal] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   
   // 검색 키워드 상태관리
@@ -760,6 +763,26 @@ export default function Header({ isLoggedIn, setIsLoggedIn }) {
   
     mouseDownTarget.current = null;
   };
+const [userNo, setUserNo] = useState(null); // 로그인된 사용자의 ID 상태
+const [notifications, setNotifications] = useState([]);
+
+useEffect(() => {
+  if (!userNo) return; // userNo가 없으면 API 호출을 하지 않음
+
+  // 사용자 알림 데이터 가져오기
+  const fetchNotifications = async () => {
+    try {
+      const response = await axios.get(`/api/notifications/user/${userNo}`);
+      setNotifications(response.data); // 받아온 알림 데이터로 상태 업데이트
+    } catch (error) {
+      console.error("알림을 가져오는 데 실패했습니다:", error);
+    }
+  };
+
+  fetchNotifications(); // useEffect가 실행될 때 알림 데이터를 가져옵니다.
+}, [userNo]); // userNo가 변경될 때마다 알림을 다시 불러옵니다.
+
+  
 
   // 👇 useEffect 안에서 알림 모달 외부 클릭 감지
   useEffect(() => {
@@ -803,75 +826,47 @@ export default function Header({ isLoggedIn, setIsLoggedIn }) {
     localStorage.setItem('selectedLocation', shortLocation); 
     setShowModal(false);
   };
-
+  useEffect(() => {
+    if (!userNo) return;
   // 알림 데이터
-  const alerts = [
+  setNotifications([
     {
-      id: 1,
+      notificationNo: 1,
       nickname: '오로라',
-      message: '오로라님과 거래가 완료되었습니다.',
+      message: '거래가 완료되었습니다.',
       date: '1시간 전',
       type: 'today',
-      icon: box,
     },
     {
-      id: 2,
+      notificationNo: 2,
       nickname: '아기사자',
-      message: '아기사자님이 지점에 물건을 전달하였습니다.',
+      message: '지점에 물건을 전달하였습니다.',
       date: '3시간 전',
       type: 'today',
-      icon: box,
     },
-    {
-      id: 3,
-      nickname: '하츄핑',
-      message: '하츄핑님이 지점에 물건을 전달하였습니다.',
-      date: '6시간 전',
-      type: 'today',
-      icon: box,
-    },
-    {
-      id: 4,
-      nickname: '지니',
-      message: '지니님과 거래중입니다.',
-      date: '어제 오후 4:20',
-      type: 'previous',
-      icon: box,
-    },
-    {
-      id: 5,
-      nickname: '푸바오',
-      message: '푸바오님이 거래를 취소하였습니다.',
-      date: '3일 전',
-      type: 'previous',
-      icon: box,
-    },
-    {
-      id: 6,
-      nickname: '서울역개발자',
-      message: '서울역개발자님이 지점에 물건을 전달하였습니다.',
-      date: '5일 전',
-      type: 'previous',
-      icon: box,
-    },
-    {
-      id: 7,
-      nickname: '공덕걸스',
-      message: '공덕걸스님과 거래가 완료되었습니다.',
-      date: '6일 전',
-      type: 'previous',
-      icon: box,
-    },
-  ];
-
+    // ...더 많은 알림
+  ]);
+}, []); // 초기 실행 시 알림 데이터를 세팅
+  
   // 오늘 받은 알림과 이전 알림 나누기
-  const todayAlerts = alerts.filter((alert) => alert.type === 'today');
-  const previousAlerts = alerts.filter((alert) => alert.type === 'previous');
+  const todayAlerts = notifications.filter(alert => alert.type === 'today');
+  const previousAlerts = notifications.filter(alert => alert.type === 'previous');
 
   // ✅ 필터링
   const filteredLocations = recommendedLocations.filter((loc) =>
     loc.includes(searchQuery)
   );
+    // 알림 클릭 시 모달 열기
+    const handleAlertClick = (alert) => {
+      setSelectedAlert(alert); // 클릭한 알림 정보 저장
+      setShowStatusModal(true); // 모달 열기
+    };
+  
+    const handleCloseModal = () => {
+      setShowStatusModal(false); // 모달 닫기
+      setSelectedAlert(null); // 알림 정보 초기화
+    };
+  
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -971,187 +966,136 @@ export default function Header({ isLoggedIn, setIsLoggedIn }) {
 
   return (
     <HeaderWrapper>
-      <HeadContainer>
-        <TopBar>
-          {isLoggedIn ? (
-            <>
-              <NavLink to="#" onClick={handleLogout}>
-                로그아웃
-              </NavLink>
-              <div style={{ position: 'relative' }} ref={alertRef}>
-                <AlertText onClick={() => setShowAlert(!showAlert)}>알림</AlertText>
-                {showAlert && (
-                  <AlertModalWrapper>
-                    <AlertModalBox>
-                      {/* 알림 모달 상단 제목과 톱니바퀴 아이콘 */}
-                      <AlertModalHeader>
-                        <AlertTitle>알림</AlertTitle>
-                        <div style={{ position: 'relative' }}>
-                          <SettingsIcon
-                            src={settingIcon}
-                            alt="알림 설정"
-                            onClick={() => setShowSettingsMenu((prev) => !prev)}
-                          />
-                          {showSettingsMenu && (
-                            <SettingsMenu>
-                              <SettingsItem onClick={() => setShowHideModal(true)}>숨김관리</SettingsItem>
-                              <SettingsItem color="#FB4A67">전체삭제</SettingsItem>
-                            </SettingsMenu>
-                          )}
-                        </div>
+    <HeadContainer>
+    <TopBar>
+      {isLoggedIn ? (
+        <>
+          <NavLink to="#" onClick={handleLogout}>로그아웃</NavLink>
+          <div style={{ position: 'relative' }} ref={alertRef}>
+            <AlertText onClick={() => setShowAlert(!showAlert)}>알림</AlertText>
+            {showAlert && (
+              <AlertModalWrapper>
+                <AlertModalBox>
+                  <AlertModalHeader>
+                    <AlertTitle>알림</AlertTitle>
+                    <div style={{ position: 'relative' }}>
+                      <SettingsIcon
+                        src={settingIcon}
+                        alt="알림 설정"
+                        onClick={() => setShowSettingsMenu((prev) => !prev)} />
+                      {showSettingsMenu && (
+                        <SettingsMenu>
+                          <SettingsItem onClick={() => setShowHideModal(true)}>숨김관리</SettingsItem>
+                          <SettingsItem color="#FB4A67">전체삭제</SettingsItem>
+                        </SettingsMenu>
+                      )}
+                    </div>
 
-                        {showHideModal && (
-                          <ModalBackground onClick={() => setShowHideModal(false)}>
-                            <HideModalContent onClick={(e) => e.stopPropagation()}>
-                              <HideModalHeader>
-                                <HideModalTitle>숨김관리</HideModalTitle>
-                                <CloseButton onClick={() => setShowHideModal(false)}>
-                                  <img src={closeXIcon} alt="닫기" />
-                                </CloseButton>
-                              </HideModalHeader>
-                              <HideModalDivider />
-                              <HideModalBody>
-                                숨김 처리된 알림이 없습니다.
-                              </HideModalBody>
-                            </HideModalContent>
-                          </ModalBackground>
-                        )}
-                      </AlertModalHeader>
-                      <FullWidthDivider />
+                    {showHideModal && (
+                      <ModalBackground onClick={() => setShowHideModal(false)}>
+                        <HideModalContent onClick={(e) => e.stopPropagation()}>
+                          <HideModalHeader>
+                            <HideModalTitle>숨김관리</HideModalTitle>
+                            <CloseButton onClick={() => setShowHideModal(false)}>
+                              <img src={closeXIcon} alt="닫기" />
+                            </CloseButton>
+                          </HideModalHeader>
+                          <HideModalDivider />
+                          <HideModalBody>숨김 처리된 알림이 없습니다.</HideModalBody>
+                        </HideModalContent>
+                      </ModalBackground>
+                    )}
+                  </AlertModalHeader>
+                  <FullWidthDivider />
 
-                      <AlertGroupTitle>오늘 받은 알림</AlertGroupTitle>
-                      {todayAlerts.map((alert) => (
-                        <AlertItem key={alert.id} onClick={() => setShowStatusModal(true)}>
-                          <AlertIcon src={alert.icon} alt="알림 아이콘" />
-                          <AlertContent>
-                            <AlertHeader>
-                              <AlertNickname>{alert.nickname}</AlertNickname>
-                              <AlertDate>{alert.date}</AlertDate>
+                  <AlertGroupTitle>오늘 받은 알림</AlertGroupTitle>
+                  {notifications.filter(alert => alert.type === 'today').map((alert) => (
+                    <AlertItem key={alert.notificationNo} onClick={() => handleAlertClick(alert)}>
+                      <AlertIcon src={alert.icon} alt="알림 아이콘" />
+                      <AlertContent>
+                        <AlertHeader>
+                          <AlertNickname>{alert.nickname}</AlertNickname>
+                          <AlertDate>{alert.date}</AlertDate>
+                        </AlertHeader>
+                        <AlertMessage>{alert.message}</AlertMessage>
+                      </AlertContent>
+                    </AlertItem>
+                  ))}
 
-                              {/* 메뉴 아이콘 */}
-                              <AlertMenuWrapper className="alert-menu">
-                                <MenuDropDownButton
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setOpenMenuId(openMenuId === alert.id ? null : alert.id);
-                                  }}
-                                >
-                                  <MenuDropDownIcon src={menuDrop} alt="메뉴" />
-                                </MenuDropDownButton>
-                                {openMenuId === alert.id && (
-                                  <DropdownMenu className="alert-menu">
-                                    <DropdownItem onClick={(e)=> {e.stopPropagation()}}>숨김</DropdownItem>
-                                    <DropdownItem color="#FB4A67" onClick={(e)=> {e.stopPropagation()}}>삭제</DropdownItem>
-                                  </DropdownMenu>
-                                )}
-                              </AlertMenuWrapper>
-                            </AlertHeader>
-                            <AlertMessage>{alert.message}</AlertMessage>
-                          </AlertContent>
-                        </AlertItem>
-                      ))}
+                  <AlertGroupTitle>이전 알림</AlertGroupTitle>
+                  {notifications.filter(alert => alert.type === 'previous').map((alert) => (
+                    <AlertItem key={alert.notificationNo} onClick={() => handleAlertClick(alert)}>
+                      <AlertIcon src={alert.icon} alt="알림 아이콘" />
+                      <AlertContent>
+                        <AlertHeader>
+                          <AlertNickname>{alert.nickname}</AlertNickname>
+                          <AlertDate>{alert.date}</AlertDate>
+                        </AlertHeader>
+                        <AlertMessage>{alert.message}</AlertMessage>
+                      </AlertContent>
+                    </AlertItem>
+                  ))}
+                </AlertModalBox>
+              </AlertModalWrapper>
+            )}
+          </div>
 
-                      <AlertGroupTitle>이전 알림</AlertGroupTitle>
-                      {previousAlerts.map((alert) => (
-                        <AlertItem key={alert.id} onClick={() => setShowStatusModal(true)}>
-                          <AlertIcon src={alert.icon} alt="알림 아이콘" />
-                          <AlertContent>
-                            <AlertHeader>
-                              <AlertNickname>{alert.nickname}</AlertNickname>
-                              <AlertDate>{alert.date}</AlertDate>
+          {/* 상태 모달 */}
+          {showStatusModal && (
+            <ModalBackground onClick={() => setShowStatusModal(false)}>
+              <StatusModalContent onClick={(e) => e.stopPropagation()}>
+                <StatusSteps>
+                  <Step active>결제 완료</Step>
+                  <Step active>거래중</Step>
+                  <Step>지점 전달완료</Step>
+                  <Step>거래 완료</Step>
+                </StatusSteps>
 
-                              {/* 메뉴 아이콘 */}
-                              <AlertMenuWrapper className="alert-menu">
-                                <MenuDropDownButton
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setOpenMenuId(openMenuId === alert.id ? null : alert.id);
-                                  }}
-                                >
-                                  <MenuDropDownIcon src={menuDrop} alt="메뉴" />
-                                </MenuDropDownButton>
-                                {openMenuId === alert.id && (
-                                  <DropdownMenu className="alert-menu">
-                                    <DropdownItem onClick={(e)=> {e.stopPropagation()}}>숨김</DropdownItem>
-                                    <DropdownItem color="#FB4A67" onClick={(e)=> {e.stopPropagation()}}>삭제</DropdownItem>
-                                  </DropdownMenu>
-                                )}
-                              </AlertMenuWrapper>
-                            </AlertHeader>
-                            <AlertMessage>{alert.message}</AlertMessage>
-                          </AlertContent>
-                        </AlertItem>
-                      ))}
-                    </AlertModalBox>
-                  </AlertModalWrapper>
-                )}
+                <StatusLabel>거래중</StatusLabel>
 
-                {showStatusModal && (
-                  <ModalBackground onClick={() => setShowStatusModal(false)}>
-                    <StatusModalContent onClick={(e) => e.stopPropagation()}>
-                      <StatusSteps>
-                        <Step active>결제 완료</Step>
-                        <Step active>거래중</Step>
-                        <Step>지점 전달완료</Step>
-                        <Step>거래 완료</Step>
-                      </StatusSteps>
+                <ProductInfoBox>
+                  <ProductImage src={selectedAlert?.image || iPhone} alt="상품" />
+                  <ProductTextArea>
+                    <ProductName>{selectedAlert?.productName || "상품명"}</ProductName>
+                    <ProductPrice>{selectedAlert?.price || "가격"}</ProductPrice>
+                  </ProductTextArea>
+                </ProductInfoBox>
 
-                      <StatusLabel>거래중</StatusLabel>
+                <RequestBox>
+                  <RequestRow>
+                    <RequestLabel>요청사항</RequestLabel>
+                    <RequestText>{selectedAlert?.request || "요청사항 없음"}</RequestText>
+                  </RequestRow>
+                  <RequestRow>
+                    <RequestLabel>직픽 지점 장소</RequestLabel>
+                    <RequestText>{selectedAlert?.branch || "지점 미지정"}</RequestText>
+                  </RequestRow>
+                </RequestBox>
 
-                      <ProductInfoBox>
-                        <ProductImage src={iPhone} alt="상품" />
-                        <ProductTextArea>
-                          <ProductName>아이폰 5S 골드</ProductName>
-                          <ProductPrice>75,000원</ProductPrice>
-                        </ProductTextArea>
-                      </ProductInfoBox>
-
-                      <RequestBox>
-                        <RequestRow>
-                          <RequestLabel>요청사항</RequestLabel>
-                          <RequestText>꼼꼼히 물건 포장해주세요</RequestText>
-                        </RequestRow>
-                        <RequestRow>
-                          <RequestLabel>직픽 지점 장소</RequestLabel>
-                          <RequestText>강남점</RequestText>
-                        </RequestRow>
-                      </RequestBox>
-
-                      <ButtonArea>
-                        {/* <CancelButton>거래 취소</CancelButton> */}
-                        <ReviewButton onClick={() => setModalOpen(true)}>리뷰쓰기</ReviewButton>
-                      </ButtonArea>
-                    </StatusModalContent>
-                  </ModalBackground>
-                )}
-              </div>
-
-              {modalOpen && (
-                <ReviewModal
-                  onClose={() => setModalOpen(false)}
-                  onSubmit={handleReviewSubmit}
-                />
-              )}
-            </>
-          ) : (
-            <>
-              <NavLink to="/login">로그인</NavLink>
-              <NavLink to="/signup">회원가입</NavLink>
-            </>
+                <ButtonArea>
+                  <ReviewButton onClick={() => setModalOpen(true)}>리뷰쓰기</ReviewButton>
+                </ButtonArea>
+              </StatusModalContent>
+            </ModalBackground>
           )}
-        </TopBar>
-
-        <MiddleBar>
-          <LeftContainer>
-            <LogoLink to="/">
-              <LogoIcon src={box} />
-              <Logo>JIKPICK</Logo>
-            </LogoLink>
-            <SearchBar>
-              <SearchInput placeholder="상품명, 지점명으로 검색" />
-              <SearchIcon src={search} />
-            </SearchBar>
-          </LeftContainer>
+        </>
+      ) : (
+        <>
+          <NavLink to="/login">로그인</NavLink>
+          <NavLink to="/signup">회원가입</NavLink>
+        </>
+      )}
+    </TopBar><MiddleBar>
+        <LeftContainer>
+          <LogoLink to="/">
+            <LogoIcon src={box} />
+            <Logo>JIKPICK</Logo>
+          </LogoLink>
+          <SearchBar>
+            <SearchInput placeholder="상품명, 지점명으로 검색" />
+            <SearchIcon src={search} />
+          </SearchBar>
+        </LeftContainer>
 
           <MiddleRight>
             <SpanLink onClick={() => handleProtectedRoute('/upload')}>판매하기</SpanLink>
@@ -1190,33 +1134,31 @@ export default function Header({ isLoggedIn, setIsLoggedIn }) {
                     </CloseButton>
                   </ModalHeader>
 
-                  <ModalDivider />
+                <ModalDivider />
 
-                  <ModalSearchArea>
-                    <ModalSearchInput
-                      placeholder="지역이나 동네로 검색하기"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          // 엔터 검색 처리 가능
-                        }
-                      }}
-                    />
-                    <ModalSearchIcon
-                      src={search}
-                      alt="검색"
-                      onClick={() => {}}
-                    />
-                  </ModalSearchArea>
+                <ModalSearchArea>
+                  <ModalSearchInput
+                    placeholder="지역이나 동네로 검색하기"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        // 엔터 검색 처리 가능
+                      }
+                    } } />
+                  <ModalSearchIcon
+                    src={search}
+                    alt="검색"
+                    onClick={() => { } } />
+                </ModalSearchArea>
 
                   <ModalLocationButton onClick={handleUseCurrentLocation}>
                     <img src={ping} alt="위치 아이콘" />
                     현재 내 위치 사용하기
                   </ModalLocationButton>
 
-                  {searchQuery === '' ? (
-                    <ModalListContainer>
+                {searchQuery === '' ? (
+                  <ModalListContainer>
                     <ModalListTitle>추천</ModalListTitle>
                     {recommendedLocations.map((item, i) => (
                       <ModalListItem key={i} onClick={() => handleLocationClick(item)}>
@@ -1224,23 +1166,23 @@ export default function Header({ isLoggedIn, setIsLoggedIn }) {
                       </ModalListItem>
                     ))}
                   </ModalListContainer>
-                  ) : (
-                    <ModalListContainer>
-                      {filteredLocations.length > 0 ? (
-                        filteredLocations.map((item, i) => (
-                          <ModalListItem key={i} onClick={() => handleLocationClick(item)}>
+                ) : (
+                  <ModalListContainer>
+                    {filteredLocations.length > 0 ? (
+                      filteredLocations.map((item, i) => (
+                        <ModalListItem key={i} onClick={() => handleLocationClick(item)}>
                           {item}
                         </ModalListItem>
-                        ))
-                      ) : (
-                        <ModalListItem>검색 결과가 없습니다.</ModalListItem>
-                      )}
-                    </ModalListContainer>
-                  )}
-                </ModalInner>
-              </ModalContent>
-            </ModalBackground>
-          )}
+                      ))
+                    ) : (
+                      <ModalListItem>검색 결과가 없습니다.</ModalListItem>
+                    )}
+                  </ModalListContainer>
+                )}
+              </ModalInner>
+            </ModalContent>
+          </ModalBackground>
+        )}
 
           <SpanLink onClick={() => handleProtectedRoute('/findBranch')}>
             직픽지점 조회

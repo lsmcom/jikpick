@@ -33,7 +33,7 @@ public class ProductSaleController {
 
     //판매상품 삭제 기능
     @DeleteMapping("/{saleNo}")
-    public ResponseEntity<?> deleteSale(@PathVariable Long saleNo) {
+    public ResponseEntity<Void> deleteSale(@PathVariable Long saleNo) {
         productSaleService.deleteSale(saleNo);
         return ResponseEntity.ok().build();
     }

@@ -13,16 +13,19 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class StoreService {
 
+
     private final StoreRepository storeRepository;
 
+    // 기존 메서드 덮어쓰기
     public List<StoreDto> getAllStores() {
-        return storeRepository.findAll().stream()
+        return storeRepository.findAllWithRegion().stream()
                 .map(StoreDto::fromEntity)
                 .collect(Collectors.toList());
     }
 
+
     public List<StoreDto> filterStores(String region, String subRegion, String name, String time) {
-        List<Store> stores = storeRepository.filterStores(
+        List<Store> stores = storeRepository.filterStoresWithRegion(  // ✅ 여기!
                 region != null && !region.isEmpty() ? region : null,
                 subRegion != null && !subRegion.isEmpty() ? subRegion : null,
                 name != null && !name.isEmpty() ? name : null,
@@ -30,4 +33,5 @@ public class StoreService {
         );
         return stores.stream().map(StoreDto::fromEntity).collect(Collectors.toList());
     }
+
 }
