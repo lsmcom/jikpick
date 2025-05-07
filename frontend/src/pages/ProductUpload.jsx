@@ -846,54 +846,47 @@ const storeExampleData = [
   }, [images]);
 
   // 2. 이미지 업로드할 때 첫 번째 이미지를 자동으로 대표 설정
-  const handleImageChange = async (e) => {
-    const selectedFiles = Array.from(e.target.files);
-    setImages((prev) => [...prev, ...newImages]);
-    setUploadKey(Date.now());
-    if (images.length + selectedFiles.length > 10) {
-      alert("이미지는 최대 10장까지 업로드할 수 있습니다.");
-      return;
+const handleImageChange = async (e) => {
+  const selectedFiles = Array.from(e.target.files);
+  const newImages = [];
+
+  if (images.length + selectedFiles.length > 10) {
+    alert("이미지는 최대 10장까지 업로드할 수 있습니다.");
+    return;
+  }
+
+  for (const file of selectedFiles) {
+    try {
+      const formData = new FormData();
+      formData.append('imageFiles', file);
+
+      const res = await axios.post(
+        "http://localhost:9090/api/items/upload-image",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+      const uploadedUrl = `http://localhost:9090${res.data}`;
+      const previewUrl = URL.createObjectURL(file);
+
+      newImages.push({
+        id: uploadedUrl,
+        preview: previewUrl,
+        file,
+      });
+    } catch (err) {
+      console.error("업로드 실패:", err);
     }
+  }
 
-    const newImages = [];
-    for (const file of selectedFiles) {
-      try {
-        const formData = new FormData();
-        formData.append('imageFiles', file); // ✅ 여기 이름 반드시 imageFiles!
-        
-
-        const res = await axios.post(
-          "http://localhost:9090/api/items/upload-image",
-          formData,
-          {
-            headers: { "Content-Type": "multipart/form-data" },
-          }
-        );
-        // 여기를 반드시 찍자!
-        console.log("업로드 응답값:", res.data);  // 👈 👈 👈
-        const uploadedUrl = `http://localhost:9090${res.data}`;
-
-        const previewUrl = URL.createObjectURL(file);
-
-        newImages.push({
-          id: uploadedUrl,
-          preview: previewUrl,
-          file,
-        });
-      } catch (err) {
-        console.error("업로드 실패:", err);
-      }
-    }
-
-    const updatedImages = [...images, ...newImages];
-    setImages(updatedImages);
-
-    // ✅ 대표 이미지 설정 (처음 업로드 시 자동 설정)
-    if (!thumbnailId && updatedImages.length > 0) {
-      setThumbnailId(updatedImages[0].id);
-    }
-    setUploadKey(Date.now());
-  };
+  const updatedImages = [...images, ...newImages];
+  setImages(updatedImages);
+  if (!thumbnailId && updatedImages.length > 0) {
+    setThumbnailId(updatedImages[0].id);
+  }
+  setUploadKey(Date.now());
+};
 
   // 3. 대표 이미지 수동 설정 함수 추가
   const setAsThumbnail = (id) => {
@@ -1163,7 +1156,6 @@ const storeExampleData = [
 // 상태 관리
 const [selectedRegion, setSelectedRegion] = useState(""); // 선택된 지역
 const [selectedBranches, setSelectedBranches] = useState([]); // 선택된 지점들
-const [storeNos, setStoreNos] = useState([]);  // storeNos 상태 추가
 
 // 지역에 해당하는 지점만 필터링
 const filteredStores = selectedRegion
@@ -1193,26 +1185,6 @@ const handleBranchSelection = (storeName) => {
 
 
 
-// selectedBranches가 변경될 때마다 실행되는 useEffect
-useEffect(() => {
-  // selectedBranches에 대한 업데이트 확인
-  console.log("selectedBranches updated:", selectedBranches);
-
-  // selectedBranches가 포함된 store만 필터링해서 storeNos 추출
-  const selectedStoreNos = allStores
-    .filter(store => selectedBranches.includes(store.storeName))
-    .map(store => store.storeNo);
-
-  console.log("storeNos updated:", selectedStoreNos); // 상태가 올바르게 업데이트 되었는지 확인
-
-  setStoreNos(selectedStoreNos);  // storeNos 상태 업데이트
-}, [allStores, selectedBranches]);  // selectedBranches가 변경될 때마다 실행
-
-// storeNos 변경 후 확인용 useEffect
-useEffect(() => {
-  console.log("storeNos after update:", storeNos);  // storeNos 상태 확인
-}, [storeNos]);  // storeNos가 변경될 때마다 실행
-
 allStores.slice(0, 5).forEach((s, i) => {
 });  
 //유효기간
@@ -1226,120 +1198,84 @@ const normalize = (str) =>
 
 
 
-const handleSubmit = async () => {
-  const userInfo = JSON.parse(sessionStorage.getItem("user"));
-  const userNo = userInfo?.userNo;
-  console.log("userNo:", userNo);
-
-  if (!userNo) {
-    alert("로그인이 필요합니다.");
-    return;
-  }
-
-  if (selectedBranches.length === 0) {
-    alert("최소 1개의 지점을 선택해야 합니다.");
-    return;
-  }
-
-  if (!tradeDuration) {
-    alert("거래 유효시간을 선택해주세요.");
-    return;
-  }
-
-  const parsedCost = parseInt(price.replace(/,/g, ""));
-  if (!parsedCost || parsedCost <= 0) {
-    alert("유효한 가격을 입력해주세요.");
-    return;
-  }
-
-  console.log("allStores:", allStores);
-  console.log("selectedBranches:", selectedBranches);
-// 로그: 전체 지점 이름 확인
-console.log("allStores (names):", allStores.map(store => store.storeName));
-
-// storeName → storeNo Map 생성
-const storeMap = new Map(
-  allStores.map(store => [store.storeName.trim(), store.storeNo])
-);
-    selectedBranches.forEach(branch => {
-      allStores.forEach(store => {
-        console.log(`비교: ${normalize(branch)} === ${normalize(store.storeName)} →`, normalize(branch) === normalize(store.storeName));
+     const handleSubmit = async () => {
+      const userInfo = JSON.parse(sessionStorage.getItem("user"));
+      const userNo = userInfo?.userNo;
+      if (!userNo) {
+        alert("로그인이 필요합니다.");
+        return;
+      }
+    
+      if (selectedBranches.length === 0) {
+        alert("최소 1개의 지점을 선택해야 합니다.");
+        return;
+      }
+    
+      if (!tradeDuration) {
+        alert("거래 유효시간을 선택해주세요.");
+        return;
+      }
+    
+      const parsedCost = parseInt(price.replace(/,/g, ""));
+      if (!parsedCost || parsedCost <= 0) {
+        alert("유효한 가격을 입력해주세요.");
+        return;
+      }
+    
+      const categoryNo = selectedThird?.cateNo || selectedSub?.cateNo || selectedMain?.cateNo;
+      if (!categoryNo) {
+        alert("카테고리를 선택해 주세요.");
+        return;
+      }
+    
+      if (images.length === 0) {
+        alert("이미지를 최소 1장 업로드해 주세요.");
+        return;
+      }
+    
+      // ✅ storeExampleData에서 storeNo 추출
+      const selectedStoreNos = storeExampleData
+        .filter(store => selectedBranches.includes(store.storeName))
+        .map(store => store.storeNo);
+    
+      const formData = new FormData();
+    
+      images.forEach(img => {
+        if (img.file instanceof File) {
+          formData.append("imageFiles", img.file);
+        }
       });
-    });
-
-    const selectedStoreNos = allStores
-    .filter(store =>
-      selectedBranches.some(branch =>
-        normalize(store.storeName) === normalize(branch)
-      )
-    )
-    .map(store => store.storeNo);
-  // ⬇️ 여기에 넣으세요
-if (selectedStoreNos.length === 0) {
-  console.warn("❗storeNos 매핑 실패 - fallback 적용");
-  selectedStoreNos.push(allStores[0]?.storeNo); // 테스트용
-}
-
-console.log("✅ 최종 전송 storeNos:", selectedStoreNos);
-  
-  
-  console.log("✅ 최종 전송 storeNos:", selectedStoreNos)
-
-console.log("전송할 storeNos:", selectedStoreNos);
-
-  
-
-  const categoryNo = selectedThird?.cateNo || selectedSub?.cateNo || selectedMain?.cateNo;
-  if (!categoryNo) {
-    alert("카테고리를 선택해 주세요.");
-    return;
-  }
-
-  if (images.length === 0) {
-    alert("이미지를 최소 1장 업로드해 주세요.");
-    return;
-  }
-
-  const formData = new FormData();
-
-  images.forEach(img => {
-    if (img.file instanceof File) {
-      formData.append("imageFiles", img.file);
-    }
-  });
-
-  const itemDto = {
-    userNo,
-    categoryNo,
-    itemName: productName,
-    itemCost: parsedCost,
-    itemInfo: description,
-    itemStatus: mapConditionToCode(condition),
-    pickOption: locationAvailable === "yes" ? 1 : 0,
-    storeNos: selectedStoreNos,
-    pickPeriod: tradeDuration,
-  };
-
-  formData.append(
-    "itemRequestDto",
-    new Blob([JSON.stringify(itemDto)], { type: "application/json" })
-  );
-
-  try {
-    const res = await axios.post("http://localhost:9090/api/items", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-
-    alert("상품이 등록되었습니다!");
-    navigate("/");
-  } catch (err) {
-    console.error("등록 실패:", err.response?.data || err);
-    alert("등록 중 오류가 발생했습니다.");
-  }
-};
-
+    
+      const itemDto = {
+        userNo,
+        categoryNo,
+        itemName: productName,
+        itemCost: parsedCost,
+        itemInfo: description,
+        itemStatus: mapConditionToCode(condition),
+        pickOption: locationAvailable === "yes" ? 1 : 0,
+        storeNos: selectedStoreNos,
+        pickPeriod: tradeDuration,
+      };
+    
+      formData.append(
+        "itemRequestDto",
+        new Blob([JSON.stringify(itemDto)], { type: "application/json" })
+      );
+    
+      try {
+        const res = await axios.post("http://localhost:9090/api/items", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+    
+        alert("상품이 등록되었습니다!");
+        navigate("/");
+      } catch (err) {
+        console.error("등록 실패:", err.response?.data || err);
+        alert("등록 중 오류가 발생했습니다.");
+      }
+    };
+    
 
 const mapConditionToCode = (label) => {
   switch (label) {
