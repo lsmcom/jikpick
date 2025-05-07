@@ -29,7 +29,7 @@ import PopularProduct from './pages/PopularProduct';
 import ModifyInfo from './pages/ModifyInfo';
 import FindBranch from './pages/FindBranch';
 import Chat from './pages/Chat';
-
+import SearchResult from './pages/SearchResult';
 function AppContent({ isLoggedIn, setIsLoggedIn }) {
   const location = useLocation();
 
@@ -71,6 +71,7 @@ function AppContent({ isLoggedIn, setIsLoggedIn }) {
         <Route path="/shopOrder" element={<ShopOrder />}/>
         <Route path="/findBranch" element={<FindBranch />}/>
         <Route path="/chat" element={<Chat />} />
+        <Route path="/search" element={<SearchResult />} />
         <Route path="/category/:categoryNo" element={<CategoryPage />} />
         <Route path="/withdrawReason" element={<WithdrawReason />} />
         <Route
