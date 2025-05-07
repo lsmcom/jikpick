@@ -29,7 +29,8 @@ public class StoreDto {
         dto.setStoreTime(store.getStoreTime());
         dto.setStoreAddress(store.getStoreAddress());
         dto.setLotAddress(store.getLotAddress());
-
+        System.out.println("🟡 StoreName: " + store.getStoreName());
+        System.out.println("🟠 store.getRegion(): " + store.getRegion());
         if (store.getRegion() != null) {
             dto.setRegNo(store.getRegion().getRegNo());
         } else {
