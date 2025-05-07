@@ -22,6 +22,19 @@ import heatImg from '../assets/images/heat.png';
 import beautyImg from '../assets/images/beauty.jpg';
 import bookImg from '../assets/images/book.jpg';
 import heartIcon from '../assets/icon/HeartIcon.svg'
+import sleevelessImg from '../assets/images/sleeveless.jpg';
+import vestImg from '../assets/images/vest.jpg';
+import jumperImg from '../assets/images/jumper.jpg';
+import paddingImg from '../assets/images/padding.jpg';
+import longteeImg from '../assets/images/longtee.jpg';
+import knitImg from '../assets/images/knit.jpg';
+import sweatshirtImg from '../assets/images/sweatshirt.jpg';
+import shortteeImg from '../assets/images/shorttee.jpg';
+import coatImg from '../assets/images/coat.jpg';
+import jacketImg from '../assets/images/jacket.jpg';
+import cardiganImg from '../assets/images/cardigan.jpg';
+import clutchImg from '../assets/images/clutch.jpg';
+
 // 필요한 만큼 추가
 
 
@@ -173,13 +186,19 @@ export default function Main() {
   }, []);
 
   const categoryImages = {
-    '모자': sneakersImg,
-    '버킷': blouseImg,
-    '태블릿': sonyImg,
-    '벨트': lifeImg,
-    '책': bookImg,
-    '미용가전': beautyImg,
-    // 필요한 항목들 계속 추가
+    '민소매 티셔츠': sleevelessImg,
+    '조끼/베스트': vestImg,
+    '점퍼': jumperImg,
+    '패딩': paddingImg,
+    '긴팔 티셔츠': longteeImg,
+    '니트/스웨터': knitImg,
+    '맨투맨': sweatshirtImg,
+    '셔츠/블라우스': blouseImg,
+    '반팔 티셔츠': shortteeImg,
+    '코트': coatImg,
+    '자켓': jacketImg,
+    '가디건': cardiganImg,
+    '클러치백': clutchImg,
   };
   
   
