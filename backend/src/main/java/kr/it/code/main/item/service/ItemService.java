@@ -8,6 +8,7 @@ import kr.it.code.main.item.dto.ItemRequestDto;
 import kr.it.code.main.item.dto.ItemLikeDto;
 import kr.it.code.main.item.entity.Item;
 import kr.it.code.main.item.repository.ItemRepository;
+import kr.it.code.main.store.dto.StoreDto;
 import kr.it.code.main.store.entity.Store;
 import kr.it.code.main.store.repository.StoreRepository;
 import kr.it.code.main.user.User;
@@ -23,6 +24,8 @@ import java.io.File;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -153,5 +156,15 @@ public class ItemService {
     // 상품 직접 조회 (찜 기능에서 사용)
     public Item getItemById(Long itemNo) {
         return itemRepository.findByItemNo(itemNo).orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<StoreDto> getStoresByItem(Long itemNo) {
+        Item item = itemRepository.findById(itemNo)
+                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+
+        return item.getStores().stream()
+                .map(StoreDto::fromEntity)
+                .collect(Collectors.toList());
     }
 }

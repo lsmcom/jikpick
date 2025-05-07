@@ -282,12 +282,12 @@ export default function ProductOrder() {
     const navigate = useNavigate();
 
     useEffect(() => {
-      axios.get('/api/stores')
-        .then(res => {
-          setStoreList(res.data);
+      axios.get(`/api/items/${itemNo}/stores`)
+        .then((res) => {
+          setFilteredStores(res.data); // storeName, storeAddress 등 포함
         })
-        .catch(err => console.error('지점 목록 로드 실패:', err));
-    }, []);
+        .catch(err => console.error('지점 로딩 실패:', err));
+    }, [itemNo]);
 
     useEffect(() => {
       if (!itemNo) return;
@@ -341,7 +341,7 @@ export default function ProductOrder() {
       const userNo = user?.userNo;
       const store = storeList.find(s => s.storeAddress === selectedBranch);
       const storeNo = store?.storeNo;
-      
+
       if (!userNo || !storeNo || !paymentType || !agreeAll ||
         (paymentType === 'general' && !selectedGeneralMethod) ||
         (paymentType === 'toss' && selectedGeneralMethod !== 'TossPay')) {

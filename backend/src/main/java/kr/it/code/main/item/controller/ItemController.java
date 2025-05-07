@@ -5,6 +5,7 @@ import kr.it.code.main.item.dto.ItemDto;
 import kr.it.code.main.item.dto.ItemRequestDto;
 import kr.it.code.main.item.dto.ItemLikeDto;
 import kr.it.code.main.item.service.ItemService;
+import kr.it.code.main.store.dto.StoreDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -130,5 +131,11 @@ public class ItemController {
     ) {
         boolean isWished = favoriteService.isFavorite(itemNo, userNo);
         return ResponseEntity.ok(isWished);
+    }
+
+    @GetMapping("/{itemNo}/stores")
+    public ResponseEntity<List<StoreDto>> getItemStores(@PathVariable Long itemNo) {
+        List<StoreDto> storeDtos = itemService.getStoresByItem(itemNo);
+        return ResponseEntity.ok(storeDtos);
     }
 }
