@@ -83,6 +83,18 @@ export default function CategoryDropdown() {
       .catch(console.error);
   }, [selectedSub]);
 
+  const handleCategoryClick = (cateNo) => {
+    const userData = JSON.parse(sessionStorage.getItem('user'));
+  
+    if (!userData) {
+      alert('로그인 후 이용 가능합니다.');
+      navigate('/login');
+      return;
+    }
+  
+    navigate(`/category/${cateNo}`);
+  };
+
   return (
     <DropdownWrapper>
       {/* 대분류 */}
@@ -99,7 +111,7 @@ export default function CategoryDropdown() {
               setSelectedMain(cat);
               setSelectedSub(null);
             }}
-            onClick={() => navigate(`/category/${cat.cateNo}`)} // ✅ 클릭 시 이동 추가
+            onClick={() => handleCategoryClick(cat.cateNo)} // ✅ 클릭 시 이동 추가
           >
             {cat.cateName}
           </Item>
@@ -118,7 +130,7 @@ export default function CategoryDropdown() {
               key={cat.cateNo}
               $active={selectedSub?.cateNo === cat.cateNo}
               onMouseEnter={() => setSelectedSub(cat)}
-              onClick={() => navigate(`/category/${cat.cateNo}`)} // ✅ 클릭 시 이동 추가
+              onClick={() => handleCategoryClick(cat.cateNo)} // ✅ 클릭 시 이동 추가
             >
               {cat.cateName}
             </Item>
@@ -133,7 +145,7 @@ export default function CategoryDropdown() {
           {subSubCategories.map(cat => (
             <Item
               key={cat.cateNo}
-              onClick={() => navigate(`/category/${cat.cateNo}`)}
+              onClick={() => handleCategoryClick(cat.cateNo)}
             >
               {cat.cateName}
             </Item>
