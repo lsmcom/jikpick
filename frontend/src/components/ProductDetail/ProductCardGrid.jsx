@@ -12,12 +12,32 @@ const Grid = styled.div`
 `;
 
 const Card = styled.div`
-  background: #ddd;
-  width: 100%;
-  height: 270px;
+  background: #fff;
+  border: 1px solid #eee;
   border-radius: 8px;
-  position: relative;
+  padding: 10px;
+  font-size: 16px;
+  font-family: 'Pretendard', sans-serif;
+  cursor: pointer;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  }
 `;
+
+const Thumbnail = styled.div`
+  width: 100%;
+  height: 250px;
+  background-color: #f0f0f0;
+  border-radius: 6px;
+  background-size: cover;
+  background-position: center;
+  margin-bottom: 8px;
+`;
+
 
 const ContentArea = styled.div`
   padding: 5px;
@@ -72,23 +92,26 @@ export default function ProductCardGrid({ items = [] }) {
           onClick={() => navigate(`/items/${item.itemNo}`)}
           style={{ cursor: 'pointer' }}
         >
-          <Card
-            style={{
-              backgroundImage: `url(${item.itemImage})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
-          />
-          <ContentArea>
-            <Title>{item.itemName}</Title>
-            <FlexForLike>
-              <Price>{item.itemCost?.toLocaleString()}원</Price>
-              <LikeSection>
-                <img src={heartIcon} alt="하트" />
-                <span>{item.itemWish}</span>
-              </LikeSection>
-            </FlexForLike>
-          </ContentArea>
+         <Card onClick={() => navigate(`/items/${item.itemNo}`)}>
+            <Thumbnail
+              style={{
+                backgroundImage: item.itemImage
+                  ? `url(http://localhost:9090${item.itemImage})`
+                  : 'none',
+              }}
+            />
+            <ContentArea>
+              <Title>{item.itemName}</Title>
+              <FlexForLike>
+                <Price>{item.itemCost.toLocaleString()}원</Price>
+                <LikeSection>
+                  <img src={heartIcon} alt="하트" />
+                  <span>{item.itemWish}</span>
+                </LikeSection>
+              </FlexForLike>
+            </ContentArea>
+          </Card>
+
         </div>
       ))}
     </Grid>

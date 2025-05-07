@@ -3,6 +3,8 @@ import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import axios from '../api/axios';
 import ProductCardGrid from "../components/ProductDetail/ProductCardGrid";
+import Footer from '../components/Footer'; // 상단에 추가
+
 
 const Container = styled.div`
   max-width: 1200px;
@@ -43,7 +45,7 @@ const SearchResult = () => {
     <Container>
       <Title>🔍 ‘{query}’에 대한 검색 결과</Title>
       <ProductCardGrid items={items || []} />
-
+      <Footer />
     </Container>
   );
 };

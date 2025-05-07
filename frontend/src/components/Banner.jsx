@@ -1,8 +1,8 @@
 import Slider from 'react-slick';
 import styled, { createGlobalStyle } from 'styled-components';
-import image1 from '../assets/images/banner1.png';
-import image2 from '../assets/images/banner2.png';
-import image3 from '../assets/images/banner3.png';
+import image1 from '../assets/images/banner1.jpg';
+import image2 from '../assets/images/banner2.jpg';
+import image3 from '../assets/images/banner3.jpg';
 
 const banners = [image1, image2, image3];
 

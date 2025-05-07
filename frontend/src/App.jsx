@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import styled, { createGlobalStyle } from 'styled-components';
 import Header from './components/Header';
+import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
 import './App.css';
 
@@ -30,23 +32,43 @@ import ModifyInfo from './pages/ModifyInfo';
 import FindBranch from './pages/FindBranch';
 import Chat from './pages/Chat';
 import SearchResult from './pages/SearchResult';
+
+// 📦 전역 스타일
+const GlobalStyle = createGlobalStyle`
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Pretendard', sans-serif;
+    background-color: #fff;
+  }
+
+  #root {
+    min-height: 101vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  main {
+    flex: 1; /* 💡 핵심: main이 빈 공간 채우도록 */
+    display: flex;
+    flex-direction: column;
+  }
+`;
+
 function AppContent({ isLoggedIn, setIsLoggedIn }) {
   const location = useLocation();
 
   const hideHeaderPaths = [
-    '/login',
-    '/signup',
-    '/join',
-    '/findID',
-    '/findPW',
-    '/foundID',
-    '/resetPW'
+    '/login', '/signup', '/join',
+    '/findID', '/findPW', '/foundID', '/resetPW'
   ];
 
   const shouldHideHeader = hideHeaderPaths.includes(location.pathname);
 
   return (
     <>
+      <GlobalStyle />
       <ScrollToTop />
       {!shouldHideHeader && <Header isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
       
@@ -66,20 +88,18 @@ function AppContent({ isLoggedIn, setIsLoggedIn }) {
         <Route path="/items/:itemNo" element={<ProductDetail />} />
         <Route path="/myPage" element={<MyPage setIsLoggedIn={setIsLoggedIn} />} />
         <Route path="/myShop" element={<SellerStore />} />
-        <Route path="/modifyInfo" element={<ModifyInfo/>}/>
-        <Route path="/shopLike" element={<ShopLike />}/>
-        <Route path="/shopOrder" element={<ShopOrder />}/>
-        <Route path="/findBranch" element={<FindBranch />}/>
+        <Route path="/modifyInfo" element={<ModifyInfo />} />
+        <Route path="/shopLike" element={<ShopLike />} />
+        <Route path="/shopOrder" element={<ShopOrder />} />
+        <Route path="/findBranch" element={<FindBranch />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/search" element={<SearchResult />} />
         <Route path="/category/:categoryNo" element={<CategoryPage />} />
         <Route path="/withdrawReason" element={<WithdrawReason />} />
-        <Route
-          path="/withdrawConfirm"
-          element={<WithdrawConfirm setIsLoggedIn={setIsLoggedIn} />}
-        />
+        <Route path="/withdrawConfirm" element={<WithdrawConfirm setIsLoggedIn={setIsLoggedIn} />} />
         <Route path="/popular/:categoryName" element={<PopularProduct />} />
       </Routes>
+
     </>
   );
 }

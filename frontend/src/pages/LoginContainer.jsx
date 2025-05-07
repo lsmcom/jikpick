@@ -9,7 +9,7 @@ export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 90px;
+  padding-top: 150px;
   padding-bottom: 120px;
   font-family: 'Pretendard', sans-serif;
 `;
