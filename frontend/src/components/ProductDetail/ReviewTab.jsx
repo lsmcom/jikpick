@@ -11,7 +11,7 @@ const TabWrapper = styled.div`
   overflow-x: hidden; /* 오른쪽으로 밀리지 않게 설정 */
   overflow-y: auto; /* 세로 스크롤을 추가 */
   height: 100%; /* 탭 영역의 높이를 100%로 설정 */
-  padding-bottom: ${({ isReviewTabActive }) => (isReviewTabActive === 'true' ? '100px' : '0px')}; /* 버튼 클릭 시 여백 추가 */
+  padding-bottom:${({ $isReviewTabActive }) => ($isReviewTabActive ? '100px' : '0px')};
 `;
 
 const TabMenu = styled.div`
@@ -23,31 +23,40 @@ const TabMenu = styled.div`
 `;
 
 const Tab = styled.button`
-  font-size: 18px;
+   font-size: 18px;
   background: none;
   border: none;
   cursor: pointer;
-  color: ${({ active }) => (active === 'true' ? '#000' : '#888')};
-  border-bottom: ${({ active }) => (active === 'true' ? '2px solid #000' : 'none')};
+  color: ${({ $active }) => ($active ? '#000' : '#888')};
+  border-bottom: ${({ $active }) => ($active ? '2px solid #000' : 'none')};
   padding-bottom: 4px;
-  font-weight: ${({ active }) => (active === 'true' ? '700' : '500')};
+  font-weight: ${({ $active }) => ($active ? '700' : '500')};
 `;
 
 export default function ReviewTab() {
-  const [activeTab, setActiveTab] = useState('product');
+  // 탭 상태 저장/불러오기
+const [activeTab, setActiveTab] = useState(() => {
+  return sessionStorage.getItem('activeReviewTab') || 'product';
+});
 
-  // 여백 조정을 위해 isReviewTabActive 상태 추가
-  const isReviewTabActive = activeTab === 'review';
+const isReviewTabActive = activeTab === 'review';
+
+const handleTabClick = (tab) => {
+  setActiveTab(tab);
+  sessionStorage.setItem('activeReviewTab', tab);
+};
+
 
   return (
-    <TabWrapper isReviewTabActive={isReviewTabActive}>
+    <TabWrapper $isReviewTabActive={isReviewTabActive}>
       <TabMenu>
-        <Tab active={activeTab === 'product' ? 'true' : 'false'} onClick={() => setActiveTab('product')}>
-          판매상품(6)
-        </Tab>
-        <Tab active={activeTab === 'review' ? 'true' : 'false'} onClick={() => setActiveTab('review')}>
-          상품후기(21)
-        </Tab>
+      <Tab $active={activeTab === 'product'} onClick={() => handleTabClick('product')}>
+        판매상품(6)
+      </Tab>
+      <Tab $active={activeTab === 'review'} onClick={() => handleTabClick('review')}>
+        상품후기(21)
+      </Tab>
+
       </TabMenu>
 
       {activeTab === 'product' ? (

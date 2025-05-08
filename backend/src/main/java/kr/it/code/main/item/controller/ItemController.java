@@ -92,28 +92,34 @@ public class ItemController {
         return ResponseEntity.ok(item);
     }
     // 찜 추가/해제
+    // ✅ 수정된 버전
     @PostMapping("/{itemNo}/wish")
-    public ResponseEntity<Void> toggleWish(@PathVariable Long itemNo, @RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity<Void> toggleWish(
+            @PathVariable Long itemNo,
+            @RequestBody Map<String, Object> payload
+    ) {
         try {
-            Object wishObj = requestBody.get("wish");
-            Object userNoObj = requestBody.get("userNo");
-
-            if (wishObj == null || userNoObj == null) {
-                System.out.println("❌ 필수 데이터 누락: " + requestBody);
+            if (!payload.containsKey("wish") || !payload.containsKey("userNo")) {
                 return ResponseEntity.badRequest().build();
             }
 
-            boolean isWish = Boolean.parseBoolean(wishObj.toString());
-            Long userNo = Long.valueOf(userNoObj.toString());
+            boolean isWish = Boolean.parseBoolean(payload.get("wish").toString());
+            Long userNo = Long.parseLong(payload.get("userNo").toString());
 
             itemService.toggleWish(itemNo, isWish, userNo);
             return ResponseEntity.ok().build();
 
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    //검색
+    @GetMapping("/search")
+    public List<ItemDto> searchItems(@RequestParam String keyword) {
+        return itemService.searchByKeyword(keyword);
+    }
+
 
     // 좋아요 수 기준으로 상품을 내림차순으로 정렬하여 반환
     @GetMapping("/popular")

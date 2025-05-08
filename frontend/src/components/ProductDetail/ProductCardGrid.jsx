@@ -1,6 +1,6 @@
-// src/components/ProductDetail/ProductCardGrid.jsx
 import styled from 'styled-components';
 import heartIcon from '../../assets/icon/HeartIcon.svg';
+import { useNavigate } from 'react-router-dom';
 
 const Grid = styled.div`
   width: 100%;
@@ -12,12 +12,32 @@ const Grid = styled.div`
 `;
 
 const Card = styled.div`
-  background: #ddd;
-  width: 100%;
-  height: 270px;
+  background: #fff;
+  border: 1px solid #eee;
   border-radius: 8px;
-  position: relative;
+  padding: 10px;
+  font-size: 16px;
+  font-family: 'Pretendard', sans-serif;
+  cursor: pointer;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  }
 `;
+
+const Thumbnail = styled.div`
+  width: 100%;
+  height: 250px;
+  background-color: #f0f0f0;
+  border-radius: 6px;
+  background-size: cover;
+  background-position: center;
+  margin-bottom: 8px;
+`;
+
 
 const ContentArea = styled.div`
   padding: 5px;
@@ -26,7 +46,7 @@ const ContentArea = styled.div`
 const FlexForLike = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px; /* 가격과 하트 사이 여백 */
+  gap: 12px;
   margin-top: 8px;
 `;
 
@@ -41,7 +61,6 @@ const Price = styled.div`
 `;
 
 const LikeSection = styled.div`
-  
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -58,22 +77,41 @@ const LikeSection = styled.div`
   }
 `;
 
-export default function ProductCardGrid() {
+export default function ProductCardGrid({ items = [] }) {
+  const navigate = useNavigate();
+
+  if (!Array.isArray(items)) {
+    return <div>상품 정보를 불러오는 중입니다...</div>;
+  }
+
   return (
     <Grid>
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i}>
-          <Card />
-          <ContentArea>
-            <Title>파타고니아 후드티</Title>
-            <FlexForLike>
-              <Price>38,000원</Price>
-              <LikeSection>
-                <img src={heartIcon} alt="하트" />
-                <span>12</span>
-              </LikeSection>
-            </FlexForLike>
-          </ContentArea>
+      {items.map((item) => (
+        <div
+          key={item.itemNo}
+          onClick={() => navigate(`/items/${item.itemNo}`)}
+          style={{ cursor: 'pointer' }}
+        >
+         <Card onClick={() => navigate(`/items/${item.itemNo}`)}>
+            <Thumbnail
+              style={{
+                backgroundImage: item.itemImage
+                  ? `url(http://localhost:9090${item.itemImage})`
+                  : 'none',
+              }}
+            />
+            <ContentArea>
+              <Title>{item.itemName}</Title>
+              <FlexForLike>
+                <Price>{item.itemCost.toLocaleString()}원</Price>
+                <LikeSection>
+                  <img src={heartIcon} alt="하트" />
+                  <span>{item.itemWish}</span>
+                </LikeSection>
+              </FlexForLike>
+            </ContentArea>
+          </Card>
+
         </div>
       ))}
     </Grid>

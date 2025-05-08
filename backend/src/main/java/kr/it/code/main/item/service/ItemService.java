@@ -8,6 +8,8 @@ import kr.it.code.main.item.dto.ItemRequestDto;
 import kr.it.code.main.item.dto.ItemLikeDto;
 import kr.it.code.main.item.entity.Item;
 import kr.it.code.main.item.repository.ItemRepository;
+import kr.it.code.main.productsale.entity.ProductSale;
+import kr.it.code.main.productsale.repository.ProductSaleRepository;
 import kr.it.code.main.store.entity.Store;
 import kr.it.code.main.store.repository.StoreRepository;
 import kr.it.code.main.user.User;
@@ -18,14 +20,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import kr.it.code.main.category.entity.Category;
-
+import kr.it.code.main.productsale.repository.ProductSaleRepository;
+import kr.it.code.main.productsale.entity.ProductSale;
 import java.io.File;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static kr.it.code.main.item.entity.QItem.item;
+import static kr.it.code.main.user.QUser.user;
 
 @Service
 @RequiredArgsConstructor
 public class ItemService {
+    private final ProductSaleRepository productSaleRepository;
     private static final Logger logger = LoggerFactory.getLogger(ItemService.class);
     private final ItemRepository itemRepository;
     private final CategoryService categoryService;
@@ -34,13 +43,15 @@ public class ItemService {
     private final StoreRepository storeRepository;
     private final FavoriteService favoriteService;
 
-    // 단일 카테고리 상품 조회
+
+
+    @Transactional //// 단일 카테고리 상품 조회
     public List<ItemDto> getItemsByCategory(Long categoryNo) {
         List<Item> items = itemRepository.findByCategory_CateNo(categoryNo);
         return items.stream().map(ItemDto::new).toList();
     }
 
-    // 대분류 포함 하위 모든 카테고리 상품 조회
+    @Transactional // 대분류 포함 하위 모든 카테고리 상품 조회
     public List<ItemDto> getItemsInCategoryAndSubCategories(Long parentCategoryId) {
         List<Long> cateNos = categoryService.getAllChildCategoryIds(parentCategoryId);
         List<Item> items = itemRepository.findByCategoryCateNoIn(cateNos);
@@ -49,6 +60,11 @@ public class ItemService {
 
     // 신규 상품 등록
     public void registerItem(ItemRequestDto dto) {
+        Item item = new Item();  // 바깥으로 뺌
+        User user;
+        Category category;
+        Store mainStore;
+
         try {
             logger.info("상품 등록 요청 받음: itemName={}, itemCost={}, itemInfo={}, categoryNo={}, storeNos={}",
                     dto.getItemName(), dto.getItemCost(), dto.getItemInfo(), dto.getCategoryNo(), dto.getStoreNos());
@@ -61,17 +77,13 @@ public class ItemService {
                 throw new RuntimeException("희망 지점을 1개 이상 선택해야 합니다.");
             }
 
-
-            Item item = new Item();
-
-            // ✅ 올바른 코드 (리스트에서 첫 번째 이미지 사용)
+            // 이미지 경로
             if (dto.getImagePaths() != null && !dto.getImagePaths().isEmpty()) {
                 String joinedPaths = String.join(",", dto.getImagePaths());
                 item.setImagePathList(joinedPaths);
             }
 
-
-
+            // 기본 정보
             item.setItemName(dto.getItemName());
             item.setItemCost(dto.getItemCost());
             item.setItemInfo(dto.getItemInfo());
@@ -81,17 +93,22 @@ public class ItemService {
             item.setItemWish(0);
             item.setPickStatus("예약중");
 
-            User user = userRepository.findById(dto.getUserNo())
+            // 사용자 및 카테고리
+            user = userRepository.findById(dto.getUserNo())
                     .orElseThrow(() -> new RuntimeException("사용자 없음"));
-            Category category = categoryRepository.findById(dto.getCategoryNo())
+            category = categoryRepository.findById(dto.getCategoryNo())
                     .orElseThrow(() -> new RuntimeException("카테고리 없음"));
-            Store store = storeRepository.findById(dto.getStoreNos().get(0))
-                    .orElseThrow(() -> new RuntimeException("지점 없음"));
-            item.setStore(store);
 
+            // 지점
+            List<Store> stores = storeRepository.findAllById(dto.getStoreNos());
+            if (stores.isEmpty()) throw new RuntimeException("지점이 하나도 존재하지 않습니다.");
+            mainStore = stores.get(0);
+            item.setStore(mainStore);
+            item.setStores(new HashSet<>(stores));
+
+            // 유저 & 카테고리 연동
             item.setUser(user);
             item.setCategory(category);
-            item.setStore(store);
 
             itemRepository.save(item);
             logger.info("상품 등록 완료: itemNo={}", item.getItemNo());
@@ -100,24 +117,41 @@ public class ItemService {
             logger.error("상품 등록 중 오류 발생", e);
             throw e;
         }
+
+        // ✅ 여기서 ProductSale 연동 (try 밖에서 쓸 수 있게 변수 선언 위치를 바꿈)
+        ProductSale sale = new ProductSale();
+        sale.setSaleNo(item.getItemNo());
+        sale.setItem(item);
+        sale.setUser(user);
+        sale.setStore(mainStore);
+        sale.setCateNo(category.getCateNo());
+        sale.setSaleDate(LocalDate.now());
+        sale.setUserId(user.getUserId());
+        sale.setStatus("판매중");
+
+        productSaleRepository.save(sale);
+        logger.info("판매 목록에도 저장 완료: saleNo={}", sale.getSaleNo());
     }
 
-    // 상품 상세 조회
+
+    @Transactional// 상품 상세 조회
     public ItemDto getItemDetail(Long itemNo) {
         Item item = itemRepository.findByItemNo(itemNo)
                 .orElseThrow(() -> new RuntimeException("해당 상품이 존재하지 않습니다."));
         return new ItemDto(item);
     }
 
-    // 좋아요 수 기준으로 상품 목록을 가져오는 메소드
+    @Transactional// 좋아요 수 기준으로 상품 목록을 가져오는 메소드
     public List<ItemDto> getPopularItems() {
-        List<Item> items = itemRepository.findAllOrderByItemWishDesc();
+        List<Item> items = itemRepository.findAllByOrderByItemWishDesc();
         return items.stream().map(ItemDto::new).toList();
     }
+
     // 찜 추가/해제
     @Transactional
     public void toggleWish(Long itemNo, boolean isWish, Long userNo) {
-        Item item = itemRepository.findById(itemNo).orElseThrow();
+        Item item = itemRepository.findByItemNo(itemNo)
+                .orElseThrow(() -> new RuntimeException("해당 상품(" + itemNo + ")은 존재하지 않습니다."));
 
         if (isWish) {
             favoriteService.addFavorite(item, userNo);
@@ -129,6 +163,7 @@ public class ItemService {
 
         itemRepository.save(item);
     }
+
     public void deleteImageFile(String fileName) {
         String uploadDir = "C:/jikpick_uploads/";
         File file = new File(uploadDir + fileName);
@@ -136,9 +171,20 @@ public class ItemService {
             file.delete();
         }
     }
+
     // 상품 직접 조회 (찜 기능에서 사용)
     public Item getItemById(Long itemNo) {
         return itemRepository.findByItemNo(itemNo).orElse(null);
+    }
+
+    //검색
+    @Transactional
+    public List<ItemDto> searchByKeyword(String keyword) {
+        System.out.println("🔍 검색 키워드: " + keyword);
+        List<Item> items = itemRepository.searchByKeyword(keyword);
+        return items.stream()
+                .map(ItemDto::fromEntity)
+                .collect(Collectors.toList());
     }
 
 

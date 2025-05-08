@@ -1,7 +1,8 @@
 import styled from 'styled-components';
 import Footer from '../components/Footer';
 import { useState, useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import axios from '../api/axios';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -260,29 +261,48 @@ const Divider = styled.hr`
 export default function ProductOrder() {
     const [pickupOption, setPickupOption] = useState('yes');
     const [selectedBranch, setSelectedBranch] = useState('');
-    const branchOptions = ['강남역점', '역삼점', '신논현점'];
+    const allowedRegions = ['마포구', '서대문구', '서초구'];
     const [showMap, setShowMap] = useState(false);
     const [paymentType, setPaymentType] = useState('toss');
     const [rememberPayment, setRememberPayment] = useState(false);
     
-    const [productPrice, setProductPrice] = useState(80000); // 초기값
-    const productId = 1; // 예시로 고정, 나중엔 useParams로 받을 수도 있음
     const [agreeAll, setAgreeAll] = useState(false);
     const [agreeTerms, setAgreeTerms] = useState(false);
     const [agreePrivacy, setAgreePrivacy] = useState(false);
     const [agreeThirdParty, setAgreeThirdParty] = useState(false);
+    const [selectedRegion, setSelectedRegion] = useState('');
+    const [filteredStores, setFilteredStores] = useState([]);
+    const { itemNo } = useParams();
+    const [productName, setProductName] = useState('');
+    const [productPrice, setProductPrice] = useState(0);
+    const [productImage, setProductImage] = useState('');
+    const [selectedGeneralMethod, setSelectedGeneralMethod] = useState('');
+    const [requestNote, setRequestNote] = useState('');
+    const [storeList, setStoreList] = useState([]);
+    const navigate = useNavigate();
 
-    // ✅ 여기에 useEffect 넣기!
     useEffect(() => {
-      fetch(`/api/products/${productId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setProductPrice(data.price);
+      axios.get('/api/stores')
+        .then(res => {
+          setStoreList(res.data);
         })
-        .catch((err) => {
+        .catch(err => console.error('지점 목록 로드 실패:', err));
+    }, []);
+
+    useEffect(() => {
+      if (!itemNo) return;
+    
+      axios.get(`/api/items/${itemNo}`)
+        .then(res => {
+          const data = res.data;
+          setProductName(data.itemName);
+          setProductPrice(data.itemCost);
+          setProductImage(`/images/${data.itemImage}`);
+        })
+        .catch(err => {
           console.error('상품 정보 불러오기 실패:', err);
         });
-    }, [productId]);
+    }, [itemNo]);
 
     useEffect(() => {
         if (agreeTerms && agreePrivacy && agreeThirdParty) {
@@ -292,16 +312,70 @@ export default function ProductOrder() {
         }
       }, [agreeTerms, agreePrivacy, agreeThirdParty]);
       
-      const handleAgreeAllChange = (checked) => {
-        setAgreeAll(checked);
-        setAgreeTerms(checked);
-        setAgreePrivacy(checked);
-        setAgreeThirdParty(checked);
-      };
+    const handleAgreeAllChange = (checked) => {
+      setAgreeAll(checked);
+      setAgreeTerms(checked);
+      setAgreePrivacy(checked);
+      setAgreeThirdParty(checked);
+    };
       
+    useEffect(() => {
+      const filteredByRegion = storeList.filter(store =>
+        allowedRegions.some(region => store.storeAddress.includes(region))
+      );
+    
+      const regions = [...new Set(filteredByRegion.map(s => s.regionName))];
+      const randomRegion = regions[Math.floor(Math.random() * regions.length)];
+    
+      const regionStores = filteredByRegion.filter(s => s.regionName === randomRegion);
+      const shuffled = regionStores.sort(() => 0.5 - Math.random());
+      setSelectedRegion(randomRegion);
+      setFilteredStores(shuffled.slice(0, 3));
+    }, [storeList]);
   
     const fee = Math.round(productPrice * 0.02);
     const total = productPrice + fee;
+
+    const handleOrderSubmit = () => {
+      const user = JSON.parse(sessionStorage.getItem('user'));
+      const userNo = user?.userNo;
+      const store = storeList.find(s => s.storeAddress === selectedBranch);
+      const storeNo = store?.storeNo;
+      
+      if (!userNo || !storeNo || !paymentType || !agreeAll ||
+        (paymentType === 'general' && !selectedGeneralMethod) ||
+        (paymentType === 'toss' && selectedGeneralMethod !== 'TossPay')) {
+      alert("모든 정보를 입력하고 동의해야 결제가 가능합니다.");
+      return;
+    }
+    
+      const today = new Date();
+      const pickExpiryDate = new Date();
+      pickExpiryDate.setDate(today.getDate() + 7);
+      const formattedExpiry = pickExpiryDate.toISOString().split('T')[0]; // yyyy-mm-dd 형식
+    
+      axios.post('/api/orders', {
+        userNo: parseInt(userNo),
+        itemNo: parseInt(itemNo),
+        storeNo,
+        paymentType,
+        paymentDetail: paymentType === 'general' ? selectedGeneralMethod : null,
+        isPickup: pickupOption === 'yes',
+        requestNote: requestNote,
+        isAgreedAll: agreeAll,
+        pickExpiryDate: formattedExpiry,
+        pickStatus: '예약중'
+      })
+      .then(() => {
+        alert("결제가 완료되었습니다.");
+        navigate('/order/success');
+      })
+      .catch(err => {
+        console.error("주문 처리 중 오류:", err);
+        alert("결제에 실패했습니다.");
+      });
+    };
+
     return (
       <Wrapper>
         <Outer>
@@ -338,13 +412,15 @@ export default function ProductOrder() {
                         <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
                             <Label style={{ marginRight: '16px' }}>직픽지점</Label>
                             <Select
-                            value={selectedBranch}
-                            onChange={(e) => setSelectedBranch(e.target.value)}
+                              value={selectedBranch}
+                              onChange={(e) => setSelectedBranch(e.target.value)}
                             >
-                            <option value="">지점 선택</option>
-                            {branchOptions.map((b) => (
-                                <option key={b} value={b}>{b}</option>
-                            ))}
+                              <option value="">지점 선택</option>
+                              {filteredStores.map((store) => (
+                                <option key={store.storeNo} value={store.storeAddress}>
+                                  {store.storeName}
+                                </option>
+                              ))}
                             </Select>
                             <MapButton onClick={() => setShowMap(true)} style={{ marginLeft: '12px' }}>
                             지도보기
@@ -368,17 +444,27 @@ export default function ProductOrder() {
                     <Label style={{ display: 'block', marginTop: '28px', marginBottom: '12px' }}>
                     판매자분께 전달할 요청 사항을 적어주세요
                     </Label>
-                    <RequestTextarea placeholder="예) 포장 꼼꼼하게 부탁드려요" />
+                    <RequestTextarea
+                      value={requestNote}
+                      onChange={(e) => setRequestNote(e.target.value)}
+                      placeholder="예) 포장 꼼꼼하게 부탁드려요"
+                    />
                     
             </Section>
             <Section>
               <Divider />
               <SectionTitle>주문 상품</SectionTitle>
               <ItemBox>
-                <Thumbnail />
+                <Thumbnail
+                  style={{
+                    backgroundImage: `url(${productImage})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }}
+                />
                 <ItemInfo>
-                  <Price>80,000원</Price>
-                  <div>홀릭앤플레이 골프 반팔 튜브 구스 다운 점퍼</div>
+                  <Price>{productPrice.toLocaleString()}원</Price>
+                  <div>{productName}</div>
                 </ItemInfo>
               </ItemBox>
             </Section>
@@ -421,8 +507,13 @@ export default function ProductOrder() {
                     "편의점 결제",
                 ].map((method) => (
                     <MethodButton
-                    key={method}
-                    onClick={() => alert(`${method} 결제를 선택했습니다.`)}
+                      key={method}
+                      onClick={() => setSelectedGeneralMethod(method)}
+                      style={{
+                        borderColor: selectedGeneralMethod === method ? '#FB4A67' : '#ccc',
+                        backgroundColor: selectedGeneralMethod === method ? '#FB4A67' : '#fff',
+                        color: selectedGeneralMethod === method ? '#fff' : '#000',
+                      }}
                     >
                     {method}
                     </MethodButton>
@@ -436,15 +527,16 @@ export default function ProductOrder() {
                 <button
                 style={{
                     padding: '20px 70px',
-                    backgroundColor: 'transparent', // 배경 제거
-                    color: '#000000',               // 텍스트 컬러 메인색
+                    backgroundColor: selectedGeneralMethod === 'TossPay' ? '#FB4A67' : 'transparent', // 배경 제거
+                    color: selectedGeneralMethod === 'TossPay' ? '#fff' : '#000000',               // 텍스트 컬러 메인색
                     fontSize: '15px',
-                    border: '1px solid #ccc',   // 테두리만
+                    border: '1px solid',   // 테두리만
+                    borderColor: selectedGeneralMethod === 'TossPay' ? '#FB4A67' : '#ccc',
                     borderRadius: '10px',
                     cursor: 'pointer',
                     fontWeight: 600
                 }}
-                onClick={() => alert('TossPay 가결제 연동 화면입니다')}
+                onClick={() => setSelectedGeneralMethod('TossPay')}
                 >
                 TossPay
                 </button>
@@ -547,9 +639,11 @@ export default function ProductOrder() {
                 </p>
                 </AgreementBox>
 
-                <NavLink to="/order/success" style={{ textDecoration: 'none' }}>
-                <BottomButton>{total.toLocaleString()}원 결제하기</BottomButton>
-                </NavLink>
+                
+                <BottomButton onClick={handleOrderSubmit}>
+                  {total.toLocaleString()}원 결제하기
+                </BottomButton>
+                
 
           </Inner>
         </Outer>
@@ -581,7 +675,7 @@ export default function ProductOrder() {
               }}>×</button>
               <iframe
                 title="kakao-map"
-                src="https://map.kakao.com/?q=강남역"
+                src={`https://map.kakao.com/?q=${encodeURIComponent(selectedBranch || '강남역')}`}
                 width="100%"
                 height="100%"
                 style={{ border: 'none' }}

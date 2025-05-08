@@ -82,4 +82,11 @@ public class User {
     // 사용자 설명글
     @Column(name = "USER_INTRO")
     private String intro;
+
+    @Column(name = "DEFAULT_PAYMENT_TYPE")
+    private String defaultPaymentType;  // 예: toss, general
+
+    @Column(name = "DEFAULT_PAYMENT_DETAIL")
+    private String defaultPaymentDetail;  // 예: 네이버페이, 카카오페이 등
+
 }

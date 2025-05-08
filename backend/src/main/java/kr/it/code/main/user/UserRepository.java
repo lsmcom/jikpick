@@ -14,6 +14,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // ✅ 닉네임 중복 여부 체크 메서드
     boolean existsByNick(String nick);
 
+    Optional<User> findByUserNo(Long userNo);
+
     // ✅ 아이디로 User 가져오는 메서드 (String id)
     Optional<User> findByUserId(String userId); // 🔥 이거 하나 추가
 

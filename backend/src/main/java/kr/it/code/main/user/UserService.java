@@ -194,4 +194,13 @@ public class UserService {
         return imgPath; // 저장된 파일 경로 반환
     }
 
+    // 결제수단 저장
+    @Transactional
+    public void saveDefaultPayment(Long userNo, String paymentType, String paymentDetail) {
+        User user = userRepository.findByUserNo(userNo)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+        user.setDefaultPaymentType(paymentType);
+        user.setDefaultPaymentDetail(paymentDetail);
+    }
+
 }

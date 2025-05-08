@@ -143,7 +143,7 @@ export default function LoginForm({ setIsLoggedIn }) {
         }
 
         setIsLoggedIn(true);
-        localStorage.setItem("user", JSON.stringify(response.data)); // ✅ 저장
+       
         navigate('/');
       }
     } catch (error) {

@@ -25,7 +25,7 @@ public class StoreService {
 
 
     public List<StoreDto> filterStores(String region, String subRegion, String name, String time) {
-        List<Store> stores = storeRepository.filterStores(
+        List<Store> stores = storeRepository.filterStoresWithRegion(  // ✅ 여기!
                 region != null && !region.isEmpty() ? region : null,
                 subRegion != null && !subRegion.isEmpty() ? subRegion : null,
                 name != null && !name.isEmpty() ? name : null,
@@ -33,4 +33,5 @@ public class StoreService {
         );
         return stores.stream().map(StoreDto::fromEntity).collect(Collectors.toList());
     }
+
 }

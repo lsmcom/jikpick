@@ -16,15 +16,16 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     @EntityGraph(attributePaths = {"region"})
     List<Store> findAll();  // region도 즉시 로딩해서 regNo 접근 가능하게 함
 
-    @Query(value = "SELECT * FROM store s WHERE " +
-            "(:region IS NULL OR s.STORE_ADDRESS LIKE CONCAT('%', :region, '%')) AND " +
-            "(:subRegion IS NULL OR s.STORE_ADDRESS REGEXP CONCAT('(^|\\\\s)', :subRegion, '(\\\\s|$)')) AND " +
-            "(:name IS NULL OR s.STORE_NAME LIKE CONCAT('%', :name, '%')) AND " +
-            "(:time IS NULL OR s.STORE_TIME = :time)",
-            nativeQuery = true)
-    List<Store> filterStores(
+    @Query("SELECT s FROM Store s JOIN FETCH s.region WHERE " +
+            "(:region IS NULL OR s.storeAddress LIKE %:region%) AND " +
+            "(:subRegion IS NULL OR s.storeAddress LIKE %:subRegion%) AND " +
+            "(:name IS NULL OR s.storeName LIKE %:name%) AND " +
+            "(:time IS NULL OR s.storeTime = :time)")
+    List<Store> filterStoresWithRegion(
             @Param("region") String region,
             @Param("subRegion") String subRegion,
             @Param("name") String name,
             @Param("time") String time);
+
+
 }

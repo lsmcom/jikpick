@@ -22,6 +22,19 @@ import heatImg from '../assets/images/heat.png';
 import beautyImg from '../assets/images/beauty.jpg';
 import bookImg from '../assets/images/book.jpg';
 import heartIcon from '../assets/icon/HeartIcon.svg'
+import sleevelessImg from '../assets/images/sleeveless.jpg';
+import vestImg from '../assets/images/vest.jpg';
+import jumperImg from '../assets/images/jumper.jpg';
+import paddingImg from '../assets/images/padding.jpg';
+import longteeImg from '../assets/images/longtee.jpg';
+import knitImg from '../assets/images/knit.jpg';
+import sweatshirtImg from '../assets/images/sweatshirt.jpg';
+import shortteeImg from '../assets/images/shorttee.jpg';
+import coatImg from '../assets/images/coat.jpg';
+import jacketImg from '../assets/images/jacket.jpg';
+import cardiganImg from '../assets/images/cardigan.jpg';
+import clutchImg from '../assets/images/clutch.jpg';
+
 // 필요한 만큼 추가
 
 
@@ -137,6 +150,16 @@ export default function Main() {
   const navigate = useNavigate();
   const [popularCategories, setPopularCategories] = useState([]);
 
+  const isLoggedIn = sessionStorage.getItem('user');
+
+  const handleProtectedNavigate = (path) => {
+    if (!isLoggedIn) {
+      alert('로그인 후 이용 가능합니다.');
+      navigate('/login');
+      return;
+    }
+    navigate(path);
+  };
 
   useEffect(() => {
     axios.get('http://localhost:9090/api/items/popular')
@@ -163,13 +186,19 @@ export default function Main() {
   }, []);
 
   const categoryImages = {
-    '모자': sneakersImg,
-    '버킷': blouseImg,
-    '태블릿': sonyImg,
-    '벨트': lifeImg,
-    '책': bookImg,
-    '미용가전': beautyImg,
-    // 필요한 항목들 계속 추가
+    '민소매 티셔츠': sleevelessImg,
+    '조끼/베스트': vestImg,
+    '점퍼': jumperImg,
+    '패딩': paddingImg,
+    '긴팔 티셔츠': longteeImg,
+    '니트/스웨터': knitImg,
+    '맨투맨': sweatshirtImg,
+    '셔츠/블라우스': blouseImg,
+    '반팔 티셔츠': shortteeImg,
+    '코트': coatImg,
+    '자켓': jacketImg,
+    '가디건': cardiganImg,
+    '클러치백': clutchImg,
   };
   
   
@@ -239,48 +268,43 @@ export default function Main() {
           onMouseMove={onMouseMove}
         >
           {popularCategories.map((c) => (
-            <Link
+            <div
               key={c.cateNo}
-              to={`/category/${c.cateNo}`}
+              onClick={() => handleProtectedNavigate(`/category/${c.cateNo}`)}
               style={{ textDecoration: 'none', color: 'inherit' }}
             >
               <CategoryItem>
-              <img
-                src={categoryImages[c.cateName] || bookImg}
-                alt={c.cateName}
-                style={{
-                  width: '140px',            // ✅ 크기 증가
-                  height: '140px',           // ✅ 크기 증가
-                  borderRadius: '10%',
-                  marginBottom: '6px',
-                  objectFit: 'cover',
-                }}
-            />
+                <img
+                  src={categoryImages[c.cateName] || bookImg}
+                  alt={c.cateName}
+                  style={{
+                    width: '140px',
+                    height: '140px',
+                    borderRadius: '10%',
+                    marginBottom: '6px',
+                    objectFit: 'cover',
+                  }}
+                />
                 {c.cateName}
               </CategoryItem>
-            </Link>
+            </div>
           ))}
         </CategoryBar>
 
         <SectionTitle>직픽인들의 픽!</SectionTitle>
         {Array.isArray(productList) && productList.length > 0 ? (
           <Grid>
-            {productList.slice(0, 12).map((product) => (
-              <Link
-                to={`/items/${product.itemNo}`}
-                key={product.itemNo}
-                style={{ textDecoration: 'none', color: 'inherit' }}
-              >
-                <Card>
-                  <Thumbnail
-                    style={{
-                      backgroundImage: product.itemImage
-                        ? `url(http://localhost:9090/images/${product.itemImage})`
-                        : 'none',
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                    }}
-                  />
+            {productList.filter(product => product.pickStatus !== '거래완료').slice(0, 12).map((product) => (
+              <Card onClick={() => handleProtectedNavigate(`/items/${product.itemNo}`)}>
+                <Thumbnail
+                  style={{
+                    backgroundImage: product.itemImage
+                      ? `url(http://localhost:9090/images/${product.itemImage})`
+                      : 'none',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }}
+                />
                   <Title>{product.itemName}</Title>
                   <ItemInfo>
                     <Price>{product.itemCost.toLocaleString()}원</Price>
@@ -290,7 +314,6 @@ export default function Main() {
                     </Like>
                   </ItemInfo>
                 </Card>
-              </Link>
             ))}
           </Grid>
         ) : (
