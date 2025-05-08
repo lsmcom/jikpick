@@ -3,11 +3,14 @@ package kr.it.code.main.item.repository;
 import kr.it.code.main.item.dto.PopularSubCategoryDto;
 import kr.it.code.main.item.entity.Item;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,5 +62,9 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     // User별로 등록한 Item 조회
     List<Item> findByUserUserNo(Long userNo);  // User의 `userNo`로 아이템 조회
+
+    @Query("SELECT i FROM Item i WHERE " +
+            "LOWER(i.itemName) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    Page<Item> searchByKeywordPaged(@Param("keyword") String keyword, Pageable pageable);
 
 }

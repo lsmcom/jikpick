@@ -7,11 +7,13 @@ import kr.it.code.main.item.dto.ItemLikeDto;
 import kr.it.code.main.item.service.ItemService;
 import kr.it.code.main.store.dto.StoreDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
+import org.springframework.data.domain.Pageable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -19,6 +21,8 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
 import java.util.Map;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 @RestController
 @RequestMapping("/api/items")
@@ -164,4 +168,15 @@ public class ItemController {
         List<StoreDto> storeDto = itemService.getStoresByItem(itemNo);
         return ResponseEntity.ok(storeDto);
     }
+    //페이징처리
+    @GetMapping("/search-paged")
+    public ResponseEntity<Page<ItemDto>> searchItemsPaged(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size
+    ) {
+        Pageable pageable = (Pageable) PageRequest.of(page, size, Sort.by("itemDate").descending());
+        return ResponseEntity.ok(itemService.searchItemsPaged(keyword, pageable));
+    }
+
 }

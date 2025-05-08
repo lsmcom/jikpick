@@ -17,6 +17,7 @@ import kr.it.code.main.store.repository.StoreRepository;
 import kr.it.code.main.user.User;
 import kr.it.code.main.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 import kr.it.code.main.category.entity.Category;
 import kr.it.code.main.productsale.repository.ProductSaleRepository;
 import kr.it.code.main.productsale.entity.ProductSale;
+
+import org.springframework.data.domain.Pageable;
 import java.io.File;
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -31,6 +34,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 
 import static kr.it.code.main.item.entity.QItem.item;
 import static kr.it.code.main.user.QUser.user;
@@ -216,6 +220,11 @@ public class ItemService {
         return items.stream()
                 .map(ItemDto::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    public Page<ItemDto> searchItemsPaged(String keyword, Pageable pageable) {
+        return itemRepository.searchByKeywordPaged(keyword, pageable)
+                .map(ItemDto::new);
     }
 
 
