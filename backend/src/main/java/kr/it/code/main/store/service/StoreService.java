@@ -23,15 +23,22 @@ public class StoreService {
                 .collect(Collectors.toList());
     }
 
-
     public List<StoreDto> filterStores(String region, String subRegion, String name, String time) {
-        List<Store> stores = storeRepository.filterStoresWithRegion(  // ✅ 여기!
-                region != null && !region.isEmpty() ? region : null,
-                subRegion != null && !subRegion.isEmpty() ? subRegion : null,
-                name != null && !name.isEmpty() ? name : null,
-                time != null && !time.isEmpty() ? time : null
+        if (region != null && region.isBlank()) region = null;
+        if (subRegion != null && subRegion.isBlank()) subRegion = null;
+        if (name != null && name.isBlank()) name = null;
+        if (time != null && time.isBlank()) time = null;
+
+        List<Store> stores = storeRepository.filterStoresWithRegion(
+                region != null ? "%" + region + "%" : null,
+                subRegion != null ? "%" + subRegion + "%" : null,
+                name != null ? "%" + name + "%" : null,
+                time
         );
-        return stores.stream().map(StoreDto::fromEntity).collect(Collectors.toList());
+
+        return stores.stream()
+                .map(StoreDto::fromEntity)  // ✅ 정적 메서드 사용
+                .toList();
     }
 
 }
