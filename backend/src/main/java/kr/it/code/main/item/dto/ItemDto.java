@@ -1,6 +1,7 @@
 package kr.it.code.main.item.dto;
 
 import kr.it.code.main.item.entity.Item;
+import kr.it.code.main.user.User;
 import lombok.Getter;
 
 import java.time.LocalDate;
@@ -31,6 +32,11 @@ public class ItemDto {
     private List<String> imagePaths;
     private String pickStatus;
 
+    private String sellerProfileImage; // 판매자 프로필 이미지
+    private Float sellerRating; // 판매자 평점
+    private Integer sellerRatingCount; // 판매자 리뷰 수
+    private Integer sellerSaleCount; // 판매자 판매 상품 수
+
     // 생성자
     public ItemDto(Item item) {
         this.itemNo = item.getItemNo();
@@ -56,6 +62,16 @@ public class ItemDto {
         this.sellerNick = item.getUser().getNick();
         this.categoryName = item.getCategory().getCateName();
         this.pickStatus = item.getPickStatus();
+
+        // 판매자 정보 추가
+        User seller = item.getUser();
+        if (seller != null) {
+            this.sellerNick = seller.getNick();
+            this.sellerProfileImage = seller.getImage(); // 판매자 프로필 이미지
+            this.sellerRating = seller.getRating();
+            this.sellerRatingCount = seller.getRatingCount();
+            this.sellerSaleCount = seller.getSaleCount();
+        }
     }
 
     // 검색이나 리스트용에서 사용되는 정적 팩토리 메서드

@@ -67,7 +67,14 @@ export default function ProductDetail() {
 
   const { itemNo } = useParams(); // URL에서 /items/:itemNo 값 추출
   const [product, setProduct] = useState(null);
+  const [profile, setProfile] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [rating, setRating] = useState(0);
+  const [ratingCount, setRatingCount] = useState(0);
+  const [saleCount, setSaleCount] = useState(0);
+  const [reviews, setReviews] = useState([]); // 리뷰 목록을 저장할 state
 
+  // 상품 정보 불러오기
   useEffect(() => {
     const fetchItem = async () => {
       try {
@@ -80,6 +87,47 @@ export default function ProductDetail() {
     fetchItem();
   }, [itemNo]);
 
+  console.log(product);
+
+  // 상품에 대한 리뷰를 불러오기
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const res = await axios.get(`/api/reviews/item/${itemNo}`);
+        setReviews(res.data); // 리뷰 목록을 상태에 저장
+      } catch (err) {
+        console.error('리뷰 불러오기 실패:', err);
+      }
+    };
+    fetchReviews();
+  }, [itemNo]);
+
+  // 판매자 정보 및 이미지 불러오기
+  useEffect(() => {
+    const loadProfile = async() => {
+      try {
+        const memberId = JSON.parse(sessionStorage.getItem('user')).id; // memberId 불러오기
+        const userInfo = await axios.get('/api/users/me', {
+          params: { userId: memberId }
+        });
+        
+        const imgUrl = 'http://localhost:9090' + (userInfo.data.image);
+
+        // 해당 정보들을 state로 업데이트
+        setProfile(imgUrl || DefaultProfile); // 프로필 이미지
+        setNickname(userInfo.data.nickname || '상점명 없음'); // 판매자 별명
+        setRating(userInfo.data.rating || 0); // 평점
+        setRatingCount(userInfo.data.ratingCount || 0); // 평점 개수
+        setSaleCount(userInfo.data.saleCount || 0); // 판매 상품 개수
+
+      } catch (error) {
+        console.error('프로필 로드 실패:', error);
+      }
+    };
+
+    loadProfile();
+  }, []);
+
   // ✅ 로딩 중 처리
   if (!product) return null;
 
@@ -87,19 +135,22 @@ export default function ProductDetail() {
     <Container>
       {/* 상단: 이미지 + 상품정보 */}
       <ProductTop>
-      <ImageWrapper>
-        <ProductImage src={`http://localhost:9090/images/${product.itemImage}`} alt="상품 이미지" />
-          {product.pickStatus === '거래완료' && (
-            <SoldOutOverlay>
-              <SoldOutImage src={soldOut} alt="판매완료" />
-            </SoldOutOverlay>
-          )}
+        <ImageWrapper>
+          <ProductImage src={`http://localhost:9090/images/${product.imagePaths[0]}`} alt="상품 이미지" />
+            {product.pickStatus === '거래완료' && (
+              <SoldOutOverlay>
+                <SoldOutImage src={soldOut} alt="판매완료" />
+              </SoldOutOverlay>
+            )}
         </ImageWrapper>
         <ProductInfo
           title={product.itemName}
           category={product.categoryName}
           price={product.itemCost}
+          sellerProfile={profile}
           sellerName={product.sellerNick}
+          sellerRating={rating}
+          sellerRatingCount={ratingCount}
           createdAt={product.itemDate}
           itemWish={product.itemWish}
           itemStatus={product.itemStatus}
@@ -112,9 +163,17 @@ export default function ProductDetail() {
       <ProductDescription description={product.itemInfo} />
 
       {/* 판매자 정보 */}
-      <SellerProfile seller={{ name: product.sellerNick, profileImage: profileImg }} />
+      <SellerProfile
+        seller={{
+          name: product.sellerNick,
+          profileImage: profile,
+          rating: rating,
+          ratingCount: ratingCount,
+          saleCount: saleCount
+        }}
+      />
      
-      <ReviewTab />
+      <ReviewTab reviews={reviews}/> {/* 리뷰 목록을 ReviewList에 전달 */}
       <Footer/>
     </Container>
   );

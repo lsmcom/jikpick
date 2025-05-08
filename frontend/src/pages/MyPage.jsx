@@ -213,7 +213,8 @@ export default function MyPage({ isLoggedIn, setIsLoggedIn }) {
   useEffect(() => {
     const loadProfile = async() => {
       try {
-        const memberId = JSON.parse(localStorage.getItem('user')).id; // localStorage에서 memberId 불러오기
+        const memberId = JSON.parse(sessionStorage.getItem('user')).id; // memberId 불러오기
+        
         const userInfo = await axios.get('/api/users/me', {
           params: { userId: memberId }
         });

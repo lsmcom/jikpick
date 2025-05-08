@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +36,19 @@ public class ReviewService {
         review.setDate(LocalDate.now());  // 현재 날짜로 설정
 
         return reviewRepository.save(review);
+    }
+
+    // 판매자가 등록한 상품에 대해 작성된 리뷰를 가져오는 메서드
+    public List<Review> getReviewsBySeller(Long sellerUserNo) {
+        List<Item> items = itemRepository.findByUserUserNo(sellerUserNo); // 판매자가 등록한 상품 목록
+
+        if (items.isEmpty()) {
+            throw new IllegalArgumentException("판매자가 등록한 상품이 없습니다.");
+        }
+
+        // 해당 상품에 대한 모든 리뷰를 가져오기
+        List<Long> itemNoList = items.stream().map(Item::getItemNo).collect(Collectors.toList());
+        return reviewRepository.findByItem_ItemNoIn(itemNoList); // 리뷰 조회
     }
 
     // 특정 상품에 대한 리뷰 목록 조회
