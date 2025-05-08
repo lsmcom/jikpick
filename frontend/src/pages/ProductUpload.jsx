@@ -861,13 +861,13 @@ const handleImageChange = async (e) => {
       formData.append('imageFiles', file);
 
       const res = await axios.post(
-        "http://localhost:9090/api/items/upload-image",
+        "/api/items/upload-image",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
-      const uploadedUrl = `http://localhost:9090${res.data}`;
+      const uploadedUrl = `${res.data}`;
       const previewUrl = URL.createObjectURL(file);
 
       newImages.push({
@@ -953,7 +953,7 @@ const handleImageChange = async (e) => {
 
     try {
       // ✅ 서버에 이미지 삭제 요청 (id는 실제 파일명 또는 서버 경로여야 함)
-      await axios.delete("http://localhost:9090/api/items/delete-image", {
+      await axios.delete("/api/items/delete-image", {
         params: { path: id.split("/").pop() }, // uuid_파일명.jpg 형태
       });
     } catch (error) {
@@ -1264,7 +1264,7 @@ const normalize = (str) =>
       );
     
       try {
-        const res = await axios.post("http://localhost:9090/api/items", formData, {
+        const res = await axios.post("/api/items", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
     
@@ -1372,7 +1372,7 @@ return (
             src={
               modalImage?.startsWith("blob")
                 ? modalImage
-                : `http://localhost:9090${modalImage}`
+                : `${modalImage}`
             }
             alt="modal-view"
           />

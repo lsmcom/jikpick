@@ -10,6 +10,7 @@ import ReviewTab from '../components/ProductDetail/ReviewTab';
 import soldOut from '../assets/images/Soldout.svg';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import DefaultProfile from '../assets/images/DefaultProfile.svg';
 import axios from '../api/axios'; 
 
 const Container = styled.div`
@@ -111,7 +112,7 @@ export default function ProductDetail() {
           params: { userId: memberId }
         });
         
-        const imgUrl = 'http://localhost:9090' + (userInfo.data.image);
+        const imgUrl = (userInfo.data.image);
 
         // 해당 정보들을 state로 업데이트
         setProfile(imgUrl || DefaultProfile); // 프로필 이미지
@@ -136,7 +137,7 @@ export default function ProductDetail() {
       {/* 상단: 이미지 + 상품정보 */}
       <ProductTop>
         <ImageWrapper>
-          <ProductImage src={`http://localhost:9090/images/${product.imagePaths[0]}`} alt="상품 이미지" />
+          <ProductImage src={`/images/${product.imagePaths[0]}`} alt="상품 이미지" />
             {product.pickStatus === '거래완료' && (
               <SoldOutOverlay>
                 <SoldOutImage src={soldOut} alt="판매완료" />
