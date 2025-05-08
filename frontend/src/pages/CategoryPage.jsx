@@ -78,12 +78,14 @@ const Card = styled.div`
   cursor: pointer;
 `;
 
-const Thumbnail = styled.div`
+const Thumbnail = styled.img`
   width: 100%;
   height: 250px;
   background-color: #f0f0f0;
   border-radius: 6px;
   margin-bottom: 8px;
+  background-size: 'cover';
+  background-position: 'center';
 `;
 
 const ProductName = styled.div`
@@ -206,13 +208,7 @@ export default function CategoryPage() {
           <Grid>
             {items.filter(item => item.pickStatus !== '거래완료').map(item => (
               <Card key={item.itemNo} onClick={() => handleCardClick(item.itemNo)}>
-                <Thumbnail
-                  style={{
-                    backgroundImage: `url(http://localhost:9090/images/${item.itemImage})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                  }}
-                />
+                <Thumbnail src={`http://localhost:9090/images/${item.imagePaths[0]}`}/>
                 <ProductName>{item.itemName}</ProductName>
                 <PriceAndLike>
                   <Price>{item.itemCost.toLocaleString()}원</Price>
