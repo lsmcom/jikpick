@@ -8,6 +8,7 @@ import kr.it.code.main.item.dto.ItemRequestDto;
 import kr.it.code.main.item.dto.ItemLikeDto;
 import kr.it.code.main.item.entity.Item;
 import kr.it.code.main.item.repository.ItemRepository;
+import kr.it.code.main.item.repository.ItemStoreRepository;
 import kr.it.code.main.store.dto.StoreDto;
 import kr.it.code.main.productsale.entity.ProductSale;
 import kr.it.code.main.productsale.repository.ProductSaleRepository;
@@ -44,6 +45,7 @@ public class ItemService {
     private final CategoryRepository categoryRepository;
     private final StoreRepository storeRepository;
     private final FavoriteService favoriteService;
+    private final ItemStoreRepository itemStoreRepository;
 
     @Transactional //// 단일 카테고리 상품 조회
     public List<ItemDto> getItemsByCategory(Long categoryNo) {
@@ -163,6 +165,27 @@ public class ItemService {
         itemRepository.save(item);
     }
 
+    @Transactional
+    public void reserveItem(Long itemNo) {
+        Item item = itemRepository.findById(itemNo)
+                .orElseThrow(() -> new RuntimeException("상품이 존재하지 않습니다."));
+        item.setPickStatus("예약중");
+    }
+
+    @Transactional
+    public void cancelReserveItem(Long itemNo) {
+        Item item = itemRepository.findById(itemNo)
+                .orElseThrow(() -> new RuntimeException("상품이 존재하지 않습니다."));
+        item.setPickStatus("판매중");
+    }
+
+    public void markAsCompleted(Long itemNo) {
+        Item item = itemRepository.findById(itemNo)
+                .orElseThrow(() -> new IllegalArgumentException("Item not found"));
+        item.setPickStatus("거래완료");
+        itemRepository.save(item);
+    }
+
     public void deleteImageFile(String fileName) {
         String uploadDir = "C:/jikpick_uploads/";
         File file = new File(uploadDir + fileName);
@@ -178,11 +201,9 @@ public class ItemService {
 
     @Transactional(readOnly = true)
     public List<StoreDto> getStoresByItem(Long itemNo) {
-        Item item = itemRepository.findById(itemNo)
-                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
-
-        return item.getStores().stream()
-                .map(StoreDto::fromEntity)
-                .collect(Collectors.toList());
+        List<Long> storeNos = itemStoreRepository.findStoreNosByItemNo(itemNo); // ⚠️ item_store 중간 테이블 조회
+        List<Store> stores = storeRepository.findByStoreNoInWithRegion(storeNos); // ⚠️ Fetch Join된 쿼리 사용
+        System.out.println("📦 storeNos: " + storeNos);
+        return stores.stream().map(StoreDto::fromEntity).toList();
     }
 }

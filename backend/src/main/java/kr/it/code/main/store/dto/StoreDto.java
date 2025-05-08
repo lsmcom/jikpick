@@ -22,6 +22,8 @@ public class StoreDto {
 
     // 💡 Entity → Dto 변환
     public static StoreDto fromEntity(Store store) {
+        System.out.println("✅ 변환 시작: " + store.getStoreNo());
+
         StoreDto dto = new StoreDto();
         dto.setStoreNo(store.getStoreNo());
         dto.setStoreName(store.getStoreName());
@@ -29,8 +31,7 @@ public class StoreDto {
         dto.setStoreTime(store.getStoreTime());
         dto.setStoreAddress(store.getStoreAddress());
         dto.setLotAddress(store.getLotAddress());
-        System.out.println("🟡 StoreName: " + store.getStoreName());
-        System.out.println("🟠 store.getRegion(): " + store.getRegion());
+
         if (store.getRegion() != null) {
             dto.setRegNo(store.getRegion().getRegNo());
         } else {

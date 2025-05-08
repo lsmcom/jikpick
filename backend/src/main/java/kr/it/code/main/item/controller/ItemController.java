@@ -92,6 +92,28 @@ public class ItemController {
         ItemDto item = itemService.getItemDetail(itemNo);
         return ResponseEntity.ok(item);
     }
+
+    // 예약 상태로 변경
+    @PutMapping("/{itemNo}/reserve")
+    public ResponseEntity<Void> reserveItem(@PathVariable Long itemNo) {
+        itemService.reserveItem(itemNo);
+        return ResponseEntity.ok().build();
+    }
+
+    // 상품 예약 취소 (판매중으로 복귀)
+    @PutMapping("/{itemNo}/cancel-reserve")
+    public ResponseEntity<Void> cancelReserveItem(@PathVariable Long itemNo) {
+        itemService.cancelReserveItem(itemNo);
+        return ResponseEntity.ok().build();
+    }
+
+    // 결제 완료시 상태 변경
+    @PutMapping("/{itemNo}/complete")
+    public ResponseEntity<Void> markItemAsCompleted(@PathVariable Long itemNo) {
+        itemService.markAsCompleted(itemNo);
+        return ResponseEntity.ok().build();
+    }
+
     // 찜 추가/해제
     // ✅ 수정된 버전
     @PostMapping("/{itemNo}/wish")
@@ -135,7 +157,7 @@ public class ItemController {
 
     @GetMapping("/{itemNo}/stores")
     public ResponseEntity<List<StoreDto>> getItemStores(@PathVariable Long itemNo) {
-        List<StoreDto> storeDtos = itemService.getStoresByItem(itemNo);
-        return ResponseEntity.ok(storeDtos);
+        List<StoreDto> storeDto = itemService.getStoresByItem(itemNo);
+        return ResponseEntity.ok(storeDto);
     }
 }
