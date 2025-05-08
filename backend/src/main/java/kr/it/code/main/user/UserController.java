@@ -4,11 +4,15 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import kr.it.code.main.user.dto.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -171,36 +175,41 @@ public class UserController {
 
     // ✅ 사용자 정보 조회 API
     @GetMapping("/me")
-    public ResponseEntity<?> getUserInfo(@RequestParam String userId) {
+    public ResponseEntity<UserInfoDto> getUserInfo(@RequestParam String userId) {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("userId", user.getUserId());
-        result.put("password", user.getPassword());
-        result.put("nickname", user.getNick());
-        result.put("email", user.getEmail());
-        result.put("tell", user.getTell());
-        result.put("rating", user.getRating());
-
-        return ResponseEntity.ok(result);
+        // UserInfoDto로 변환하여 필요한 정보만 반환
+        UserInfoDto userInfo = new UserInfoDto(user);  // UserInfoDto로 변환
+        return ResponseEntity.ok(userInfo);  // UserInfoDto를 반환
     }
 
     // ✅ 회원 정보 수정 API
     @PostMapping("/update")
-    public ResponseEntity<?> updateUser(@RequestBody Map<String, Object> updates) {
-        String userId = (String) updates.get("userId");
+    public ResponseEntity<String> updateUser(@RequestPart("image") MultipartFile image,
+                                             @RequestPart("intro") String intro,
+                                             @RequestPart("userId") String userId) {
 
-        if (userId == null) {
-            return ResponseEntity.badRequest().body("userId는 필수입니다.");
+        // 이미지 처리: 파일 저장하는 로직
+        String imagePath = "";
+        if (!image.isEmpty()) {
+            try {
+                // 이미지 저장 처리
+                imagePath = userService.saveImage(image);
+            } catch (IOException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("이미지 저장 실패");
+            }
         }
 
-        try {
-            userService.updateUserInfo(userId, updates);
-            return ResponseEntity.ok("회원 정보가 수정되었습니다.");
-        } catch (Exception e) {
+        // 사용자 정보 업데이트
+        boolean isUpdated = userService.updateProfile(userId, intro, imagePath);
+
+        if (isUpdated) {
+            return ResponseEntity.ok("프로필 수정 완료");
+        } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("회원 정보 수정 중 오류 발생: " + e.getMessage());
+                    .body("프로필 수정 실패");
         }
     }
 

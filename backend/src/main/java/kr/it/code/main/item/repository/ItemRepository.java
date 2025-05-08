@@ -50,5 +50,14 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             "OR LOWER(i.user.nick) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Item> searchByKeyword(@Param("keyword") String keyword);
 
+    @Query("SELECT i FROM Item i ORDER BY i.itemWish DESC")
+    List<Item> findAllOrderByItemWishDesc();
+
+    // User별 판매한 상품 개수 조회
+    @Query("SELECT COUNT(i) FROM Item i WHERE i.user.userNo = :userNo")
+    long countItemsByUser(Long userNo);
+
+    // User별로 등록한 Item 조회
+    List<Item> findByUserUserNo(Long userNo);  // User의 `userNo`로 아이템 조회
 
 }
