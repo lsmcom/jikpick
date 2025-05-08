@@ -5,10 +5,14 @@ import kr.it.code.main.item.repository.ItemRepository;
 import kr.it.code.main.review.repository.ReviewRepository;
 import kr.it.code.main.user.dto.JoinRequestDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -24,6 +28,9 @@ public class UserService {
     private final ItemRepository itemRepository;
     private final ReviewRepository reviewRepository;
 
+    @Value("C:\\jikpick_uploads\\")
+    private String uploadDir;
+
     // 판매한 상품 수 (saleCount)
     public long getSaleCount(Long userNo) {
         return itemRepository.countItemsByUser(userNo); // ItemRepository에서 사용자별 상품 개수 카운트
@@ -35,7 +42,7 @@ public class UserService {
         long reviewCount = 0;
 
         for (Item item : items) {
-            reviewCount += reviewRepository.findByItemNo(item.getItemNo()).size(); // 해당 상품에 대한 리뷰 수 카운트
+            reviewCount += reviewRepository.findByItem_ItemNo(item.getItemNo()).size(); // 해당 상품에 대한 리뷰 수 카운트
         }
 
         return reviewCount;
@@ -154,5 +161,37 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional
+    public boolean updateProfile(String userId, String intro, String imagePath) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // 프로필 이미지와 소개글 업데이트
+        user.setIntro(intro);
+        user.setImage(imagePath);  // 이미지 경로 저장
+
+        userRepository.save(user);
+        return true;
+    }
+
+    // 이미지 저장 처리 (파일을 서버에 저장하고 파일 경로 반환)
+    public String saveImage(MultipartFile image) throws IOException {
+
+        //resources 상 경로
+        String imgPath = "/images/" +
+                 "profiles/" + image.getOriginalFilename();
+
+        //파일이저장되는 물리경로
+        String imagePath =  uploadDir +
+                "profiles" + File.separator +  image.getOriginalFilename(); // 경로 설정
+
+        File dest = new File(imagePath);
+        if(!dest.getParentFile().exists()){
+            dest.getParentFile().mkdirs();
+        }
+
+        image.transferTo(dest); // 파일 저장
+        return imgPath; // 저장된 파일 경로 반환
+    }
 
 }

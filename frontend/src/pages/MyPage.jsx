@@ -9,6 +9,7 @@ import heartIcon from '../assets/icon/HeartIcon.svg';
 import walletIcon from '../assets/icon/WalletIcon.svg'
 import receiptIcon from '../assets/icon/ReceiptIcon.svg'
 import { useEffect, useState } from 'react';
+import DefaultProfile from '../assets/images/DefaultProfile.svg';
 import axios from '../api/axios'; 
 
 // 📦 전체 페이지 레이아웃 컨테이너
@@ -216,9 +217,11 @@ export default function MyPage({ isLoggedIn, setIsLoggedIn }) {
         const userInfo = await axios.get('/api/users/me', {
           params: { userId: memberId }
         });
-        console.log(userInfo);
+        
+        const imgUrl = 'http://localhost:9090' + (userInfo.data.image);
+
         // 해당 정보들을 state로 업데이트
-        setProfile(userInfo.data.userImage || exampleProfile); // 프로필 이미지
+        setProfile(imgUrl || DefaultProfile); // 프로필 이미지
         //setUserName(userInfo.data.nickname); // 유저 닉네임
         setShopName(userInfo.data.nickname || '상점명 없음'); // 상점명
         setRating(userInfo.data.rating || 0); // 평점

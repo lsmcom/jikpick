@@ -39,6 +39,6 @@ public class ReviewService {
 
     // 특정 상품에 대한 리뷰 목록 조회
     public List<Review> getReviewsByItem(Long itemNo) {
-        return reviewRepository.findByItemNo(itemNo);
+        return reviewRepository.findByItem_ItemNo(itemNo);
     }
 }

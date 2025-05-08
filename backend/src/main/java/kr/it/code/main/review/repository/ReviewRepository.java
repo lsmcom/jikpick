@@ -7,8 +7,8 @@ import java.util.List;
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     // 특정 상품에 대한 리뷰 목록 조회
-    List<Review> findByItemNo(Long itemNo);
+    List<Review> findByItem_ItemNo(Long itemNo);
 
     // 리뷰 작성자의 아이디로 리뷰 조회
-    List<Review> findByUserId(String userId);
+    List<Review> findByUser_UserId(String userId);
 }

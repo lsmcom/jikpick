@@ -6,6 +6,7 @@ import sellerProfile from '../assets/images/profile1.jpg';
 import PageContainer from '../pages/PageContainer';
 import cameraIcon from '../assets/icon/Camera.svg'; // 카메라 아이콘 파일을 추가합니다.
 import StarIcon from'../assets/icon/StarIcon.svg';
+import DefaultProfile from '../assets/images/DefaultProfile.svg';
 import axios from '../api/axios';
 
 const FlexArea = styled.div`
@@ -159,6 +160,7 @@ export default function SellerStore() {
     setIntro(tempIntro);
     setIsEditing(false);
     if (newImage) {
+    
       setProfileImage(URL.createObjectURL(newImage)); // 새 이미지로 프로필 이미지 변경
     }
 
@@ -167,14 +169,15 @@ export default function SellerStore() {
       const formData = new FormData();
       formData.append('image', newImage);
       formData.append('intro', tempIntro);
+      formData.append('userId', JSON.parse(localStorage.getItem('user')).id);
 
+      // 서버 API 호출 (여기서 FormData를 보냄)
       await axios.post('/api/users/update', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
-      alert('프로필이 수정되었습니다.');
     } catch (error) {
       console.error('프로필 수정 실패:', error);
     }
@@ -196,23 +199,24 @@ export default function SellerStore() {
         const userInfo = await axios.get('/api/users/me', {
           params: { userId: memberId }
         });
-        console.log(userInfo.data);
+
+        const imgUrl = 'http://localhost:9090' + (userInfo.data.image);
 
         // 서버에서 받은 데이터를 state로 저장
-        setProfileImage(userInfo.data.image || sellerProfile);
+        setProfileImage(imgUrl || DefaultProfile);
         setNickname(userInfo.data.nickname);
         setRating(userInfo.data.rating || 0.0);
         setRatingCount(userInfo.data.ratingCount || 0);
         setReviewCount(userInfo.data.reviewCount || 0);
         setSaleCount(userInfo.data.saleCount || 0); // 판매 상품 수
-        setIntro(userInfo.data.intro); // 소개글 초기화
+        setIntro(userInfo.data.intro || ''); // 소개글 초기화
       } catch (error) {
         console.error('사용자 정보 조회 실패:', error);
       }
     };
 
     fetchSellerInfo();
-  }, [profileImage, nickname, rating, ratingCount, reviewCount, saleCount, intro]);
+  }, []);
 
   return (
     <>
