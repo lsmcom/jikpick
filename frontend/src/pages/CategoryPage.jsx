@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import heartIcon from '../assets/icon/HeartIcon.svg';
@@ -112,6 +112,23 @@ const Like = styled.div`
   gap: 6px;
 `;
 
+const PaginationWrapper = styled.div`
+  text-align: center;
+  margin-top: 50px;
+`;
+
+const PageButton = styled.button`
+  margin: 0 5px;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 18px;
+  background-color: ${({ active }) => (active ? '#FB4A67' : '#fff')};
+  color: ${({ active }) => (active ? '#fff' : '#333')};
+`;
+
 export default function CategoryPage() {
   const { categoryNo } = useParams();
   const navigate = useNavigate();
@@ -121,6 +138,30 @@ export default function CategoryPage() {
   const [siblingCategories, setSiblingCategories] = useState([]);
   const [items, setItems] = useState([]);
   const [parentNo, setParentNo] = useState(null); // 형제 카테고리를 위한 부모 번호
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageFromUrl = parseInt(searchParams.get('page')) || 1;
+  const [currentPage, setCurrentPage] = useState(pageFromUrl);
+  const itemsPerPage = 16;
+
+  const filteredItems = items
+  .filter(item => item.pickStatus !== '거래완료');
+
+  const paginatedItems = filteredItems.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    setSearchParams({ page: page });
+  };
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentPage]);
 
   // 카테고리 클릭 시 이동
   const handleCategoryClick = (no) => {
@@ -204,7 +245,7 @@ export default function CategoryPage() {
           </SectionTitle>
 
           <Grid>
-            {items.filter(item => item.pickStatus !== '거래완료').map(item => (
+            {paginatedItems.map(item => (
               <Card key={item.itemNo} onClick={() => handleCardClick(item.itemNo)}>
                 <Thumbnail
                   style={{
@@ -224,6 +265,18 @@ export default function CategoryPage() {
               </Card>
             ))}
           </Grid>
+
+          <PaginationWrapper>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <PageButton
+                key={page}
+                onClick={() => handlePageChange(page)}
+                active={page === currentPage}
+              >
+                {page}
+              </PageButton>
+            ))}
+          </PaginationWrapper>
         </Container>
       </Wrapper>
       <Footer />
