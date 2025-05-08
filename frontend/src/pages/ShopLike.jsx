@@ -243,7 +243,7 @@ export default function ShopLike() {
                         }}
                       >
                         <ItemImageWrapper>
-                          <ItemImage src={`http://localhost:9090/images/${item.itemImage}`} alt="상품 이미지" />
+                          <ItemImage src={`/images/${item.itemImage}`} alt="상품 이미지" />
                           {item.pickStatus === '거래완료' && (
                             <SoldOutOverlay>
                               <img src={soldOut} alt="판매완료" />

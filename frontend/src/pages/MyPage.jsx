@@ -219,7 +219,7 @@ export default function MyPage({ isLoggedIn, setIsLoggedIn }) {
           params: { userId: memberId }
         });
         
-        const imgUrl = 'http://localhost:9090' + (userInfo.data.image);
+        const imgUrl = (userInfo.data.image);
 
         // 해당 정보들을 state로 업데이트
         setProfile(imgUrl || DefaultProfile); // 프로필 이미지

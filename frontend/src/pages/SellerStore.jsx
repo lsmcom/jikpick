@@ -203,7 +203,7 @@ export default function SellerStore() {
         });
 
         // 이미지 경로 생성
-        const imgUrl = 'http://localhost:9090' + (userInfo.data.image);
+        const imgUrl = (userInfo.data.image);
 
         // 서버에서 받은 데이터를 state로 저장
         setUserNo(userInfo.data.userNo || 0);

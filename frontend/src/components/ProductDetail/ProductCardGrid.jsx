@@ -96,7 +96,7 @@ export default function ProductCardGrid({ items = [] }) {
             <Thumbnail
               style={{
                 backgroundImage: item.itemImage
-                  ? `url(http://localhost:9090${item.itemImage})`
+                  ? `url(${item.itemImage})`
                   : 'none',
               }}
             />

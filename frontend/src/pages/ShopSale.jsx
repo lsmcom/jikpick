@@ -337,7 +337,7 @@ const LikeSection = styled.div`
 
     const toggleHideItem = async (saleNo) => {
       try {
-        await axios.patch(`http://localhost:9090/api/sales/${saleNo}/toggle-hide`);
+        await axios.patch(`/api/sales/${saleNo}/toggle-hide`);
     
         setItems(prev =>
           prev.map(i =>
@@ -358,7 +358,7 @@ const LikeSection = styled.div`
     const deleteItem = async (saleNo) => {
       if (!window.confirm('정말 삭제하시겠습니까?')) return;
       try {
-        await axios.delete(`http://localhost:9090/api/sales/${saleNo}`);
+        await axios.delete(`/api/sales/${saleNo}`);
         setItems(prev => prev.filter(i => i.saleNo !== saleNo));
         console.log("삭제완료")
       } catch (err) {
@@ -372,7 +372,7 @@ const LikeSection = styled.div`
       if (!reason) return alert("신고가 취소되었습니다.");
     
       try {
-        await axios.post(`http://localhost:9090/api/sales/${saleNo}/report`, {
+        await axios.post(`/api/sales/${saleNo}/report`, {
           reason: reason,
         });
         alert("신고가 완료되었습니다.");
@@ -416,7 +416,7 @@ const LikeSection = styled.div`
       const user = JSON.parse(sessionStorage.getItem('user'));
       console.log('user 정보:', user);
       if (user?.userNo) {
-        axios.get(`http://localhost:9090/api/sales/by-user?userNo=${user.userNo}`)
+        axios.get(`/api/sales/by-user?userNo=${user.userNo}`)
           .then(res => {
             setItems(res.data);
             console.log("호출완료");
