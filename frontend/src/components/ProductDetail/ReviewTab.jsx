@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import ReviewList from './ReviewList';
 import ProductCardGrid from './ProductCardGrid';
+import DefaultProfile from '../../assets/images/DefaultProfile.svg';
+import axios from '../../api/axios';
 
 const TabWrapper = styled.div`
   width: 100%;
@@ -33,19 +35,63 @@ const Tab = styled.button`
   font-weight: ${({ $active }) => ($active ? '700' : '500')};
 `;
 
-export default function ReviewTab() {
+export default function ReviewTab({ userNo }) {
   // 탭 상태 저장/불러오기
 const [activeTab, setActiveTab] = useState(() => {
   return sessionStorage.getItem('activeReviewTab') || 'product';
 });
+const [reviews, setReviews] = useState([]);
 
 const isReviewTabActive = activeTab === 'review';
+
+const tempReviews = [
+    {
+      profile: DefaultProfile,
+      writer: '라떼는 말이야',
+      content: '오로라여신 정말 감사합니다~ 직접 보지 못해서 걱정했는데 상태가 정말 좋다고 합니다!',
+    },
+    {
+      profile: DefaultProfile,
+      writer: '송도찐정연',
+      content: '이런 이쁘게 찍은 필터리가 좋군요,, ㅠㅠㅠ 잘 받을게요 진짜 감사합니다!!',
+    },
+    {
+      profile: DefaultProfile,
+      writer: '쿨거래가이',
+      content: '여기는 늘 믿고 삽니다',
+    },
+    {
+      profile: DefaultProfile,
+      writer: '품질 좋으면 짖는 개',
+      content: '월!! 월워우웡!! 왕!! 크르르',
+    },
+    {
+      profile: DefaultProfile,
+      writer: '송도찐정연',
+      content: '이런 이쁘게 찍은 필터리가 좋군요,, ㅠㅠㅠ 잘 받을게요 진짜 감사합니다!!',
+    },
+  ];
+
+
+useEffect(() => {
+  const fetchReviews = async () => {
+    try {
+      const response = await axios.get(`/api/reviews/seller/${userNo}`);
+      setReviews(response.data); // 판매자의 모든 상품에 대한 리뷰를 받아옴
+    } catch (error) {
+      console.error('리뷰 불러오기 실패:', error);
+      setReviews(tempReviews);
+    }
+  };
+  
+  fetchReviews();
+
+}, [userNo]);
 
 const handleTabClick = (tab) => {
   setActiveTab(tab);
   sessionStorage.setItem('activeReviewTab', tab);
 };
-
 
   return (
     <TabWrapper $isReviewTabActive={isReviewTabActive}>
@@ -54,7 +100,7 @@ const handleTabClick = (tab) => {
         판매상품(6)
       </Tab>
       <Tab $active={activeTab === 'review'} onClick={() => handleTabClick('review')}>
-        상품후기(21)
+        상품후기({reviews.length})
       </Tab>
 
       </TabMenu>
@@ -62,7 +108,7 @@ const handleTabClick = (tab) => {
       {activeTab === 'product' ? (
         <ProductCardGrid />
       ) : (
-        <ReviewList />
+        <ReviewList reviews={reviews} />
       )}
     </TabWrapper>
   );

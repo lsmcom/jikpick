@@ -4,6 +4,8 @@ import kr.it.code.main.favorite.service.FavoriteService;
 import kr.it.code.main.item.dto.ItemDto;
 import kr.it.code.main.item.dto.ItemRequestDto;
 import kr.it.code.main.item.dto.ItemLikeDto;
+import kr.it.code.main.item.entity.Item;
+import kr.it.code.main.item.repository.ItemRepository;
 import kr.it.code.main.item.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ItemController {
 
+    private final ItemRepository itemRepository;
     private final ItemService itemService;
     private final FavoriteService favoriteService;
     private final String uploadDir = "C:/jikpick_uploads/";
@@ -56,17 +59,25 @@ public class ItemController {
         return ResponseEntity.ok("등록 완료");
     }
 
+    // 상품 등록 시 이미지 업로드
     @PostMapping("/upload-image")
     public ResponseEntity<String> uploadImage(@RequestParam("imageFiles") MultipartFile file) {
         try {
             String originalName = file.getOriginalFilename();
             String savedName = UUID.randomUUID() + "_" + originalName;
             File saveFile = new File(uploadDir + savedName);
-            file.transferTo(saveFile);
 
-            String imageUrl = "/images/" + savedName;
-            return ResponseEntity.ok(imageUrl);
+            // 디렉토리 존재 여부 체크, 없으면 생성
+            if (!saveFile.getParentFile().exists()) {
+                saveFile.getParentFile().mkdirs();
+            }
+
+            file.transferTo(saveFile);  // 파일 저장
+
+            String imageUrl = "/images/" + savedName; // 이미지 URL 경로
+            return ResponseEntity.ok(imageUrl);  // 클라이언트로 경로를 반환
         } catch (IOException e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("이미지 업로드 실패");
         }
     }
@@ -88,8 +99,10 @@ public class ItemController {
     // 상품 상세 조회
     @GetMapping("/{itemNo}")
     public ResponseEntity<ItemDto> getItemDetail(@PathVariable Long itemNo) {
-        ItemDto item = itemService.getItemDetail(itemNo);
-        return ResponseEntity.ok(item);
+        Item item = itemRepository.findByItemNo(itemNo)
+                .orElseThrow(() -> new RuntimeException("해당 상품이 존재하지 않습니다."));
+        ItemDto itemDto = new ItemDto(item);
+        return ResponseEntity.ok(itemDto);
     }
     // 찜 추가/해제
     // ✅ 수정된 버전

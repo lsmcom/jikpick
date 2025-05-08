@@ -1,5 +1,7 @@
 package kr.it.code.main.review.controller;
 
+import kr.it.code.main.item.entity.Item;
+import kr.it.code.main.item.repository.ItemRepository;
 import kr.it.code.main.review.entity.Review;
 import kr.it.code.main.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
@@ -14,23 +16,12 @@ import java.util.List;
 public class ReviewController {
 
     private final ReviewService reviewService;
+    private final ItemRepository itemRepository;
 
-    // 리뷰 추가 API
-    @PostMapping("/add")
-    public ResponseEntity<Review> addReview(@RequestParam Long itemNo,
-                                            @RequestParam Long userNo,
-                                            @RequestParam String userId,
-                                            @RequestParam String contents,
-                                            @RequestParam String star) {
-        // 리뷰 추가
-        Review review = reviewService.addReview(itemNo, userNo, userId, contents, star);
-        return ResponseEntity.ok(review);
-    }
-
-    // 상품에 대한 모든 리뷰 조회 API
-    @GetMapping("/item/{itemNo}")
-    public ResponseEntity<List<Review>> getReviewsByItem(@PathVariable Long itemNo) {
-        List<Review> reviews = reviewService.getReviewsByItem(itemNo);
+    // 판매자가 등록한 상품에 대한 모든 리뷰 조회 API
+    @GetMapping("/seller/{userNo}")
+    public ResponseEntity<List<Review>> getReviewsBySeller(@PathVariable Long userNo) {
+        List<Review> reviews = reviewService.getReviewsBySeller(userNo);
         return ResponseEntity.ok(reviews);
     }
 }

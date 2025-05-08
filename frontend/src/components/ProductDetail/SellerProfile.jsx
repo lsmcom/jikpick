@@ -20,7 +20,6 @@ const ProfileImage = styled.img`
   object-fit: cover;
 `;
 
-
 const Rating = styled.p`
   font-size: 14px;
   color: #555;
@@ -37,18 +36,18 @@ const SellerInfo = styled.div`
 
 export default function SellerProfile({ seller }) {
   return (
-<SellerWrapper>
-  <ProfileImage src={seller.profileImage} alt="프로필 이미지" />
-  <SellerInfo>
-    <p>
-      <strong>{seller.name}</strong>
-      &nbsp;
-      <img src={starIcon} alt="별 아이콘" style={{ width: '14px', height: '14px', verticalAlign: 'middle', marginBottom: '2px' }} />
-      &nbsp;{(seller.rating ?? 0).toFixed(1)} (14)
-    </p>
-    <p>상품 6개</p>
-  </SellerInfo>
-</SellerWrapper>
+    <SellerWrapper>
+      <ProfileImage src={seller.profileImage} alt="프로필 이미지" />
+      <SellerInfo>
+        <p>
+          <strong>{seller.name}</strong>
+          &nbsp;
+          <img src={starIcon} alt="별 아이콘" style={{ width: '14px', height: '14px', verticalAlign: 'middle', marginBottom: '2px' }} />
+          &nbsp;{(seller.rating ?? 0).toFixed(1)} ({seller.ratingCount})
+        </p>
+        <p>상품 {seller.saleCount}개</p>
+      </SellerInfo>
+    </SellerWrapper>
 
   );
 }

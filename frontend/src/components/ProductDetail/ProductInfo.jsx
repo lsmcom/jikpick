@@ -129,7 +129,10 @@ export default function ProductInfo({
   title,
   category,
   price,
+  sellerProfile,
   sellerName,
+  sellerRating,
+  sellerRatingCount,
   createdAt,
   itemWish,
   itemStatus,
@@ -226,13 +229,13 @@ export default function ProductInfo({
         <Price>{price.toLocaleString()}원</Price>
   
         <SellerInfo>
-          <ProfileImg src={profileImg} alt="판매자 프로필" />
+          <ProfileImg src={sellerProfile} alt="판매자 프로필" />
           <SellerText>
             <SellerName>{sellerName}</SellerName>
             <Rating>
-              3.5
+              {sellerRating}
               <img src={starIcon} alt="별점" style={{ width: '16px', height: '16px', marginLeft: '2px' }} />
-              (4)
+              ({sellerRatingCount})
             </Rating>
             <ProductStatus>• 상품 상태: {getItemStatusText(itemStatus)}</ProductStatus>
           </SellerText>
