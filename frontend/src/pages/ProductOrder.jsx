@@ -170,11 +170,13 @@ const ItemBox = styled.div`
   border-bottom: 1px solid #eee;
 `;
 
-const Thumbnail = styled.div`
+const Thumbnail = styled.img`
   width: 100px;
   height: 100px;
   background: #ddd;
   border-radius: 8px;
+  background-size: 'cover';
+  background-position: 'center';
 `;
 
 const ItemInfo = styled.div`
@@ -306,7 +308,7 @@ export default function ProductOrder() {
           const data = res.data;
           setProductName(data.itemName);
           setProductPrice(data.itemCost);
-          setProductImage(`/images/${data.itemImage}`);
+          setProductImage(`/images/${data.imagePaths[0]}`);
         })
         .catch(err => {
           console.error('상품 정보 불러오기 실패:', err);
@@ -518,13 +520,7 @@ export default function ProductOrder() {
               <Divider />
               <SectionTitle>주문 상품</SectionTitle>
               <ItemBox>
-                <Thumbnail
-                  style={{
-                    backgroundImage: `url(${productImage})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                  }}
-                />
+                <Thumbnail src={productImage} />
                 <ItemInfo>
                   <Price>{productPrice.toLocaleString()}원</Price>
                   <div>{productName}</div>
