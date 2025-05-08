@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 public class UserInfoDto {
 
+    private String userId;
     private Long userNo;
     private String nickname;
     private Float rating;
@@ -16,8 +17,12 @@ public class UserInfoDto {
     private Integer saleCount;
     private String intro;
     private String image;
+    private String email;
+    private String tell;
+
 
     public UserInfoDto(User user) {
+        this.userId = user.getUserId();
         this.userNo = user.getUserNo();
         this.nickname = user.getNick();
         this.rating = user.getRating();
@@ -26,5 +31,7 @@ public class UserInfoDto {
         this.saleCount = user.getSaleCount();
         this.intro = user.getIntro();
         this.image = user.getImage();
+        this.email = user.getEmail();   // ✅ 추가
+        this.tell = user.getTell();
     }
 }

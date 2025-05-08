@@ -35,13 +35,12 @@ public class User {
     @Column(name = "USER_NICK")
     private String nick;
 
-    // ✅ 이메일
-    @Column(name = "USER_EMAIL")
+    @Column(name = "USER_EMAIL", nullable = true)
     private String email;
 
-    // ✅ 전화번호
-    @Column(name = "USER_TELL")
+    @Column(name = "USER_TELL", nullable = true)
     private String tell;
+
 
     // ✅ 통신사
     @Column(name = "USER_AGENCY")
