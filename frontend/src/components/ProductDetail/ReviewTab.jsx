@@ -67,8 +67,8 @@ const tempReviews = [
     },
     {
       profile: DefaultProfile,
-      writer: '송도찐정연',
-      content: '이런 이쁘게 찍은 필터리가 좋군요,, ㅠㅠㅠ 잘 받을게요 진짜 감사합니다!!',
+      writer: '깐깐징어',
+      content: '이정도면 뭐... 가격 값은 하네요',
     },
   ];
 
