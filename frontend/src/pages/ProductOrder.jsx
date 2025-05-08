@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 import Footer from '../components/Footer';
-import { useState, useEffect } from 'react';
+import PaymentModal from '../components/PaymentModal';
+import closeXIcon from '../assets/icon/CloseXIcon.svg';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from '../api/axios';
 
@@ -280,14 +282,21 @@ export default function ProductOrder() {
     const [requestNote, setRequestNote] = useState('');
     const [storeList, setStoreList] = useState([]);
     const navigate = useNavigate();
+    const unloadHandlerRef = useRef(null);
+    const popstateHandlerRef = useRef(null);
+    const [orderCompleted, setOrderCompleted] = useState(false);
+    const orderCompletedRef = useRef(false);
+    const [showModal, setShowModal] = useState(false);
+    const [modalMethod, setModalMethod] = useState('');
 
     useEffect(() => {
-      axios.get('/api/stores')
-        .then(res => {
+      axios.get(`/api/items/${itemNo}/stores`)
+        .then((res) => {
+          setFilteredStores(res.data); // storeName, storeAddress 등 포함
           setStoreList(res.data);
         })
-        .catch(err => console.error('지점 목록 로드 실패:', err));
-    }, []);
+        .catch(err => console.error('지점 로딩 실패:', err));
+    }, [itemNo]);
 
     useEffect(() => {
       if (!itemNo) return;
@@ -303,6 +312,43 @@ export default function ProductOrder() {
           console.error('상품 정보 불러오기 실패:', err);
         });
     }, [itemNo]);
+
+    const cancelReservation = () => {
+      axios.put(`/api/items/${itemNo}/cancel-reserve`)
+        .then(() => console.log("🟡 상태 복구: 판매중"))
+        .catch((err) => console.error("❌ 상태 복구 실패", err));
+    };
+
+    // 상품 예약 상태로 변경
+    useEffect(() => {
+      if (!itemNo) return;
+      axios.put(`/api/items/${itemNo}/reserve`)
+        .then(() => console.log("상품 예약 상태로 전환됨"))
+        .catch(err => console.error("예약 상태 전환 실패", err));
+    }, [itemNo]);
+
+    // 👇 useEffect 안 조건문 추가
+    useEffect(() => {
+      if (!itemNo || orderCompleted) return; // ✅ 결제 완료 시 이탈 감지 등록 X
+
+      unloadHandlerRef.current = (e) => {
+        cancelReservation();
+        e.preventDefault();
+        e.returnValue = '';
+      };
+
+      popstateHandlerRef.current = () => {
+        cancelReservation();
+      };
+
+      window.addEventListener('beforeunload', unloadHandlerRef.current);
+      window.addEventListener('popstate', popstateHandlerRef.current);
+
+      return () => {
+        window.removeEventListener('beforeunload', unloadHandlerRef.current);
+        window.removeEventListener('popstate', popstateHandlerRef.current);
+      };
+    }, [itemNo, orderCompleted]); // ✅ orderCompleted도 의존성에 추가
 
     useEffect(() => {
         if (agreeTerms && agreePrivacy && agreeThirdParty) {
@@ -337,44 +383,61 @@ export default function ProductOrder() {
     const total = productPrice + fee;
 
     const handleOrderSubmit = () => {
+      const method = paymentType === 'general' ? selectedGeneralMethod : 'TossPay';
+      setModalMethod(method);
+      setShowModal(true); // 👉 모달 먼저 띄움
+    };
+
+    const handleModalConfirm = () => {
       const user = JSON.parse(sessionStorage.getItem('user'));
       const userNo = user?.userNo;
-      const store = storeList.find(s => s.storeAddress === selectedBranch);
-      const storeNo = store?.storeNo;
-      
-      if (!userNo || !storeNo || !paymentType || !agreeAll ||
-        (paymentType === 'general' && !selectedGeneralMethod) ||
-        (paymentType === 'toss' && selectedGeneralMethod !== 'TossPay')) {
-      alert("모든 정보를 입력하고 동의해야 결제가 가능합니다.");
-      return;
-    }
+      const selectedStore = filteredStores.find(s => s.storeNo === parseInt(selectedBranch));
+      const storeNo = selectedStore?.storeNo;
     
       const today = new Date();
       const pickExpiryDate = new Date();
       pickExpiryDate.setDate(today.getDate() + 7);
-      const formattedExpiry = pickExpiryDate.toISOString().split('T')[0]; // yyyy-mm-dd 형식
+      const formattedExpiry = pickExpiryDate.toISOString().split('T')[0];
     
-      axios.post('/api/orders', {
+      const orderData = {
         userNo: parseInt(userNo),
         itemNo: parseInt(itemNo),
-        storeNo,
         paymentType,
         paymentDetail: paymentType === 'general' ? selectedGeneralMethod : null,
         isPickup: pickupOption === 'yes',
-        requestNote: requestNote,
+        requestNote,
         isAgreedAll: agreeAll,
         pickExpiryDate: formattedExpiry,
-        pickStatus: '예약중'
-      })
-      .then(() => {
-        alert("결제가 완료되었습니다.");
-        navigate('/order/success');
-      })
-      .catch(err => {
-        console.error("주문 처리 중 오류:", err);
-        alert("결제에 실패했습니다.");
-      });
+        pickStatus: '거래완료'
+      };
+    
+      if (pickupOption === 'yes') {
+        orderData.storeNo = storeNo;
+      }
+    
+      axios.post('/api/orders', orderData)
+        .then(() => {
+          setOrderCompleted(true);
+          axios.put(`/api/items/${itemNo}/complete`);
+          navigate('/order/success');
+        })
+        .catch(err => {
+          console.error('주문 실패', err);
+          axios.put(`/api/items/${itemNo}/cancel-reserve`);
+          alert('결제에 실패했습니다.');
+        });
     };
+
+    useEffect(() => {
+      return () => {
+        if (!orderCompletedRef.current) {
+          cancelReservation();
+        }
+      };
+    }, []);
+
+    const selectedStore = filteredStores.find(s => s.storeNo === parseInt(selectedBranch));
+    const selectedAddress = selectedStore?.storeAddress || '강남역';
 
     return (
       <Wrapper>
@@ -417,7 +480,7 @@ export default function ProductOrder() {
                             >
                               <option value="">지점 선택</option>
                               {filteredStores.map((store) => (
-                                <option key={store.storeNo} value={store.storeAddress}>
+                                <option key={store.storeNo} value={store.storeNo}>
                                   {store.storeName}
                                 </option>
                               ))}
@@ -508,7 +571,9 @@ export default function ProductOrder() {
                 ].map((method) => (
                     <MethodButton
                       key={method}
-                      onClick={() => setSelectedGeneralMethod(method)}
+                      onClick={() => {
+                        setSelectedGeneralMethod(method);
+                      }}
                       style={{
                         borderColor: selectedGeneralMethod === method ? '#FB4A67' : '#ccc',
                         backgroundColor: selectedGeneralMethod === method ? '#FB4A67' : '#fff',
@@ -536,11 +601,22 @@ export default function ProductOrder() {
                     cursor: 'pointer',
                     fontWeight: 600
                 }}
-                onClick={() => setSelectedGeneralMethod('TossPay')}
+                onClick={() => {
+                  setSelectedGeneralMethod('TossPay'); 
+                }}
                 >
                 TossPay
                 </button>
             </div>
+            )}
+
+            {showModal && (
+              <PaymentModal
+                method={modalMethod}
+                onClose={() => setShowModal(false)}
+                onConfirm={handleModalConfirm}
+                icon={closeXIcon}
+              />
             )}
 
             </Section> 
@@ -675,7 +751,7 @@ export default function ProductOrder() {
               }}>×</button>
               <iframe
                 title="kakao-map"
-                src={`https://map.kakao.com/?q=${encodeURIComponent(selectedBranch || '강남역')}`}
+                src={`https://map.kakao.com/?q=${encodeURIComponent(selectedAddress)}`}
                 width="100%"
                 height="100%"
                 style={{ border: 'none' }}

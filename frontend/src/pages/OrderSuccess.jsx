@@ -72,12 +72,17 @@ export default function OrderSuccess() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const userNo = sessionStorage.getItem('userNo');
-    if (!userNo) return;
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const userNo = user?.userNo;
 
+    if (!userNo) return;
+  
     axios.get(`/api/orders/latest?userNo=${userNo}`)
       .then(res => {
-        console.log("📦 주문 응답:", res.data);
+        if (res.status === 204) {
+          console.log('최근 주문 없음');
+          return;
+        }
         setOrder(res.data);
       })
       .catch(err => {
@@ -95,7 +100,9 @@ export default function OrderSuccess() {
           {order ? `${order.itemCost.toLocaleString()}원 결제가 완료되었습니다` : '결제 완료'}
         </AmountText>
         <PlaceText>
-          {order ? `‘${order.storeName}’ 에서 해당 상품을 직접 픽업해주세요!` : ''}
+          {order?.storeName
+            ? `‘${order.storeName}’ 에서 해당 상품을 직접 픽업해주세요!`
+            : '직픽 없이 배송되는 상품입니다.'}
         </PlaceText>
         <Guide>
           픽업 거래가 완료될 때까지 판매자에게 돈이 전달되지 않으니 걱정마세요

@@ -19,7 +19,7 @@ public class OrderDto {
         this.orderNo = order.getOrderNo();
         this.itemName = order.getItem().getItemName();
         this.itemCost = order.getItem().getItemCost();
-        this.storeName = order.getStore().getStoreName();
-        this.storeAddress = order.getStore().getStoreAddress();
+        this.storeName = order.getStore() != null ? order.getStore().getStoreName() : null;
+        this.storeAddress = order.getStore() != null ? order.getStore().getStoreAddress() : null;
     }
 }

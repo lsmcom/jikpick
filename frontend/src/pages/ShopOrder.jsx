@@ -9,7 +9,8 @@ import mugCup from '../assets/images/MugCup.svg';
 import ring from '../assets/images/Ring.svg';
 import ReviewModal from '../components/ReviewModal';
 import { useNavigate, NavLink } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import axios from '../api/axios';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -169,54 +170,28 @@ const ActionButton = styled(NavLink)`
 export default function ShopOrder() {
   const navigate = useNavigate();
   const [modalOpen, setModalOpen] = useState(false);
+  const [purchaseList, setPurchaseList] = useState([]);
 
   const handleReviewSubmit = (review) => {
     console.log('제출된 리뷰:', review);
     setModalOpen(false);
   };
 
-  const dummyData = [
-    {
-      id: 1,
-      name: '잔스포츠가방-핑크',
-      region: '인천광역시 연수구',
-      seller: '하츄핑',
-      price: '25,000원',
-      status: '거래완료',
-      likes: 60,
-      image: sportsBag,
-    },
-    {
-      id: 2,
-      name: '로지텍 게이밍 마우스',
-      region: '서울특별시 서초구',
-      seller: '서울역개발자',
-      price: '105,000원',
-      status: '거래완료',
-      likes: 25,
-      image: gamingMouse,
-    },
-    {
-      id: 3,
-      name: '스타벅스 머그컵',
-      region: '경기도 양주시 옥정동',
-      seller: '계양맘은수',
-      price: '10,000원',
-      status: '거래완료',
-      likes: 21,
-      image: mugCup,
-    },
-    {
-      id: 4,
-      name: '못된고양이 반지',
-      region: '경기도 남양주시 별내동',
-      seller: '공덕걸스',
-      price: '5,000원',
-      status: '거래완료',
-      likes: 30,
-      image: ring,
-    },
-  ];
+  useEffect(() => {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const userNo = user?.userNo;
+  
+    if (!userNo) return;
+  
+    axios.get(`/api/purchases/user?userNo=${userNo}`)
+      .then(res => {
+        console.log('📦 구매내역:', res.data); // ✅ 로그 꼭 확인
+        setPurchaseList(res.data);
+      })
+      .catch(err => {
+        console.error('구매내역 불러오기 실패', err);
+      });
+  }, []);
 
   return (
     <Wrapper>
@@ -232,25 +207,25 @@ export default function ShopOrder() {
           </TitleBox>
 
           <ItemList>
-            {dummyData.map((item) => (
-              <ItemCard key={item.id}>
-                <ItemImage src={item.image} alt={item.name} />
+            {purchaseList.map((item) => (
+              <ItemCard key={item.itemNo}>
+                <ItemImage src={`/images/${item.itemImage}`} alt={item.itemName} />
                 <ItemInfo>
                   <InfoTop>
-                    <ItemName>{item.name}</ItemName>
-                    <Region>{item.region}</Region>
-                    <Seller>{item.seller}</Seller>
-                    <Price>{item.price}</Price>
+                    <ItemName>{item.itemName}</ItemName>
+                    <Region>{item.storeName}</Region>
+                    <Seller>{item.sellerNick}</Seller>
+                    <Price>{item.itemCost.toLocaleString()}원</Price>
                   </InfoTop>
-                  {item.status && <StatusTag>{item.status}</StatusTag>}
+                  <StatusTag>{item.pickStatus}</StatusTag>
                 </ItemInfo>
+
                 <LikeSection>
                   <img src={heartIcon} alt="하트" />
-                  <span>{item.likes}</span>
+                  <span>{item.itemWish}</span>
                 </LikeSection>
 
                 <ActionButtons>
-                  {/* <ActionButton as="button">거래취소</ActionButton> */}
                   <ActionButton as="button" onClick={() => setModalOpen(true)}>리뷰쓰기</ActionButton>
                 </ActionButtons>
               </ItemCard>
