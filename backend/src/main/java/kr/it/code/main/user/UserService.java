@@ -168,8 +168,9 @@ public class UserService {
 
         // 프로필 이미지와 소개글 업데이트
         user.setIntro(intro);
-        user.setImage(imagePath);  // 이미지 경로 저장
-
+        if(imagePath!=null && !imagePath.isBlank()) {
+            user.setImage(imagePath);  // 이미지 경로 저장
+        }
         userRepository.save(user);
         return true;
     }

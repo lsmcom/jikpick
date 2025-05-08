@@ -186,13 +186,13 @@ public class UserController {
 
     // ✅ 회원 정보 수정 API
     @PostMapping("/update")
-    public ResponseEntity<String> updateUser(@RequestPart("image") MultipartFile image,
-                                             @RequestPart("intro") String intro,
-                                             @RequestPart("userId") String userId) {
+    public ResponseEntity<String> updateUser(@RequestParam(name="image", required = false) MultipartFile image,
+                                             @RequestParam(name="intro", required = false) String intro,
+                                             @RequestParam("userId") String userId) {
 
         // 이미지 처리: 파일 저장하는 로직
         String imagePath = "";
-        if (!image.isEmpty()) {
+        if (image !=null && !image.isEmpty()) {
             try {
                 // 이미지 저장 처리
                 imagePath = userService.saveImage(image);
