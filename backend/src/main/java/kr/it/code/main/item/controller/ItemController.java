@@ -137,7 +137,11 @@ public class ItemController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
+    //검색
+    @GetMapping("/search")
+    public List<ItemDto> searchItems(@RequestParam String keyword) {
+        return itemService.searchByKeyword(keyword);
+    }
 
 
     // 좋아요 수 기준으로 상품을 내림차순으로 정렬하여 반환

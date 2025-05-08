@@ -28,6 +28,7 @@ import java.io.File;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -206,4 +207,16 @@ public class ItemService {
         System.out.println("📦 storeNos: " + storeNos);
         return stores.stream().map(StoreDto::fromEntity).toList();
     }
+
+    //검색
+    @Transactional
+    public List<ItemDto> searchByKeyword(String keyword) {
+        System.out.println("🔍 검색 키워드: " + keyword);
+        List<Item> items = itemRepository.searchByKeyword(keyword);
+        return items.stream()
+                .map(ItemDto::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+
 }

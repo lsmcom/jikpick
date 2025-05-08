@@ -2,6 +2,7 @@ package kr.it.code.main.item.repository;
 
 import kr.it.code.main.item.dto.PopularSubCategoryDto;
 import kr.it.code.main.item.entity.Item;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -40,4 +41,23 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     // ✅ 단순 정렬 조회 (EntityGraph 포함 시 category, user만 즉시 로딩)
     @EntityGraph(attributePaths = {"user", "category"})
     List<Item> findAllByOrderByItemWishDesc();
+
+    //검색
+    @Query("SELECT i FROM Item i " +
+            "WHERE LOWER(i.itemName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR LOWER(i.store.storeName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR LOWER(i.category.cateName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR LOWER(i.user.nick) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<Item> searchByKeyword(@Param("keyword") String keyword);
+
+    @Query("SELECT i FROM Item i ORDER BY i.itemWish DESC")
+    List<Item> findAllOrderByItemWishDesc();
+
+    // User별 판매한 상품 개수 조회
+    @Query("SELECT COUNT(i) FROM Item i WHERE i.user.userNo = :userNo")
+    long countItemsByUser(Long userNo);
+
+    // User별로 등록한 Item 조회
+    List<Item> findByUserUserNo(Long userNo);  // User의 `userNo`로 아이템 조회
+
 }
