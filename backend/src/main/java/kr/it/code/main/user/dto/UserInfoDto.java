@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 public class UserInfoDto {
 
+    private Long userNo;
     private String nickname;
     private Float rating;
     private Integer ratingCount;
@@ -17,6 +18,7 @@ public class UserInfoDto {
     private String image;
 
     public UserInfoDto(User user) {
+        this.userNo = user.getUserNo();
         this.nickname = user.getNick();
         this.rating = user.getRating();
         this.ratingCount = user.getRatingCount();

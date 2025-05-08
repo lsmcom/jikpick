@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Footer from '../components/Footer';
 import ReviewTab from '../components/ProductDetail/ReviewTab';
-import sellerProfile from '../assets/images/profile1.jpg';
 import PageContainer from '../pages/PageContainer';
 import cameraIcon from '../assets/icon/Camera.svg'; // 카메라 아이콘 파일을 추가합니다.
 import StarIcon from'../assets/icon/StarIcon.svg';
@@ -132,6 +131,7 @@ const StarImg = styled.img`
 export default function SellerStore() {
   const [isEditing, setIsEditing] = useState(false);
   const [newImage, setNewImage] = useState(null); // 새로 선택된 이미지
+  const [userNo, setUserNo] = useState(0);
   const [profileImage, setProfileImage] = useState(''); // 프로필 사진 상태 관리
   const [nickname, setNickname] = useState('');
   const [rating, setRating] = useState(0);
@@ -140,6 +140,9 @@ export default function SellerStore() {
   const [saleCount, setSaleCount] = useState(0);
   const [intro, setIntro] = useState('');
   const [tempIntro, setTempIntro] = useState('');
+  const [reviews, setReviews] = useState([]);
+
+  const memberId = JSON.parse(sessionStorage.getItem('user')).id;
 
   const temp = {
     name: '오로라마켓',
@@ -169,7 +172,7 @@ export default function SellerStore() {
       const formData = new FormData();
       formData.append('image', newImage);
       formData.append('intro', tempIntro);
-      formData.append('userId', JSON.parse(localStorage.getItem('user')).id);
+      formData.append('userId', memberId);
 
       // 서버 API 호출 (여기서 FormData를 보냄)
       await axios.post('/api/users/update', formData, {
@@ -195,14 +198,15 @@ export default function SellerStore() {
   useEffect(() => {
     const fetchSellerInfo = async () => {
       try {
-        const memberId = JSON.parse(localStorage.getItem('user')).id; // localStorage에서 memberId 불러오기
         const userInfo = await axios.get('/api/users/me', {
           params: { userId: memberId }
         });
 
+        // 이미지 경로 생성
         const imgUrl = 'http://localhost:9090' + (userInfo.data.image);
 
         // 서버에서 받은 데이터를 state로 저장
+        setUserNo(userInfo.data.userNo || 0);
         setProfileImage(imgUrl || DefaultProfile);
         setNickname(userInfo.data.nickname);
         setRating(userInfo.data.rating || 0.0);
@@ -266,7 +270,7 @@ export default function SellerStore() {
           </InfoBox>
         </SellerBox>
 
-        <ReviewTab />
+        <ReviewTab userNo={userNo}/>
       </PageContainer>
       <Footer />
     </>

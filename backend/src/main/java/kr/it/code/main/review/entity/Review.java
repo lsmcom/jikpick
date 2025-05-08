@@ -30,7 +30,7 @@ public class Review {
 
     @ManyToOne
     @JoinColumn(name = "USER_NO", referencedColumnName = "USER_NO")
-    private User user;  // 리뷰 작성한 유저 (USER_NO는 'member' 테이블의 USER_NO를 참조)
+    private User user;  // 리뷰 작성한 유저 (USER_NO는 'item' 테이블의 USER_NO를 참조)
 
     @ManyToOne
     @JoinColumn(name = "ITEM_NO", referencedColumnName = "ITEM_NO")

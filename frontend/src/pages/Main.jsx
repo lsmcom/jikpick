@@ -101,13 +101,15 @@ const Card = styled.div`
   cursor: pointer;
 `;
 
-const Thumbnail = styled.div`
+const Thumbnail = styled.img`
   width: 100%;
   height: 250px;
   background-color: #f0f0f0;
   border-radius: 6px;
   margin-bottom: 8px;
   object-fit: cover;
+  background-size: 'cover';
+  background-position: 'center';
 `;
 
 const ItemInfo = styled.div`
@@ -296,15 +298,7 @@ export default function Main() {
           <Grid>
             {productList.filter(product => product.pickStatus !== '거래완료').slice(0, 12).map((product) => (
               <Card onClick={() => handleProtectedNavigate(`/items/${product.itemNo}`)}>
-                <Thumbnail
-                  style={{
-                    backgroundImage: product.itemImage
-                      ? `url(http://localhost:9090/images/${product.itemImage})`
-                      : 'none',
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                  }}
-                />
+                <Thumbnail src={`http://localhost:9090/images/${product.imagePaths[0]}`}/>
                   <Title>{product.itemName}</Title>
                   <ItemInfo>
                     <Price>{product.itemCost.toLocaleString()}원</Price>
@@ -325,8 +319,3 @@ export default function Main() {
   );
   
 }
-
-
-
-
- 

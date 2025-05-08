@@ -34,9 +34,10 @@ const Content = styled.p`
 `;
 
 export default function ReviewSeller({ review }) {
+  
   return (
     <ReviewItem>
-      <ProfileImage src={review.profileImage} alt="작성자 프로필" />
+      <ProfileImage src={review.profile} alt="작성자 프로필" />
       <TextBox>
         <Writer>{review.writer}</Writer>
         <Content>{review.content}</Content>

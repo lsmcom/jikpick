@@ -60,7 +60,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     @Query("SELECT COUNT(i) FROM Item i WHERE i.user.userNo = :userNo")
     long countItemsByUser(Long userNo);
 
-    // User별로 등록한 Item 조회
+    // 판매자가 등록한 상품들을 조회
     List<Item> findByUserUserNo(Long userNo);  // User의 `userNo`로 아이템 조회
 
     @Query("SELECT i FROM Item i WHERE " +
