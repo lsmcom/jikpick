@@ -164,7 +164,7 @@ export default function Main() {
   };
 
   useEffect(() => {
-    axios.get('http://localhost:9090/api/items/popular')
+    axios.get('/api/items/popular')
       .then((res) => {
         setProductList(res.data);
       })
@@ -177,7 +177,7 @@ export default function Main() {
   }, []);  // 컴포넌트가 처음 렌더링 될 때 한번만 호출
 
   useEffect(() => {
-    axios.get('http://localhost:9090/api/categories/popular-sub')
+    axios.get('/api/categories/popular-sub')
       .then((res) => {
         console.log('🔥 인기 소분류 카테고리:', res.data);
         setPopularCategories(res.data);
@@ -298,7 +298,7 @@ export default function Main() {
           <Grid>
             {productList.filter(product => product.pickStatus !== '거래완료').slice(0, 12).map((product) => (
               <Card onClick={() => handleProtectedNavigate(`/items/${product.itemNo}`)}>
-                <Thumbnail src={`http://localhost:9090/images/${product.imagePaths[0]}`}/>
+                <Thumbnail src={`/images/${product.imagePaths[0]}`}/>
                   <Title>{product.itemName}</Title>
                   <ItemInfo>
                     <Price>{product.itemCost.toLocaleString()}원</Price>

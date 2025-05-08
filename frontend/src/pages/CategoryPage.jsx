@@ -249,7 +249,7 @@ export default function CategoryPage() {
           <Grid>
             {paginatedItems.map(item => (
               <Card key={item.itemNo} onClick={() => handleCardClick(item.itemNo)}>
-                <Thumbnail src={`http://localhost:9090/images/${item.imagePaths[0]}`}/>
+                <Thumbnail src={`/images/${item.imagePaths[0]}`}/>
                 <ProductName>{item.itemName}</ProductName>
                 <PriceAndLike>
                   <Price>{item.itemCost.toLocaleString()}원</Price>
