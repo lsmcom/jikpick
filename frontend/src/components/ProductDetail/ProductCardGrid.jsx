@@ -38,7 +38,6 @@ const Thumbnail = styled.div`
   margin-bottom: 8px;
 `;
 
-
 const ContentArea = styled.div`
   padding: 5px;
 `;
@@ -86,34 +85,37 @@ export default function ProductCardGrid({ items = [] }) {
 
   return (
     <Grid>
-      {items.map((item) => (
-        <div
-          key={item.itemNo}
-          onClick={() => navigate(`/items/${item.itemNo}`)}
-          style={{ cursor: 'pointer' }}
-        >
-         <Card onClick={() => navigate(`/items/${item.itemNo}`)}>
-            <Thumbnail
-              style={{
-                backgroundImage: item.itemImage
-                  ? `url(http://localhost:9090${item.itemImage})`
-                  : 'none',
-              }}
-            />
-            <ContentArea>
-              <Title>{item.itemName}</Title>
-              <FlexForLike>
-                <Price>{item.itemCost.toLocaleString()}원</Price>
-                <LikeSection>
-                  <img src={heartIcon} alt="하트" />
-                  <span>{item.itemWish}</span>
-                </LikeSection>
-              </FlexForLike>
-            </ContentArea>
-          </Card>
+      {items.map((item) => {
+        const imageUrl = item.imagePaths?.[0]
+          ? `http://localhost:9090/images/${item.imagePaths[0]}`
+          : '';
 
-        </div>
-      ))}
+        return (
+          <div
+            key={item.itemNo}
+            onClick={() => navigate(`/items/${item.itemNo}`)}
+            style={{ cursor: 'pointer' }}
+          >
+            <Card>
+              <Thumbnail
+                style={{
+                  backgroundImage: imageUrl ? `url(${imageUrl})` : 'none',
+                }}
+              />
+              <ContentArea>
+                <Title>{item.itemName}</Title>
+                <FlexForLike>
+                  <Price>{item.itemCost.toLocaleString()}원</Price>
+                  <LikeSection>
+                    <img src={heartIcon} alt="하트" />
+                    <span>{item.itemWish}</span>
+                  </LikeSection>
+                </FlexForLike>
+              </ContentArea>
+            </Card>
+          </div>
+        );
+      })}
     </Grid>
   );
 }
